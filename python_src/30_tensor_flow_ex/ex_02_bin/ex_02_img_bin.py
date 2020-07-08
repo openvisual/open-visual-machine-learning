@@ -13,6 +13,8 @@ print( "Pwd 2: %s" % os.getcwd())
 
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
 img_path = '../data_opencv_sample/messi5.jpg'
+img_path = "../data_ocr/sample_1.png"
+
 img = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
 # 이미지 높이, 넓이, 채널수 획득 
@@ -56,7 +58,7 @@ if 0 :
 pass
 
 # RGB -> GrayScale 변환 공식
-print( "grayscale" )
+print( "Grayscale" )
 gray_scale = np.empty( ( height, width ), dtype='uint8') 
 
 for y, row in enumerate( gray_scale ) :
@@ -114,19 +116,27 @@ if 1 :
     charts[ "count" ] = ax.bar( x, y, width=0.5, color='green', align='center', alpha=1.0)
 
     x = [gs_avg - gs_std, gs_avg + gs_std]
-    y = [ hist_max*0.99, hist_max*0.99 ]
+    y = [ hist_max*0.95, hist_max*0.95 ]
     charts[ "std"] = ax.fill_between( x, y, color='cyan', alpha=0.5 ) 
     
-    x = [gs_avg,]
-    y = [hist_max,]
+    x = [ gs_avg, ]
+    y = [ hist_max, ]
     charts[ "average" ] = ax.bar(x, y, width=1, color='blue', align='center', alpha=0.5) 
 
-    ax.legend( charts, loc='upper right', shadow=True)
+    ax.legend( charts, loc='upper left', shadow=True)
 
     ax.set_xlabel( 'GrayScale' )
     ax.set_ylabel( 'Count' )
     
     ax.set_title( 'Histogram' ) 
+
+    min_x = gs_avg - gs_std*1.2
+
+    if min_x < 0 :
+        min_x = 0 
+    pass
+
+    ax.set_xlim( min_x, 255 )
 
     plt.show()
 pass 
@@ -149,8 +159,8 @@ pass
 
 if 1 : 
     print( bin )
-    plt.imshow( bin, cmap='gray' )
-    plt.title( "Binarization" )
+    plt.imshow( bin, cmap='binary' )
+    plt.title( "Binarization (threshold=%s)" % threshold )
     plt.colorbar()
     plt.show()
 pass
