@@ -82,6 +82,7 @@ pass
 
 gs_avg = np.average( gray_scale )
 gs_std = np.std( gray_scale )
+sg_max = np.max( gray_scale )
 
 print( "grayscale avg = %s, std = %s" % (gs_avg, gs_std))
 
@@ -132,6 +133,27 @@ pass
 #-- histogram 생성 
 
 # 이진화
+
+print( "binarization" )
+
+threshold = gs_avg
+
+print( "threshold: %s" % threshold )
+
+bin = np.empty( ( height, width ), dtype='B')
+for y, row in enumerate( gray_scale ) :
+    for x, gs in enumerate( row ) :
+        bin[y][x] = (0, 1)[ gs >= threshold ]
+    pass
+pass
+
+if 1 : 
+    print( bin )
+    plt.imshow( bin, cmap='gray' )
+    plt.title( "Binarization" )
+    plt.colorbar()
+    plt.show()
+pass
 
 # -- 이진화 
 
