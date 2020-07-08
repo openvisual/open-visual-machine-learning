@@ -3,6 +3,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 import cv2
 print( "Done Import.".center( 80, "*") )
 
@@ -11,9 +12,10 @@ print( "Pwd 1: %s" % os.getcwd())
 os.chdir(os.path.dirname(__file__))
 print( "Pwd 2: %s" % os.getcwd())
 
+# 원천 이미지 획득
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
 img_path = '../data_opencv_sample/messi5.jpg'
-img_path = "../data_ocr/sample_1.png"
+#img_path = "../data_ocr/sample_1.png"
 
 img = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
@@ -25,9 +27,34 @@ channel_no  = img.shape[2]
 print( "Image path: %s" % img_path )
 print( "Image widh: %s, height: %s, channel: %s" % (width,height,channel_no ) )
 
-if 0 :
-    plt.imshow(img) 
+fig = plt.figure(figsize=(10, 10), constrained_layout=True)
+gs_row_cnt = 5 # org img, channel img, gray scale, histogram, bin
+gs_col_cnt = 4
 
+gs_row = -1 
+gs_col = 0 
+
+gs = GridSpec( gs_row_cnt, gs_col_cnt, figure=fig )
+
+if 0 :
+    plt.imshow(img)
+pass
+
+if 1 :
+    gs_row += 1 
+    gs_col = 0 
+    ax = plt.subplot(gs.new_subplotspec((gs_row, gs_col), colspan=3))
+    ax.imshow( img )
+    ax.set_xlabel( 'x' )
+    ax.set_ylabel( 'y' )
+    
+    ax.set_title( 'Original Image: %s' % ( img_path.split("/")[-1] ) ) 
+
+    0 and plt.show() 
+pass
+#-- 원천 이미지 획득
+
+# 채널 분리 
 # b, g, r 채널 획득
 # cv2.imread() 는 b, g, r 순서대로 배열에서 반환한다.
 b_channel = img[:,:,0].copy() 
@@ -56,6 +83,21 @@ if 0 :
 
     plt.show()
 pass
+
+if 1 :
+    gs_row += 1 
+    gs_col = 0 
+    ax = plt.subplot(gs.new_subplotspec((gs_row, gs_col), colspan=1))
+    ax.imshow( img )
+    ax.set_xlabel( 'x' )
+    ax.set_ylabel( 'y' )
+    
+    ax.set_title( 'Original Image: %s' % ( img_path.split("/")[-1] ) ) 
+
+    plt.show() 
+pass
+
+#-- 채널 분리 
 
 # RGB -> GrayScale 변환 공식
 print( "Grayscale" )
@@ -123,7 +165,13 @@ if 1 :
     y = [ hist_max, ]
     charts[ "average" ] = ax.bar(x, y, width=1, color='blue', align='center', alpha=0.5) 
 
-    ax.legend( charts, loc='upper left', shadow=True)
+    loc = "upper right"
+
+    if gs_avg > 122 :
+        loc = "upper left"
+    pass
+
+    ax.legend( charts, loc=loc, shadow=True)
 
     ax.set_xlabel( 'GrayScale' )
     ax.set_ylabel( 'Count' )
