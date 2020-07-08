@@ -56,47 +56,68 @@ if 0 :
 pass
 
 # RGB -> GrayScale 변환 공식
-# L = 0.299R + 0.587G + 0.114B
-gray = np.empty( ( height, width ), dtype='uint8') 
+print( "grayscale" )
+gray_scale = np.empty( ( height, width ), dtype='uint8') 
 
-for y, row in enumerate( gray ) :
+for y, row in enumerate( gray_scale ) :
     for x, _ in enumerate( row ) :
+        # average Y = (R + G + B / 3)
+        # weighted Y = (0.3 * R) + (0.59 * G) + (0.11 * B)
+        # Colorimetric conversion Y = 0.2126R + 0.7152G  0.0722B
+        # OpenCV CCIR Y = 0.299 R + 0.587 G + 0.114 B
         gs = 0.299*r_channel[y][x] + 0.587*g_channel[y][x] + 0.114*b_channel[y][x]
-        gs = (int)( gs )
-        gray[y][x] = gs
+        gs = (int)(round(gs))
+        gray_scale[y][x] = gs
     pass
 pass
 
 if 0 : 
     #print( gray )
     #plt.imshow( gray, cmap='gray', vmin=0, vmax=255)
-    plt.imshow( gray, cmap='gray' )
+    plt.imshow( gray_scale, cmap='gray' )
     plt.title( "GrapyScale" )
     plt.colorbar()
     plt.show()
 pass
 
+gs_avg = np.average( gray_scale )
+gs_std = np.std( gray_scale )
+
+print( "grayscale avg = %s, std = %s" % (gs_avg, gs_std))
+
 # histogram 생성 
 print( "hostogram" )
-histogram = np.zeros( width, dtype=int)
+# calculate histogram count
+histogram = np.zeros( 256, dtype=float )
 
-for y, row in enumerate( gray ) : 
+for y, row in enumerate( gray_scale ) : 
     for x, gs in enumerate( row ) :
         histogram[ gs ] += 1
     pass
 pass
+#-- calculate histogram
+
+hist_avg = np.average( histogram )
+hist_std = np.std( histogram )
+hist_max = np.max( histogram )
+
+print( "hist avg = %s, std = %s" % (hist_avg, hist_std))
 
 if 1 : 
     y_pos = histogram
-    x_pos = [i for i, _ in enumerate(histogram) ]
-    
-    0 and print( "x_post = %s" % x_pos )
+    x_pos = [i for i, _ in enumerate(histogram) ] 
 
-    plt.bar ( x_pos, y_pos, align='center', alpha=1.0)
-    plt.xlim( [ 0 , 255] )
-    plt.ylabel( 'Count' )
-    plt.ylabel( 'GrayScale' )
-    plt.title( 'Histogram' ) 
+    fig, ax = plt.subplot()
+
+    l1 = ax.bar( x_pos, y_pos, width=0.5, color='green', align='center', alpha=1.0)
+    l2 = ax.bar( [gs_avg,], [hist_max,], width=1, color='blue', align='center', alpha=0.5)
+    
+    ax.legend((l1, l2), ('count', 'average'), loc='upper right', shadow=True)
+
+    ax.set_xlabel( 'GrayScale' )
+    ax.set_ylabel( 'Count' )
+    
+    ax.set_title( 'Histogram' ) 
 
     plt.show()
 pass 
