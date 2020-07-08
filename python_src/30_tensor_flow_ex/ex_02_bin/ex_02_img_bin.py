@@ -104,15 +104,25 @@ hist_max = np.max( histogram )
 print( "hist avg = %s, std = %s" % (hist_avg, hist_std))
 
 if 1 : 
-    y_pos = histogram
-    x_pos = [i for i, _ in enumerate(histogram) ] 
+     
 
-    fig, ax = plt.subplot()
+    fig, ax = plt.subplots()
 
-    l1 = ax.bar( x_pos, y_pos, width=0.5, color='green', align='center', alpha=1.0)
-    l2 = ax.bar( [gs_avg,], [hist_max,], width=1, color='blue', align='center', alpha=0.5)
+    charts = { }
     
-    ax.legend((l1, l2), ('count', 'average'), loc='upper right', shadow=True)
+    y = histogram
+    x = [i for i, _ in enumerate(histogram) ]
+    charts[ "count" ] = ax.bar( x, y, width=0.5, color='green', align='center', alpha=1.0)
+
+    x = [gs_avg - gs_std, gs_avg + gs_std]
+    y = [ hist_max*0.99, hist_max*0.99 ]
+    charts[ "std"] = ax.fill_between( x, y, color='cyan', alpha=0.5 ) 
+    
+    x = [gs_avg,]
+    y = [hist_max,]
+    charts[ "average" ] = ax.bar(x, y, width=1, color='blue', align='center', alpha=0.5) 
+
+    ax.legend( charts, loc='upper right', shadow=True)
 
     ax.set_xlabel( 'GrayScale' )
     ax.set_ylabel( 'Count' )
