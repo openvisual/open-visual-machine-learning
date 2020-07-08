@@ -103,9 +103,7 @@ hist_max = np.max( histogram )
 
 print( "hist avg = %s, std = %s" % (hist_avg, hist_std))
 
-if 1 : 
-     
-
+if 1 :
     fig, ax = plt.subplots()
 
     charts = { }
@@ -131,7 +129,11 @@ if 1 :
 
     plt.show()
 pass 
-#-- histogram 생성
+#-- histogram 생성 
+
+# 이진화
+
+# -- 이진화 
 
 if 0 : 
     cv2.imshow('image',img)
