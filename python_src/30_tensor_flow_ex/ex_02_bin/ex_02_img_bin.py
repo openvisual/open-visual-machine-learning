@@ -93,6 +93,7 @@ if 1 :
     0 and print( "x_post = %s" % x_pos )
 
     plt.bar ( x_pos, y_pos, align='center', alpha=1.0)
+    plt.xlim( [ 0 , 255] )
     plt.ylabel( 'Count' )
     plt.ylabel( 'GrayScale' )
     plt.title( 'Histogram' ) 
