@@ -36,11 +36,11 @@ gs_col = 0
 
 gs = GridSpec( gs_row_cnt, gs_col_cnt, figure=fig )
 
-if 0 :
+if 1 :
     plt.imshow(img)
 pass
 
-if 1 :
+if 0 :
     gs_row += 1 
     gs_col = 0 
     ax = plt.subplot(gs.new_subplotspec((gs_row, gs_col), colspan=3))
@@ -48,8 +48,8 @@ if 1 :
     ax.set_xlabel( 'x' )
     ax.set_ylabel( 'y' )
     
-    ax.set_title( 'Original Image: %s' % ( img_path.split("/")[-1] ) ) 
-
+    ax.set_title( 'Original Image: %s' % ( img_path.split("/")[-1] ) )  
+    
     0 and plt.show() 
 pass
 #-- 원천 이미지 획득
@@ -63,7 +63,7 @@ r_channel = img[:,:,2].copy()
 
 channels = [ r_channel, g_channel, b_channel ]
 
-if 0 : 
+if 1 : 
     plt.figure()
     for i, channel in enumerate( channels ):
         img_temp = np.zeros( (height, width, 3), dtype='uint8' ) 
@@ -84,7 +84,7 @@ if 0 :
     plt.show()
 pass
 
-if 1 :
+if 0 :
     gs_row += 1 
     gs_col = 0 
     ax = plt.subplot(gs.new_subplotspec((gs_row, gs_col), colspan=1))
@@ -115,7 +115,7 @@ for y, row in enumerate( gray_scale ) :
     pass
 pass
 
-if 0 : 
+if 1 : 
     #print( gray )
     #plt.imshow( gray, cmap='gray', vmin=0, vmax=255)
     plt.imshow( gray_scale, cmap='gray' )
@@ -213,10 +213,6 @@ if 1 :
     plt.show()
 pass
 
-# -- 이진화 
+# -- 이진화
 
-if 0 : 
-    cv2.imshow('image',img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-pass
+# end 
