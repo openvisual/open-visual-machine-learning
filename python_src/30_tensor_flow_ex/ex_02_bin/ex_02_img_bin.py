@@ -14,8 +14,8 @@ print( "Pwd 2: %s" % os.getcwd())
 
 # 원천 이미지 획득
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
-img_path = '../data_opencv_sample/messi5.jpg'
-#img_path = "../data_ocr/sample_1.png"
+#img_path = '../data_opencv_sample/messi5.jpg'
+img_path = "../data_ocr/sample_1.png"
 
 img = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
@@ -202,12 +202,20 @@ bin = np.empty( ( height, width ), dtype='B')
 for y, row in enumerate( gray_scale ) :
     for x, gs in enumerate( row ) :
         bin[y][x] = (0, 1)[ gs >= threshold ]
+        '''
+        if gs >= threshold :
+            bin[y][x] = 1 
+        else :
+            bin[y][x] = 0
+        pass
+        '''
     pass
 pass
 
 if 1 : 
     print( bin )
-    plt.imshow( bin, cmap='binary' )
+    #plt.imshow( bin, cmap='binary' )
+    plt.imshow( bin, cmap='gray' )
     plt.title( "Binarization (threshold=%s)" % threshold )
     plt.colorbar()
     plt.show()
