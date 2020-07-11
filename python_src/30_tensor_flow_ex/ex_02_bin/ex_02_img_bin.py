@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import os
-import numpy as np
+import os, cv2, numpy as np, sys
+
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
-import cv2
 print( "Done Import.".center( 80, "*") )
 
 print( "Pwd 1: %s" % os.getcwd())
@@ -15,7 +14,7 @@ print( "Pwd 2: %s" % os.getcwd())
 # 원천 이미지 획득
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
 #img_path = '../data_opencv_sample/messi5.jpg'
-img_path = "../data_ocr/sample_01/sample_01.png"
+img_path = "../data_ocr/sample_01/sample_11.png"
 
 img = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
