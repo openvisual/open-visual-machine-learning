@@ -201,7 +201,7 @@ print( "threshold: %s" % threshold )
 bin = np.empty( ( height, width ), dtype='B')
 for y, row in enumerate( gray_scale ) :
     for x, gs in enumerate( row ) :
-        bin[y][x] = (0, 1)[ gs >= threshold ]
+        bin[y][x] = (0, 1,)[ gs >= threshold ]
         '''
         if gs >= threshold :
             bin[y][x] = 1 

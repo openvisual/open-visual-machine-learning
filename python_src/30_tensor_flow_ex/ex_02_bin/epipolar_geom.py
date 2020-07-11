@@ -17,7 +17,7 @@ So first we need to find as many possible matches between two images to find the
 img1 = cv2.imread('../data_opencv_sample/left.jpg',0)  #queryimage # left image
 img2 = cv2.imread('../data_opencv_sample/right.jpg',0) #trainimage # right image
 
-sift = cv2.SIFT()
+sift = cv2.SIFT_create()
 
 # find the keypoints and descriptors with SIFT
 kp1, des1 = sift.detectAndCompute(img1,None)
