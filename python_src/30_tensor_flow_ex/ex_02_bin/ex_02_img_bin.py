@@ -27,30 +27,27 @@ print( "Image path: %s" % img_path )
 print( "Image widh: %s, height: %s, channel: %s" % (width,height,channel_no ) )
 
 fig = plt.figure(figsize=(10, 10), constrained_layout=True)
-gs_row_cnt = 5 # org img, channel img, gray scale, histogram, bin
-gs_col_cnt = 4
+# org img, channel img, gray scale, median blur, histogram, bin
+gs_row_cnt = 6 
+gs_col_cnt = 6
 
 gs_row = -1 
 gs_col = 0 
 
-gs = GridSpec( gs_row_cnt, gs_col_cnt, figure=fig )
+gridSpec = GridSpec( gs_row_cnt, gs_col_cnt, figure=fig )
 
-if 1 :
-    plt.imshow(img)
-pass
-
-if 0 :
+if 1 : # 원본 이미지 표출
     gs_row += 1 
     gs_col = 0 
-    ax = plt.subplot(gs.new_subplotspec((gs_row, gs_col), colspan=3))
+    colspan = 6
+    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
     ax.imshow( img )
     ax.set_xlabel( 'x' )
     ax.set_ylabel( 'y' )
     
-    ax.set_title( 'Original Image: %s' % ( img_path.split("/")[-1] ) )  
-    
-    0 and plt.show() 
+    ax.set_title( 'Original Image: %s' % ( img_path.split("/")[-1] ) )
 pass
+
 #-- 원천 이미지 획득
 
 # 채널 분리 
@@ -62,38 +59,33 @@ r_channel = img[:,:,2].copy()
 
 channels = [ r_channel, g_channel, b_channel ]
 
-if 1 : 
-    plt.figure()
+if 1 :  # 채널 이미지 표출
+    gs_row += 1 
+    gs_col = 0 
+    colspan = 2
+
     for i, channel in enumerate( channels ):
         img_temp = np.zeros( (height, width, 3), dtype='uint8' ) 
         img_temp[ :, : , i ] = channel 
-        plt.subplot( 1, 3, i + 1  ) 
-        plt.grid(False)
-        plt.imshow( img_temp ) 
 
-        label = "red"
+        ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
+        ax.imshow( img_temp )
+        ax.set_xlabel( 'x' )
+        ax.set_ylabel( 'y' ) 
+
+        label = "red channel"
         if i == 1 :
-            label = "green"
+            label = "green channel"
         elif i == 2 :
-            label = "blue"
+            label = "blue channel"
         pass
-        plt.xlabel( label )
-    pass
 
-    plt.show()
-pass
+        ax.set_title( label )
 
-if 0 :
-    gs_row += 1 
-    gs_col = 0 
-    ax = plt.subplot(gs.new_subplotspec((gs_row, gs_col), colspan=1))
-    ax.imshow( img )
-    ax.set_xlabel( 'x' )
-    ax.set_ylabel( 'y' )
-    
-    ax.set_title( 'Original Image: %s' % ( img_path.split("/")[-1] ) ) 
+        gs_col += colspan
+    pass 
 
-    plt.show() 
+    #plt.show() 
 pass
 
 #-- 채널 분리 
@@ -114,12 +106,27 @@ for y, row in enumerate( gray_scale ) :
     pass
 pass
 
-if 1 : 
+if 0 : 
     #print( gray )
     #plt.imshow( gray, cmap='gray', vmin=0, vmax=255)
     plt.imshow( gray_scale, cmap='gray' )
     plt.title( "GrapyScale" )
     plt.colorbar()
+    plt.show()
+pass
+
+if 1 : # 이미지 표출
+    gs_row += 1 
+    gs_col = 0 
+    colspan = 6
+    
+    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
+
+    ax.imshow( gray_scale, cmap='gray' )    
+    ax.set_title( "Grayscale" )
+    ax.set_xlabel( 'x' )
+    ax.set_ylabel( 'y' )
+
     plt.show()
 pass
 
