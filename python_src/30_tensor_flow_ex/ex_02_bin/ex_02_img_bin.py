@@ -16,12 +16,12 @@ print( "Pwd 2: %s" % os.getcwd())
 #img_path = '../data_opencv_sample/messi5.jpg'
 img_path = "../data_ocr/sample_01/sample_11.png"
 
-img = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
+img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
 # 이미지 높이, 넓이, 채널수 획득 
-height      = img.shape[0]
-width       = img.shape[1]
-channel_no  = img.shape[2]
+height      = img_org.shape[0]
+width       = img_org.shape[1]
+channel_no  = img_org.shape[2]
 
 print( "Image path: %s" % img_path )
 print( "Image widh: %s, height: %s, channel: %s" % (width,height,channel_no ) )
@@ -40,12 +40,14 @@ if 1 : # 원본 이미지 표출
     gs_row += 1 
     gs_col = 0 
     colspan = 6
+    img = img_org
+
+    title = 'Original Image: %s' % ( img_path.split("/")[-1] )
+
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
     ax.imshow( img )
-    ax.set_xlabel( 'x' )
-    ax.set_ylabel( 'y' )
-    
-    ax.set_title( 'Original Image: %s' % ( img_path.split("/")[-1] ) )
+    ax.set_xlabel( 'x\n %s' % title )
+    ax.set_ylabel( 'y', rotation=0 ) 
 pass
 
 #-- 원천 이미지 획득
@@ -53,9 +55,9 @@ pass
 # 채널 분리 
 # b, g, r 채널 획득
 # cv2.imread() 는 b, g, r 순서대로 배열에서 반환한다.
-b_channel = img[:,:,0].copy() 
-g_channel = img[:,:,1].copy()
-r_channel = img[:,:,2].copy()
+b_channel = img_org[:,:,0].copy() 
+g_channel = img_org[:,:,1].copy()
+r_channel = img_org[:,:,2].copy()
 
 channels = [ r_channel, g_channel, b_channel ]
 
@@ -67,20 +69,20 @@ if 1 :  # 채널 이미지 표출
     for i, channel in enumerate( channels ):
         img_temp = np.zeros( (height, width, 3), dtype='uint8' ) 
         img_temp[ :, : , i ] = channel 
+        img = img_temp
 
         ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
-        ax.imshow( img_temp )
-        ax.set_xlabel( 'x' )
-        ax.set_ylabel( 'y' ) 
+        ax.imshow( img )
+        ax.set_ylabel( 'y', rotation=0 ) 
 
-        label = "red channel"
+        title = "red channel"
         if i == 1 :
-            label = "green channel"
+            title = "green channel"
         elif i == 2 :
-            label = "blue channel"
-        pass
+            title = "blue channel"
+        pass 
 
-        ax.set_title( label )
+        ax.set_xlabel( 'x\n%s' % title )        
 
         gs_col += colspan
     pass 
@@ -92,9 +94,11 @@ pass
 
 # RGB -> GrayScale 변환 공식
 print( "Grayscale" )
-gray_scale = np.empty( ( height, width ), dtype='uint8') 
 
-for y, row in enumerate( gray_scale ) :
+# grayscale 변환
+grayscale = np.empty( ( height, width ), dtype='uint8') 
+
+for y, row in enumerate( grayscale ) :
     for x, _ in enumerate( row ) :
         # average Y = (R + G + B / 3)
         # weighted Y = (0.3 * R) + (0.59 * G) + (0.11 * B)
@@ -102,37 +106,29 @@ for y, row in enumerate( gray_scale ) :
         # OpenCV CCIR Y = 0.299 R + 0.587 G + 0.114 B
         gs = 0.299*r_channel[y][x] + 0.587*g_channel[y][x] + 0.114*b_channel[y][x]
         gs = (int)(round(gs))
-        gray_scale[y][x] = gs
+        grayscale[y][x] = gs
     pass
 pass
+# -- grayscale 변환
 
-if 0 : 
-    #print( gray )
-    #plt.imshow( gray, cmap='gray', vmin=0, vmax=255)
-    plt.imshow( gray_scale, cmap='gray' )
-    plt.title( "GrapyScale" )
-    plt.colorbar()
-    plt.show()
-pass
-
-if 1 : # 이미지 표출
+if 1 : # 그레이 스케일 이미지 표출
     gs_row += 1 
     gs_col = 0 
     colspan = 6
+    img = grayscale
+    cmap = "gray"
+    title = "Grayscale"
     
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
 
-    ax.imshow( gray_scale, cmap='gray' )    
-    ax.set_title( "Grayscale" )
-    ax.set_xlabel( 'x' )
-    ax.set_ylabel( 'y' )
-
-    plt.show()
+    ax.imshow( img, cmap=cmap )    
+    ax.set_xlabel( 'x\n%s' % title )
+    ax.set_ylabel( 'y', rotation=0 ) 
 pass
 
-gs_avg = np.average( gray_scale )
-gs_std = np.std( gray_scale )
-sg_max = np.max( gray_scale )
+gs_avg = np.average( grayscale )
+gs_std = np.std( grayscale )
+sg_max = np.max( grayscale )
 
 print( "grayscale avg = %s, std = %s" % (gs_avg, gs_std))
 
@@ -141,7 +137,7 @@ print( "hostogram" )
 # calculate histogram count
 histogram = np.zeros( 256, dtype=float )
 
-for y, row in enumerate( gray_scale ) : 
+for y, row in enumerate( grayscale ) : 
     for x, gs in enumerate( row ) :
         histogram[ gs ] += 1
     pass
@@ -152,24 +148,31 @@ hist_avg = np.average( histogram )
 hist_std = np.std( histogram )
 hist_max = np.max( histogram )
 
-print( "hist avg = %s, std = %s" % (hist_avg, hist_std))
+print( "hist avg = %s, std = %s" % (hist_avg, hist_std)) 
 
-if 1 :
-    fig, ax = plt.subplots()
+if 1 : # 히스토 그램 표출
+    gs_row += 1 
+    gs_col = 0 
+    colspan = 6
+    
+    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
 
     charts = { }
     
+    # histogram bar chart
     y = histogram
     x = [i for i, _ in enumerate(histogram) ]
-    charts[ "count" ] = ax.bar( x, y, width=0.5, color='green', align='center', alpha=1.0)
+    charts["count"] = ax.bar( x, y, width=0.5, color='green', align='center', alpha=1.0)
 
+    # histogram std chart
     x = [gs_avg - gs_std, gs_avg + gs_std]
     y = [ hist_max*0.95, hist_max*0.95 ]
-    charts[ "std"] = ax.fill_between( x, y, color='cyan', alpha=0.5 ) 
+    charts["std"] = ax.fill_between( x, y, color='cyan', alpha=0.5 ) 
     
+    # histogram average chart
     x = [ gs_avg, ]
     y = [ hist_max, ]
-    charts[ "average" ] = ax.bar(x, y, width=1, color='blue', align='center', alpha=0.5) 
+    charts["average"] = ax.bar(x, y, width=1, color='blue', align='center', alpha=0.5) 
 
     loc = "upper right"
 
@@ -177,23 +180,27 @@ if 1 :
         loc = "upper left"
     pass
 
-    ax.legend( charts, loc=loc, shadow=True)
+    if 1 : # 레전드 표출
+        t = ( charts["count"], charts["std"], charts["average"], )
+        l = ( "count", "std", "average", )
+        ax.legend( t, l, loc=loc, shadow=True)
+    pass #-- 레전드 표출 
 
-    ax.set_xlabel( 'GrayScale' )
-    ax.set_ylabel( 'Count' )
-    
-    ax.set_title( 'Histogram' ) 
+    if 1 : # x 축 최대, 최소 설정 
+        min_x = gs_avg - gs_std*1.2
 
-    min_x = gs_avg - gs_std*1.2
+        if min_x < 0 :
+            min_x = 0 
+        pass
 
-    if min_x < 0 :
-        min_x = 0 
+        ax.set_xlim( min_x, 255 ) 
     pass
 
-    ax.set_xlim( min_x, 255 )
+    title = "Histogram"
+    ax.set_xlabel( 'GrayScale\n%s' % title )
+    ax.set_ylabel( 'Count', rotation=90 )
+pass #-- 히스토 그램 표출
 
-    plt.show()
-pass 
 #-- histogram 생성 
 
 # 이진화
@@ -204,8 +211,9 @@ threshold = gs_avg
 
 print( "threshold: %s" % threshold )
 
+# 이진화 계산 
 bin = np.empty( ( height, width ), dtype='B')
-for y, row in enumerate( gray_scale ) :
+for y, row in enumerate( grayscale ) :
     for x, gs in enumerate( row ) :
         bin[y][x] = (0, 1,)[ gs >= threshold ]
         '''
@@ -216,17 +224,26 @@ for y, row in enumerate( gray_scale ) :
         pass
         '''
     pass
-pass
+pass 
+# -- 이진화 계산 
 
-if 1 : 
-    print( bin )
-    #plt.imshow( bin, cmap='binary' )
-    plt.imshow( bin, cmap='gray' )
-    plt.title( "Binarization (threshold=%s)" % threshold )
-    plt.colorbar()
-    plt.show()
-pass
+if 1 : # 이진 이미지 표출
+    gs_row += 1 
+    gs_col = 0 
+    colspan = 6
+    title = "Binarization (threshold=%s)" % threshold 
+    img = bin
+    cmap = "gray"
 
-# -- 이진화
+    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
+    ax.imshow( img, cmap=cmap )
+    #ax.colorbar()
+    ax.set_xlabel( 'x\n%s' % title )
+    ax.set_ylabel( 'y', rotation=0 ) 
+pass #-- 이진 이미지 표출 
+
+#-- 이진화
+
+plt.show()
 
 # end 
