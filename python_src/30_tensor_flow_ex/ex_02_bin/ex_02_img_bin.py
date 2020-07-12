@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import warnings 
+warnings.filterwarnings('ignore',category=FutureWarning)
+
 import os, cv2, numpy as np, sys
 
 import matplotlib.pyplot as plt
