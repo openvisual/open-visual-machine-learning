@@ -40,7 +40,7 @@ gridSpec = GridSpec( gs_row_cnt, gs_col_cnt, figure=fig )
 # ax 의 프레임 경계 색상 변경 
 def change_ax_border_color( ax, color ) :
     for spine in ax.spines.values():
-        spine.set_edgecolor('green')
+        spine.set_edgecolor( color ) 
     pass
 pass
 
@@ -153,7 +153,7 @@ print( "grayscale avg = %s, std = %s" % (gs_avg, gs_std))
 
 # 잡음 제거를 위한 Median Blur Filter
 
-print( "Noise Remove" )
+print( "Noise Ellimination" )
 
 noise_removed = np.empty( ( height, width ), dtype='f') 
 
@@ -183,7 +183,7 @@ if 1 : # 잡음 제거  이미지 표출
     ax.set_xlabel( 'x\n%s' % title )
     ax.set_ylabel( 'y', rotation=0 ) 
 
-    change_ax_border_color( ax, "green" )
+    change_ax_border_color( ax, "blue" ) 
 
     fig.colorbar(img_show, ax=ax)
 pass #-- 잡음 제거  이미지 표출
@@ -191,7 +191,7 @@ pass #-- 잡음 제거  이미지 표출
 #-- 잡음 제거를 위한 Median Blur Filter
 
 # histogram 생성 
-print( "hostogram" )
+print( "Histogram" )
 # calculate histogram count
 histogram = np.zeros( 256, dtype='u8' )
 
