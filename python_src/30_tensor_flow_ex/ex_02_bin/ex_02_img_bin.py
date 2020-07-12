@@ -337,7 +337,7 @@ if 1 : # y count 표출
 
     charts = { }
     
-    # histogram bar chart
+    # y count bar chart
     y = y_counts
     x = [i for i, _ in enumerate( y ) ]
     charts["y count"] = ax.bar( x, y, width=0.5, color='green', align='center', alpha=1.0) 
