@@ -37,7 +37,7 @@ gs_col = 0
 
 gridSpec = GridSpec( gs_row_cnt, gs_col_cnt, figure=fig )
 
-# ax 의 프레임 경계 색상 변경 
+# pyplot ax 의 프레임 경계 색상 변경 
 def change_ax_border_color( ax, color ) :
     for spine in ax.spines.values():
         spine.set_edgecolor( color ) 
@@ -266,11 +266,11 @@ pass #-- 히스토 그램 표출
 
 # 이진화
 
-print( "binarization" )
+print( "Binarization" )
 
 threshold = gs_avg
 
-print( "threshold: %s" % threshold )
+print( "Threshold: %s" % threshold )
 
 # 이진화 계산 
 binarized = np.empty( ( height, width ), dtype='B')
@@ -315,6 +315,8 @@ pass #-- 이진 이미지 표출
 
 # y count 표출
 
+print( "Y count" )
+
 target_image = binarized
 
 y_counts = np.zeros( ( width, ), dtype='B')
@@ -355,7 +357,7 @@ if 1 : # y count 표출
     ax.set_xlim( 0, width ) 
 pass #-- y count 표출
 
-# -- y count 표출 
+#-- y count 표출 
 
 plt.show()
 
