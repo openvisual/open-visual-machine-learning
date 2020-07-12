@@ -30,7 +30,7 @@ fig = plt.figure(figsize=(10, 10), constrained_layout=True)
 
 # org img, channel img, gray scale, median blur, histogram, bin, y_count
 gs_row_cnt = 7 
-gs_col_cnt = 6
+gs_col_cnt = 3
 
 gs_row = -1 
 gs_col = 0 
@@ -47,7 +47,7 @@ pass
 if 1 : # 원본 이미지 표출
     gs_row += 1 
     gs_col = 0 
-    colspan = 6
+    colspan = gs_col_cnt
     img = img_org
 
     title = 'Original Image: %s' % ( img_path.split("/")[-1] )
@@ -76,7 +76,7 @@ channels = [ r_channel, g_channel, b_channel ]
 if 1 :  # 채널 이미지 표출
     gs_row += 1 
     gs_col = 0 
-    colspan = 2
+    colspan = 1
 
     for i, channel in enumerate( channels ):
         img_temp = np.zeros( (height, width, 3), dtype='uint8' ) 
@@ -128,7 +128,7 @@ pass
 if 1 : # 그레이 스케일 이미지 표출
     gs_row += 1 
     gs_col = 0 
-    colspan = 6
+    colspan = gs_col_cnt
     img = grayscale
     cmap = "gray"
     title = "Grayscale"
@@ -172,7 +172,7 @@ pass
 if 1 : # 잡음 제거  이미지 표출
     gs_row += 1 
     gs_col = 0 
-    colspan = 6
+    colspan = gs_col_cnt
     img = noise_removed
     cmap = "gray"
     title = "Noise removed (Median Blur)"
@@ -214,7 +214,7 @@ print( "hist avg = %s, std = %s" % (hist_avg, hist_std))
 if 1 : # 히스토 그램 표출
     gs_row += 1 
     gs_col = 0 
-    colspan = 6
+    colspan = gs_col_cnt
     
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
 
@@ -222,7 +222,7 @@ if 1 : # 히스토 그램 표출
     
     # histogram bar chart
     y = histogram
-    x = [i for i, _ in enumerate(histogram) ]
+    x = [i for i, _ in enumerate( y ) ]
     charts["count"] = ax.bar( x, y, width=0.5, color='green', align='center', alpha=1.0)
 
     # histogram std chart
@@ -273,14 +273,14 @@ threshold = gs_avg
 print( "threshold: %s" % threshold )
 
 # 이진화 계산 
-bin = np.empty( ( height, width ), dtype='B')
+binarized = np.empty( ( height, width ), dtype='B')
 
 target_image = noise_removed
 
 for y, row in enumerate( target_image ) :
     for x, gs in enumerate( row ) :
         gs = round( gs )
-        bin[y][x] = (0, 1,)[ gs >= threshold ]
+        binarized[y][x] = (0, 1,)[ gs >= threshold ]
         '''
         if gs >= threshold :
             bin[y][x] = 1 
@@ -295,9 +295,9 @@ pass
 if 1 : # 이진 이미지 표출
     gs_row += 1 
     gs_col = 0 
-    colspan = 6
+    colspan = gs_col_cnt
     title = "Binarization (threshold=%s)" % threshold 
-    img = bin
+    img = binarized
     cmap = "gray"
 
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
@@ -312,6 +312,50 @@ if 1 : # 이진 이미지 표출
 pass #-- 이진 이미지 표출 
 
 #-- 이진화
+
+# y count 표출
+
+target_image = binarized
+
+y_counts = np.zeros( ( width, ), dtype='B')
+ksize = 1
+
+for x in range( width ) :
+    window = target_image[ 0 : height , x : x + ksize ] 
+    count_signal = np.count_nonzero( window == 0 )
+    y_counts[x] = count_signal
+pass
+
+if 1 : # y count 표출 
+    gs_row += 1 
+    gs_col = 0 
+    colspan = gs_col_cnt
+    
+    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
+
+    charts = { }
+    
+    # histogram bar chart
+    y = y_counts
+    x = [i for i, _ in enumerate( y ) ]
+    charts["y count"] = ax.bar( x, y, width=0.5, color='green', align='center', alpha=1.0) 
+
+    loc = "upper right" 
+
+    if 1 : # 레전드 표출
+        t = ( charts["y count"] , )
+        l = ( "y count", )
+        ax.legend( t, l, loc=loc, shadow=True)
+    pass #-- 레전드 표출  
+
+    title = "y count"
+    ax.set_xlabel( 'x\n%s' % title )
+    ax.set_ylabel( 'Count', rotation=90 ) 
+
+    ax.set_xlim( 0, width ) 
+pass #-- y count 표출
+
+# -- y count 표출 
 
 plt.show()
 
