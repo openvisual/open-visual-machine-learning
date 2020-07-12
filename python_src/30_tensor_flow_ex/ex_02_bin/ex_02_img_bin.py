@@ -27,14 +27,22 @@ print( "Image path: %s" % img_path )
 print( "Image widh: %s, height: %s, channel: %s" % (width,height,channel_no ) )
 
 fig = plt.figure(figsize=(10, 10), constrained_layout=True)
-# org img, channel img, gray scale, median blur, histogram, bin
-gs_row_cnt = 6 
+
+# org img, channel img, gray scale, median blur, histogram, bin, y_count
+gs_row_cnt = 7 
 gs_col_cnt = 6
 
 gs_row = -1 
 gs_col = 0 
 
 gridSpec = GridSpec( gs_row_cnt, gs_col_cnt, figure=fig )
+
+# ax 의 프레임 경계 색상 변경 
+def change_ax_border_color( ax, color ) :
+    for spine in ax.spines.values():
+        spine.set_edgecolor('green')
+    pass
+pass
 
 if 1 : # 원본 이미지 표출
     gs_row += 1 
@@ -45,9 +53,13 @@ if 1 : # 원본 이미지 표출
     title = 'Original Image: %s' % ( img_path.split("/")[-1] )
 
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
-    ax.imshow( img )
+    img_show = ax.imshow( img )
     ax.set_xlabel( 'x\n %s' % title )
-    ax.set_ylabel( 'y', rotation=0 ) 
+    ax.set_ylabel( 'y', rotation=0 )  
+
+    change_ax_border_color( ax, "green" )
+
+    fig.colorbar(img_show, ax=ax)
 pass
 
 #-- 원천 이미지 획득
@@ -72,7 +84,7 @@ if 1 :  # 채널 이미지 표출
         img = img_temp
 
         ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
-        ax.imshow( img )
+        img_show = ax.imshow( img )
         ax.set_ylabel( 'y', rotation=0 ) 
 
         title = "red channel"
@@ -82,7 +94,9 @@ if 1 :  # 채널 이미지 표출
             title = "blue channel"
         pass 
 
-        ax.set_xlabel( 'x\n%s' % title )        
+        ax.set_xlabel( 'x\n%s' % title )
+
+        ( i == 2 ) and fig.colorbar(img_show, ax=ax)
 
         gs_col += colspan
     pass 
@@ -96,7 +110,7 @@ pass
 print( "Grayscale" )
 
 # grayscale 변환
-grayscale = np.empty( ( height, width ), dtype='uint8') 
+grayscale = np.empty( ( height, width ), dtype='f') 
 
 for y, row in enumerate( grayscale ) :
     for x, _ in enumerate( row ) :
@@ -105,7 +119,7 @@ for y, row in enumerate( grayscale ) :
         # Colorimetric conversion Y = 0.2126R + 0.7152G  0.0722B
         # OpenCV CCIR Y = 0.299 R + 0.587 G + 0.114 B
         gs = 0.299*r_channel[y][x] + 0.587*g_channel[y][x] + 0.114*b_channel[y][x]
-        gs = (int)(round(gs))
+        #gs = (int)(round(gs))
         grayscale[y][x] = gs
     pass
 pass
@@ -121,24 +135,71 @@ if 1 : # 그레이 스케일 이미지 표출
     
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
 
-    ax.imshow( img, cmap=cmap )    
+    img_show = ax.imshow( img, cmap=cmap )    
     ax.set_xlabel( 'x\n%s' % title )
     ax.set_ylabel( 'y', rotation=0 ) 
-pass
+
+    change_ax_border_color( ax, "green" )
+
+    fig.colorbar(img_show, ax=ax)
+pass #-- 그레이 스케일 이미지 표출
 
 gs_avg = np.average( grayscale )
 gs_std = np.std( grayscale )
 sg_max = np.max( grayscale )
 
 print( "grayscale avg = %s, std = %s" % (gs_avg, gs_std))
+#-- grayscale 변환
+
+# 잡음 제거를 위한 Median Blur Filter
+
+print( "Noise Remove" )
+
+noise_removed = np.empty( ( height, width ), dtype='f') 
+
+ksize = 5
+
+target_image = grayscale
+
+for y in range( height ) : 
+    for x in range( width ) :
+        window = target_image[ y : y + ksize, x : x + ksize ]
+        median = np.median( window )
+        noise_removed[y][x] = median
+    pass
+pass
+
+if 1 : # 잡음 제거  이미지 표출
+    gs_row += 1 
+    gs_col = 0 
+    colspan = 6
+    img = noise_removed
+    cmap = "gray"
+    title = "Noise removed (Median Blur)"
+    
+    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
+
+    img_show = ax.imshow( img, cmap=cmap )    
+    ax.set_xlabel( 'x\n%s' % title )
+    ax.set_ylabel( 'y', rotation=0 ) 
+
+    change_ax_border_color( ax, "green" )
+
+    fig.colorbar(img_show, ax=ax)
+pass #-- 잡음 제거  이미지 표출
+
+#-- 잡음 제거를 위한 Median Blur Filter
 
 # histogram 생성 
 print( "hostogram" )
 # calculate histogram count
-histogram = np.zeros( 256, dtype=float )
+histogram = np.zeros( 256, dtype='u8' )
 
-for y, row in enumerate( grayscale ) : 
+target_image = noise_removed
+
+for y, row in enumerate( target_image ) : 
     for x, gs in enumerate( row ) :
+        gs = (int)(round(gs))
         histogram[ gs ] += 1
     pass
 pass
@@ -198,7 +259,7 @@ if 1 : # 히스토 그램 표출
 
     title = "Histogram"
     ax.set_xlabel( 'GrayScale\n%s' % title )
-    ax.set_ylabel( 'Count', rotation=90 )
+    ax.set_ylabel( 'Count', rotation=90 ) 
 pass #-- 히스토 그램 표출
 
 #-- histogram 생성 
@@ -213,8 +274,12 @@ print( "threshold: %s" % threshold )
 
 # 이진화 계산 
 bin = np.empty( ( height, width ), dtype='B')
-for y, row in enumerate( grayscale ) :
+
+target_image = noise_removed
+
+for y, row in enumerate( target_image ) :
     for x, gs in enumerate( row ) :
+        gs = round( gs )
         bin[y][x] = (0, 1,)[ gs >= threshold ]
         '''
         if gs >= threshold :
@@ -236,10 +301,14 @@ if 1 : # 이진 이미지 표출
     cmap = "gray"
 
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
-    ax.imshow( img, cmap=cmap )
-    #ax.colorbar()
+    img_show = ax.imshow( img, cmap=cmap )
+    
     ax.set_xlabel( 'x\n%s' % title )
     ax.set_ylabel( 'y', rotation=0 ) 
+
+    change_ax_border_color( ax, "green" )
+
+    fig.colorbar(img_show, ax=ax)
 pass #-- 이진 이미지 표출 
 
 #-- 이진화
