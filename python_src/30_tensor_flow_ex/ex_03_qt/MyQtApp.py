@@ -6,6 +6,7 @@ from PyQt5 import QtWidgets, uic
 class MyQtApp(QtWidgets.QMainWindow):
     def __init__(self):
         super(MyQtApp, self).__init__() # Call the inherited classes __init__ method
+        
         uic.loadUi( './myQtApp.ui', self) # Load the .ui file
 
         # signal -> slot 연결

@@ -23,9 +23,15 @@ pass
 
 questAns = QuestAns( 2, 1 )
 
+questAnsList = []
+
+questAnsList.append( QuestAns( 2, 1 ) )
+questAnsList.append( QuestAns( 3, 5 ) )
+questAnsList.append( QuestAns( 4, 7 ) )
+
 questions = np.array([-1.0, 0.0, 1.0, 2.0, 3.0, 4.0, ]*100)
 
-answers = np.array([-3.0, -1.0, 1.0, 3.0, 5.0, 7.0, ]*100)
+answers   = np.array([-3.0, -1.0, 1.0, 3.0, 5.0, 7.0, ]*100)
 
 model.compile( optimizer='adam', loss='mse', metrics=['accuracy'] )
 
