@@ -117,7 +117,7 @@ grayscale = np.empty( ( height, width ), dtype='f')
 
 for y, row in enumerate( grayscale ) :
     for x, _ in enumerate( row ) :
-        # average Y = (R + G + B / 3)
+        # average  Y = (R + G + B / 3)
         # weighted Y = (0.3 * R) + (0.59 * G) + (0.11 * B)
         # Colorimetric conversion Y = 0.2126R + 0.7152G  0.0722B
         # OpenCV CCIR Y = 0.299 R + 0.587 G + 0.114 B
