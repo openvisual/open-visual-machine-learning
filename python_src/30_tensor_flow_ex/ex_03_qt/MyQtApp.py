@@ -7,7 +7,7 @@ class MyQtApp(QtWidgets.QMainWindow):
     def __init__(self):
         super(MyQtApp, self).__init__() # Call the inherited classes __init__ method
         
-        uic.loadUi( './myQtApp.ui', self) # Load the .ui file
+        uic.loadUi( './MyQtApp.ui', self) # Load the .ui file
 
         # signal -> slot 연결
         self.myPushButton.clicked.connect( self.when_MyPushButton_clicked )
@@ -26,7 +26,9 @@ pass
 if __name__ == '__main__':
     print( "Pwd 1: %s" % os.getcwd())
     # change working dir to current file
-    os.chdir(os.path.dirname(__file__))
+    dirname = os.path.dirname(__file__)
+    print( "dirname: ", dirname )
+    dirname and os.chdir(dirname)
     print( "Pwd 2: %s" % os.getcwd())
 
     # Create an instance of QtWidgets.QApplication
