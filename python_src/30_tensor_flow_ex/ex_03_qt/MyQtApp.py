@@ -12,6 +12,8 @@ class MyQtApp(QtWidgets.QMainWindow):
         # signal -> slot 연결
         self.myPushButton.clicked.connect( self.when_MyPushButton_clicked )
 
+        self.myDial.valueChanged.connect( self.myLcdNumber.display)
+
         self.show() # Show the GUI
     pass
 

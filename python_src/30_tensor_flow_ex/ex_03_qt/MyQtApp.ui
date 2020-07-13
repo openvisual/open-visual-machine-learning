@@ -17,8 +17,8 @@
    <widget class="QLabel" name="myLabel">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>40</y>
+      <x>130</x>
+      <y>70</y>
       <width>111</width>
       <height>21</height>
      </rect>
@@ -30,8 +30,8 @@
    <widget class="QLineEdit" name="myLineEdit">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>90</y>
+      <x>130</x>
+      <y>100</y>
       <width>113</width>
       <height>20</height>
      </rect>
@@ -40,14 +40,40 @@
    <widget class="QPushButton" name="myPushButton">
     <property name="geometry">
      <rect>
-      <x>140</x>
+      <x>130</x>
       <y>150</y>
       <width>75</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>PushButton</string>
+     <string>Ok</string>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="myLcdNumber">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>30</y>
+      <width>64</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QDial" name="myDial">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>10</y>
+      <width>50</width>
+      <height>64</height>
+     </rect>
+    </property>
+    <property name="invertedAppearance">
+     <bool>false</bool>
+    </property>
+    <property name="invertedControls">
+     <bool>false</bool>
     </property>
    </widget>
   </widget>
