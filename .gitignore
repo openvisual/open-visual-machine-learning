@@ -149,3 +149,8 @@ dmypy.json
 /KANG_work
 /800 GIMP 실습
 /110 참고 문서
+/*.gslides
+.project
+.pydevproject
+.settings/org.springframework.ide.eclipse.xml.namespaces.prefs
+SSE LAB 스터디 일지.gslides
