@@ -154,3 +154,10 @@ dmypy.json
 .pydevproject
 .settings/org.springframework.ide.eclipse.xml.namespaces.prefs
 SSE LAB 스터디 일지.gslides
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/MyFirstPyDev.iml
+.idea/other.xml
+.idea/vcs.xml
