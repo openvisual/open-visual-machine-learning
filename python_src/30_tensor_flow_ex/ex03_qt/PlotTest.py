@@ -23,14 +23,15 @@ class MyWindow(QtWidgets.QMainWindow):
         n1, bins1, patches1 = ax1.hist(data, bins, alpha=0.6, density=False, cumulative=False)
         
         # plot
-        self.plotWidget = FigureCanvas(fig)
+        self.figureCanvas = FigureCanvas( fig )
         lay = QtWidgets.QVBoxLayout(self.content_plot)  
-        lay.setContentsMargins(0, 0, 0, 0)      
-        lay.addWidget(self.plotWidget)
+        lay.setContentsMargins(0, 0, 0, 0)
+
+        lay.addWidget(self.figureCanvas)
         
         # add toolbar
         use_toolbar = 1
-        use_toolbar and self.addToolBar(QtCore.Qt.BottomToolBarArea, NavigationToolbar(self.plotWidget, self))
+        use_toolbar and self.addToolBar(QtCore.Qt.BottomToolBarArea, NavigationToolbar(self.figureCanvas, self))
     pass
 pass
 
