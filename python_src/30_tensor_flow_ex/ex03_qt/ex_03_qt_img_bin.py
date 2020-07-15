@@ -114,20 +114,33 @@ pass
 print( "Grayscale" )
 
 # grayscale 변환
-grayscale = np.empty( ( height, width ), dtype='f') 
 
-for y, row in enumerate( grayscale ) :
-    for x, _ in enumerate( row ) :
-        # average  Y = (R + G + B / 3)
-        # weighted Y = (0.3 * R) + (0.59 * G) + (0.11 * B)
-        # Colorimetric conversion Y = 0.2126R + 0.7152G  0.0722B
-        # OpenCV CCIR Y = 0.299 R + 0.587 G + 0.114 B
-        gs = 0.299*r_channel[y][x] + 0.587*g_channel[y][x] + 0.114*b_channel[y][x]
-        #gs = (int)(round(gs))
-        grayscale[y][x] = gs
+def to_grayscale( channels ):
+    r_channel = channels[0]
+    g_channel = channels[1]
+    b_channel = channels[2]
+
+    h = r_channel.shape[0]
+    w = r_channel.shape[1] 
+
+    grayscale = np.empty( ( h, w ), dtype='f') 
+
+    for y, row in enumerate( grayscale ) :
+        for x, _ in enumerate( row ) :
+            # average  Y = (R + G + B / 3)
+            # weighted Y = (0.3 * R) + (0.59 * G) + (0.11 * B)
+            # Colorimetric conversion Y = 0.2126R + 0.7152G  0.0722B
+            # OpenCV CCIR Y = 0.299 R + 0.587 G + 0.114 B
+            gs = 0.299*r_channel[y][x] + 0.587*g_channel[y][x] + 0.114*b_channel[y][x]
+            #gs = (int)(round(gs))
+            grayscale[y][x] = gs
+        pass
     pass
-pass
-# -- grayscale 변환
+
+    return grayscale
+pass 
+
+grayscale = to_grayscale( channels )
 
 if 1 : # 그레이 스케일 이미지 표출
     gs_row += 1 
@@ -147,6 +160,8 @@ if 1 : # 그레이 스케일 이미지 표출
 
     fig.colorbar(img_show, ax=ax)
 pass #-- 그레이 스케일 이미지 표출
+
+# -- grayscale 변환
 
 gs_avg = np.average( grayscale )
 gs_std = np.std( grayscale )
