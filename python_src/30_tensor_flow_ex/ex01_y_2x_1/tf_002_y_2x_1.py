@@ -12,9 +12,6 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Lambda  
 from tensorflow.python.keras import backend as K 
 
-model = keras.models.Sequential( )
-model.add(Dense(1, input_shape=[1] )) 
-
 class QuestAns :
     def __init__(self, quest, answer) :
         self.quest = quest
@@ -49,10 +46,13 @@ answers = answers*100
 
 #-- 학습 데이터 셋 만들기 
 
+model = keras.models.Sequential( )
+model.add(Dense(1, input_shape=[1] )) 
+
 model.compile( optimizer='adam', loss='mse', metrics=['accuracy'] )
 
 epochs = 30
-model.fit( questions, answers, epochs=epochs, batch_size=7 )  
+model.fit( questions, answers, epochs=epochs, batch_size=7, )  
 
 my_questions = [ 10, 0 , 20 ]
 

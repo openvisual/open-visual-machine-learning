@@ -60,6 +60,8 @@ class TimeSeriesDataset(data.Dataset):
 
         file_path = os.path.join(root, fn + '.csv')
 
+        log.info( "File path = %s" % file_path )
+
         x_list = []
         y_list = []
 
@@ -264,7 +266,7 @@ class Evaluator :
 
     def evaluate(self):
         prediction_file = 'prediction_validate.txt'
-        test_file='./datasets/validate.csv'
+        test_file='./ds_forcast_traffic/validate.csv'
 
         valid = 1
 
@@ -344,12 +346,7 @@ class TrafficForeCast :
         '''
         - 참가자는 모델의 결과 파일(Ex> prediction.txt)을 write가 가능한 폴더에 저장되도록 적절 한 path를 입력해야합니다. (tf/notebooks)
         '''
-        ds_path = os.path.join('/tf/notebooks/datasets/19_forecast_traffic')
-
-        if os.name is 'nt':  # windows operating system 인 경우
-            log.info("os.name : %s" % os.name)        
-            ds_path = os.path.join('./datasets')
-        pass
+        ds_path = ds_path = os.path.join('.\\ds_forcast_traffic') 
 
         log.info("DATASET_PATH : %s" % ds_path)    
 

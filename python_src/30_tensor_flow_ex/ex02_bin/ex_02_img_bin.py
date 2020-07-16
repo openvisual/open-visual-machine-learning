@@ -19,8 +19,8 @@ pass
 
 # 원천 이미지 획득
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
-img_path = '../data_opencv_sample/messi5.jpg'
-#img_path = "../data_ocr/sample_01/sample_11.png"
+#img_path = '../data_opencv_sample/messi5.jpg'
+img_path = "../data_ocr/sample_01/sample_11.png"
 
 img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
@@ -123,7 +123,11 @@ for y, row in enumerate( grayscale ) :
         # Colorimetric conversion Y = 0.2126R + 0.7152G  0.0722B
         # OpenCV CCIR Y = 0.299 R + 0.587 G + 0.114 B
         gs = 0.299*r_channel[y][x] + 0.587*g_channel[y][x] + 0.114*b_channel[y][x]
-        #gs = (int)(round(gs))
+        # 이미지 역전, 입력 이미지가 흰 바탕에 검정색으로 가정 
+        gs = 255 - gs
+        if gs < 0 : 
+            gs = 0 
+        pass
         grayscale[y][x] = gs
     pass
 pass
@@ -328,7 +332,8 @@ ksize = 1
 
 for x in range( width ) :
     window = target_image[ 0 : height , x : x + ksize ] 
-    count_signal = np.count_nonzero( window == 0 )
+    count_signal = np.count_nonzero( window == 1 ) # 검정 바탕 흰색 카운트
+    # count_signal = np.count_nonzero( window == 0 ) # 흰 바탕 검정 카운트
     y_counts[x] = count_signal
 pass
 
