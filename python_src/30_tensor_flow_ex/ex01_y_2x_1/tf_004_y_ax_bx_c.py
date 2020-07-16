@@ -21,9 +21,6 @@ pass
 
 # 학습 데이터셋 만들기 
 
-#questions = np.array([-1.0, 0.0, 1.0, 2.0, 3.0, 4.0, ]*100)
-#answers   = np.array([-3.0, -1.0, 1.0, 3.0, 5.0, 7.0, ]*100)
-
 questAnsList = []
 
 # 질문/정답 만들기 
@@ -44,8 +41,10 @@ print( "answers: ", answers )
 #-- 학습 데이터 셋 만들기 
 
 model = keras.models.Sequential()
+
 intput_shape = questions[0].shape
 output_count = answers[0].shape[0]
+
 model.add( Dense(output_count, input_shape=intput_shape) )
 
 model.compile( optimizer='adam', loss='mse', metrics=['accuracy'] )
