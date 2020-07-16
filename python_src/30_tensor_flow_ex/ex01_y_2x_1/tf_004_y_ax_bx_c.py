@@ -43,16 +43,17 @@ print( "answers: ", answers )
 
 #-- 학습 데이터 셋 만들기 
 
-x0 = questions[0]
-model = keras.models.Sequential( )
-model.add( Dense(2, input_shape=x0.shape) )
+model = keras.models.Sequential()
+intput_shape = questions[0].shape
+output_count = answers[0].shape[0]
+model.add( Dense(output_count, input_shape=intput_shape) )
 
 model.compile( optimizer='adam', loss='mse', metrics=['accuracy'] )
 
-epochs = 10_000
+epochs = 8_000
 model.fit( questions, answers, epochs=epochs, batch_size=7 ) 
 
-my_questions = questions[ 0:1, ] 
+my_questions = np.array( [ [ 3., 2., 1. ] , ] )
 
 print( "\nMy Questions = " , my_questions )
 
@@ -65,7 +66,7 @@ b = my_answers[ 0 ]
 check = a[0]*b[0] + a[1]*b[1]
 diff = a[2] - check
 
-print( "check = ", check )
-print( "diff = ", diff )
+print( "check = %.4f" % check )
+print( "diff  = %.4f" % diff  )
 
-print( "Good bye!")
+print( "\nGood bye!")
