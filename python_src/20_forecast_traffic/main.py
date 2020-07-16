@@ -419,7 +419,7 @@ class TrafficForeCast :
 
         now = time.time()
         log.info( "// Training data loading. Duration %d sec(s)" % ( now - then ))
-        # // data loading
+        #-- data loading
 
         ds_train = ds["train"]
         x_list = ds_train.x_list
