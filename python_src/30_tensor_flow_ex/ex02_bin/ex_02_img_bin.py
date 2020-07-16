@@ -344,24 +344,30 @@ if 1 : # y count 표출
     
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
 
+    # 이진 이미지 표출
+    img = binarized
+    cmap = "gray" 
+    img_show = ax.imshow( img, cmap=cmap )
+    fig.colorbar(img_show, ax=ax)
+    #-- 이진 이미지 표출
+
     charts = { }
     
     # y count bar chart
     y = y_counts
     x = [i for i, _ in enumerate( y ) ]
-    charts["y count"] = ax.bar( x, y, width=0.5, color='green', align='center', alpha=1.0) 
+    charts["y count"] = ax.bar( x, y, width=0.5, color='red', align='center', alpha=1.0) 
 
-    loc = "upper right" 
-
-    if 1 : # 레전드 표출
+    if 0 : # 레전드 표출
         t = ( charts["y count"] , )
         l = ( "y count", )
+        loc = "upper right"    
         ax.legend( t, l, loc=loc, shadow=True)
     pass #-- 레전드 표출  
 
     title = "y count"
     ax.set_xlabel( 'x\n%s' % title )
-    ax.set_ylabel( 'Count', rotation=90 ) 
+    ax.set_ylabel( 'Y count', rotation=90 ) 
 
     ax.set_xlim( 0, width ) 
 pass #-- y count 표출
