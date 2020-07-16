@@ -52,7 +52,7 @@ answers = answers*100
 model.compile( optimizer='adam', loss='mse', metrics=['accuracy'] )
 
 epochs = 30
-model.fit( questions, answers, epochs=epochs, batch_size=7, )  
+model.fit( questions, answers, epochs=epochs, batch_size=7 )  
 
 my_questions = [ 10, 0 , 20 ]
 

@@ -180,7 +180,7 @@ class TimeSeriesDataset(data.Dataset):
         debug and log.info( "[%s] data_distcontinuous_cnt : %d" % ( fn, data_distcontinuous_cnt ) )
         log.info( "[%s] max_y = %s" % (fn, self.max_y ) )
         
-    pass # // -- init         
+    pass #-- -- init         
 
     def __getitem__(self, index):
         return ( self.x_list[index], self.y_list[index] )
@@ -373,7 +373,7 @@ class TrafficForeCast :
 
         log.info( "// Deon. Model Compile ...." )
         print( LINE )
-        # // 모델 학습 과정 설정.
+        #-- 모델 학습 과정 설정.
 
         # 4. 모델 학습시키기
         print( LINE )
