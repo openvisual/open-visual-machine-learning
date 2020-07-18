@@ -45,7 +45,7 @@ model = keras.models.Sequential()
 input_shape = questions[0].shape
 output_count = answers[0].shape[0]
 
-print( "input_shape = %s" % input_shape )
+print( "input shape  = %s" % input_shape )
 print( "output count = %s" % output_count )
 
 # 신경망 만들기 
