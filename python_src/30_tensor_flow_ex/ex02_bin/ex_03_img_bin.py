@@ -2,7 +2,7 @@
 
 # 변경 사항 
 # 함수 모듈화 
-# 히스토 그램 정규화 추가 
+# 히스토그램 정규화 추가 
 
 import warnings 
 warnings.filterwarnings('ignore',category=FutureWarning)
@@ -24,7 +24,7 @@ pass
 #TODO    원천 이미지 획득
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
 #img_path = '../data_opencv_sample/messi5.jpg'
-img_path = "../data_ocr/sample_01/sample_11.png"
+img_path = "../data_ocr/sample_01/sample_21.png"
 
 img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
@@ -118,24 +118,40 @@ pass
 print( "Grayscale" )
 
 #TODO    Grayscale 변환
-grayscale = np.empty( ( height, width ), dtype='f') 
 
-for y, row in enumerate( grayscale ) :
-    for x, _ in enumerate( row ) :
-        # average  Y = (R + G + B / 3)
-        # weighted Y = (0.3 * R) + (0.59 * G) + (0.11 * B)
-        # Colorimetric conversion Y = 0.2126R + 0.7152G  0.0722B
-        # OpenCV CCIR Y = 0.299 R + 0.587 G + 0.114 B
-        gs = 0.299*r_channel[y][x] + 0.587*g_channel[y][x] + 0.114*b_channel[y][x]
-        # 이미지 역전, 입력 이미지가 흰 바탕에 검정색으로 가정 
-        gs = 255 - gs
-        if gs < 0 : 
-            gs = 0 
+# grayscale 변환 함수 
+def to_grayscale( channels ) :
+    
+    r_channel = channels[ 0 ]
+    g_channel = channels[ 1 ]
+    b_channel = channels[ 1 ]
+
+    h = len( r_channel ) # image height
+    w = len( r_channel[0] ) # image width
+
+    grayscale = np.empty( ( h, w ), dtype='f') 
+
+    for y in range( h ) :
+        for x in range( w ) :
+            # average  Y = (R + G + B / 3)
+            # weighted Y = (0.3 * R) + (0.59 * G) + (0.11 * B)
+            # Colorimetric conversion Y = 0.2126R + 0.7152G  0.0722B
+            # OpenCV CCIR Y = 0.299 R + 0.587 G + 0.114 B
+            gs = 0.299*r_channel[y][x] + 0.587*g_channel[y][x] + 0.114*b_channel[y][x]
+            # 이미지 역전, 입력 이미지가 흰 바탕에 검정색으로 가정 
+            gs = 255 - gs
+            if gs < 0 : 
+                gs = 0 
+            pass
+            grayscale[y][x] = gs
         pass
-        grayscale[y][x] = gs
     pass
+
+    return grayscale
 pass
 # -- grayscale 변환
+
+grayscale = to_grayscale( channels )
 
 if 1 : # 그레이 스케일 이미지 표출
     gs_row += 1 
@@ -270,8 +286,8 @@ if 1 : # 히스토 그램 표출
         ax.set_xlim( min_x, 255 ) 
     pass
 
-    title = "Histogram"
-    ax.set_xlabel( 'GrayScale\n%s' % title )
+    title = "Grayscale Histogram"
+    ax.set_xlabel( title )
     ax.set_ylabel( 'Count', rotation=90 ) 
 pass #-- 히스토 그램 표출
 
