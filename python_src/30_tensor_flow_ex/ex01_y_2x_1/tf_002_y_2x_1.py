@@ -21,8 +21,28 @@ pass
 
 # 학습 데이터셋 만들기 
 
-#questions = np.array([-1.0, 0.0, 1.0, 2.0, 3.0, 4.0, ]*100)
-#answers   = np.array([-3.0, -1.0, 1.0, 3.0, 5.0, 7.0, ]*100)
+a = [ 'a', 'b' ]*100
+print( a )
+b = "ab"*100
+print( b )
+
+#questions = np.array( [-1.0, 0.0, 1.0, 2.0, 3.0, 4.0, ]*10 )
+#answers   = np.array( [-3.0, -1.0, 1.0, 3.0, 5.0, 7.0, ]*10 )
+
+# [-1.0, 0.0, 1.0, 2.0, 3.0, 4.0, ]*3
+
+# [-1.0, 0.0, 1.0, 2.0, 3.0, 4.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, ] 
+
+a =  np.array( [1,2,3,4] )
+print( a )
+
+for i, v in enumerate( a ):
+    a[i] = v*123
+pass
+
+a = a*100
+
+print( a )
 
 questAnsList = []
 
@@ -46,6 +66,8 @@ answers = answers*100
 
 #-- 학습 데이터 셋 만들기 
 
+# y = 2*x - 1
+# x = 질문, y  = 정답 
 model = keras.models.Sequential( )
 model.add(Dense(1, input_shape=[1] )) 
 

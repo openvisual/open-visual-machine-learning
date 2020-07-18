@@ -42,10 +42,14 @@ print( "answers: ", answers )
 
 model = keras.models.Sequential()
 
-intput_shape = questions[0].shape
+input_shape = questions[0].shape
 output_count = answers[0].shape[0]
 
-model.add( Dense(output_count, input_shape=intput_shape) )
+print( "input_shape = %s" % input_shape )
+print( "output count = %s" % output_count )
+
+# 신경망 만들기 
+model.add( Dense(output_count, input_shape=input_shape) )
 
 model.compile( optimizer='adam', loss='mse', metrics=['accuracy'] )
 
