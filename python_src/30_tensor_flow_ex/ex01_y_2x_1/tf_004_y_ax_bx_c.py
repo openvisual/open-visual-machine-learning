@@ -29,8 +29,8 @@ questAnsList.append( QuestAns( [1.0, 4.0, -3.0], [1.0, -1.0] ) )
 questAnsList.append( QuestAns( [5.0, 5.0,  0.0], [1.0, -1.0] ) )
 questAnsList.append( QuestAns( [8.0, 3.0,  5.0], [1.0, -1.0] ) )
 
-questions = [ np.array( qa.quest, float ) for qa in questAnsList ]
-answers = [ np.array( qa.answer, float ) for qa in questAnsList ]
+questions = [ qa.quest for qa in questAnsList ]
+answers = [ qa.answer for qa in questAnsList ]
 
 questions = np.array( questions )
 answers = np.array( answers )
