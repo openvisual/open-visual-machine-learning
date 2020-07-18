@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+# 변경 사항 
+# 함수 모듈화 
+# 히스토 그램 정규화 추가 
+
 import warnings 
 warnings.filterwarnings('ignore',category=FutureWarning)
 
@@ -17,10 +21,10 @@ if dirname :
     print( "Pwd 2: %s" % os.getcwd())
 pass
 
-# 원천 이미지 획득
+#TODO    원천 이미지 획득
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
-img_path = '../data_opencv_sample/messi5.jpg'
-#img_path = "../data_ocr/sample_01/sample_11.png"
+#img_path = '../data_opencv_sample/messi5.jpg'
+img_path = "../data_ocr/sample_01/sample_11.png"
 
 img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
@@ -70,7 +74,7 @@ pass
 
 #-- 원천 이미지 획득
 
-# 채널 분리 
+#TODO   채널 분리 
 # b, g, r 채널 획득
 # cv2.imread() 는 b, g, r 순서대로 배열에서 반환한다.
 b_channel = img_org[:,:,0].copy() 
@@ -113,34 +117,25 @@ pass
 # RGB -> GrayScale 변환 공식
 print( "Grayscale" )
 
-# grayscale 변환
+#TODO    Grayscale 변환
+grayscale = np.empty( ( height, width ), dtype='f') 
 
-def to_grayscale( channels ):
-    r_channel = channels[0]
-    g_channel = channels[1]
-    b_channel = channels[2]
-
-    h = r_channel.shape[0]
-    w = r_channel.shape[1] 
-
-    grayscale = np.empty( ( h, w ), dtype='f') 
-
-    for y, row in enumerate( grayscale ) :
-        for x, _ in enumerate( row ) :
-            # average  Y = (R + G + B / 3)
-            # weighted Y = (0.3 * R) + (0.59 * G) + (0.11 * B)
-            # Colorimetric conversion Y = 0.2126R + 0.7152G  0.0722B
-            # OpenCV CCIR Y = 0.299 R + 0.587 G + 0.114 B
-            gs = 0.299*r_channel[y][x] + 0.587*g_channel[y][x] + 0.114*b_channel[y][x]
-            #gs = (int)(round(gs))
-            grayscale[y][x] = gs
+for y, row in enumerate( grayscale ) :
+    for x, _ in enumerate( row ) :
+        # average  Y = (R + G + B / 3)
+        # weighted Y = (0.3 * R) + (0.59 * G) + (0.11 * B)
+        # Colorimetric conversion Y = 0.2126R + 0.7152G  0.0722B
+        # OpenCV CCIR Y = 0.299 R + 0.587 G + 0.114 B
+        gs = 0.299*r_channel[y][x] + 0.587*g_channel[y][x] + 0.114*b_channel[y][x]
+        # 이미지 역전, 입력 이미지가 흰 바탕에 검정색으로 가정 
+        gs = 255 - gs
+        if gs < 0 : 
+            gs = 0 
         pass
+        grayscale[y][x] = gs
     pass
-
-    return grayscale
-pass 
-
-grayscale = to_grayscale( channels )
+pass
+# -- grayscale 변환
 
 if 1 : # 그레이 스케일 이미지 표출
     gs_row += 1 
@@ -161,8 +156,6 @@ if 1 : # 그레이 스케일 이미지 표출
     fig.colorbar(img_show, ax=ax)
 pass #-- 그레이 스케일 이미지 표출
 
-# -- grayscale 변환
-
 gs_avg = np.average( grayscale )
 gs_std = np.std( grayscale )
 sg_max = np.max( grayscale )
@@ -170,7 +163,8 @@ sg_max = np.max( grayscale )
 print( "grayscale avg = %s, std = %s" % (gs_avg, gs_std))
 #-- grayscale 변환
 
-# 잡음 제거를 위한 Median Blur Filter
+#TODO   잡음 제거 
+# Median Blur Filter 적용 
 
 print( "Noise Ellimination" )
 
@@ -209,7 +203,7 @@ pass #-- 잡음 제거  이미지 표출
 
 #-- 잡음 제거를 위한 Median Blur Filter
 
-# histogram 생성 
+#TODO     Grayscale histogram 생성 
 print( "Histogram" )
 # calculate histogram count
 histogram = np.zeros( 256, dtype='u8' )
@@ -283,7 +277,7 @@ pass #-- 히스토 그램 표출
 
 #-- histogram 생성 
 
-# 이진화
+#TODO    이진화
 
 print( "Binarization" )
 
@@ -332,7 +326,7 @@ pass #-- 이진 이미지 표출
 
 #-- 이진화
 
-# y count 표출
+#TODO   Y 축 데이터 히스토그램
 
 print( "Y count" )
 
@@ -343,7 +337,8 @@ ksize = 1
 
 for x in range( width ) :
     window = target_image[ 0 : height , x : x + ksize ] 
-    count_signal = np.count_nonzero( window == 0 )
+    count_signal = np.count_nonzero( window == 1 ) # 검정 바탕 흰색 카운트
+    # count_signal = np.count_nonzero( window == 0 ) # 흰 바탕 검정 카운트
     y_counts[x] = count_signal
 pass
 
@@ -354,24 +349,30 @@ if 1 : # y count 표출
     
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
 
+    # 이진 이미지 표출
+    img = binarized
+    cmap = "gray" 
+    img_show = ax.imshow( img, cmap=cmap )
+    fig.colorbar(img_show, ax=ax)
+    #-- 이진 이미지 표출
+
     charts = { }
     
     # y count bar chart
     y = y_counts
     x = [i for i, _ in enumerate( y ) ]
-    charts["y count"] = ax.bar( x, y, width=0.5, color='green', align='center', alpha=1.0) 
+    charts["y count"] = ax.bar( x, y, width=0.5, color='red', align='center', alpha=1.0) 
 
-    loc = "upper right" 
-
-    if 1 : # 레전드 표출
+    if 0 : # 레전드 표출
         t = ( charts["y count"] , )
         l = ( "y count", )
+        loc = "upper right"    
         ax.legend( t, l, loc=loc, shadow=True)
     pass #-- 레전드 표출  
 
     title = "y count"
     ax.set_xlabel( 'x\n%s' % title )
-    ax.set_ylabel( 'Count', rotation=90 ) 
+    ax.set_ylabel( 'Y count', rotation=90 ) 
 
     ax.set_xlim( 0, width ) 
 pass #-- y count 표출
