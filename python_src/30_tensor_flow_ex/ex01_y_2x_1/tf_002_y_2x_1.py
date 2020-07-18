@@ -71,10 +71,14 @@ answers = answers*100
 model = keras.models.Sequential( )
 model.add(Dense(1, input_shape=[1] )) 
 
-model.compile( optimizer='adam', loss='mse', metrics=['accuracy'] )
+#loss = "mean_absolute_error"
+#loss = "mse"
+loss = "mae"
+
+model.compile( optimizer='adam', loss=loss, metrics=['accuracy'] )
 
 epochs = 30
-model.fit( questions, answers, epochs=epochs, batch_size=7, )  
+model.fit( questions, answers, epochs=epochs, batch_size=7 )  
 
 my_questions = [ 10, 0 , 20 ]
 
