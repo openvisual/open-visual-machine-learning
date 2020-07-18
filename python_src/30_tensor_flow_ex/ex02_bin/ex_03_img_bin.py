@@ -7,6 +7,13 @@
 import warnings 
 warnings.filterwarnings('ignore',category=FutureWarning)
 
+import logging as log
+log.basicConfig(
+    format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
+    datefmt='%Y-%m-%d:%H:%M:%S',
+    level=log.INFO
+    )
+
 import os, cv2, numpy as np, sys
 
 import matplotlib.pyplot as plt
@@ -83,7 +90,7 @@ r_channel = img_org[:,:,2].copy()
 
 channels = [ r_channel, g_channel, b_channel ]
 
-if 1 :  # 채널 이미지 표출
+if 0 :  # 채널 이미지 표출
     gs_row += 1 
     gs_col = 0 
     colspan = 1
@@ -114,13 +121,11 @@ pass
 
 #-- 채널 분리 
 
-# RGB -> GrayScale 변환 공식
-print( "Grayscale" )
-
 #TODO    Grayscale 변환
 
 # grayscale 변환 함수 
-def to_grayscale( channels ) :
+def convert_to_grayscale( channels ) :
+    log.info( "convert to grayscale...." )
     
     r_channel = channels[ 0 ]
     g_channel = channels[ 1 ]
@@ -129,29 +134,49 @@ def to_grayscale( channels ) :
     h = len( r_channel ) # image height
     w = len( r_channel[0] ) # image width
 
-    grayscale = np.empty( ( h, w ), dtype='f') 
+    data = np.empty( ( h, w ), dtype='f') 
 
     for y in range( h ) :
         for x in range( w ) :
+            # RGB -> GrayScale 변환 공식
             # average  Y = (R + G + B / 3)
             # weighted Y = (0.3 * R) + (0.59 * G) + (0.11 * B)
             # Colorimetric conversion Y = 0.2126R + 0.7152G  0.0722B
             # OpenCV CCIR Y = 0.299 R + 0.587 G + 0.114 B
             gs = 0.299*r_channel[y][x] + 0.587*g_channel[y][x] + 0.114*b_channel[y][x]
-            # 이미지 역전, 입력 이미지가 흰 바탕에 검정색으로 가정 
-            gs = 255 - gs
-            if gs < 0 : 
-                gs = 0 
-            pass
-            grayscale[y][x] = gs
+            data[y][x] = gs
         pass
     pass
 
-    return grayscale
+    return data
 pass
 # -- grayscale 변환
 
-grayscale = to_grayscale( channels )
+#TODO   image reverse 변환 함수 
+def reverse_image( image, max ) :
+    log.info( "reverse image...." )
+
+    h = len( image ) # image height
+    w = len( image[0] ) # image width
+
+    data = np.empty( ( h, w ), dtype='f') 
+
+    for y in range( h ) :
+        for x in range( w ) :
+            v = image[y][x]
+            data[y][x] = max - v
+        pass
+    pass
+
+    return data
+pass
+# -- image reverse 변환
+
+# grayscale 변환 
+grayscale = convert_to_grayscale( channels )
+
+# 영상 역전 
+grayscale = reverse_image( grayscale, max = 255 ) 
 
 if 1 : # 그레이 스케일 이미지 표출
     gs_row += 1 
@@ -182,21 +207,29 @@ print( "grayscale avg = %s, std = %s" % (gs_avg, gs_std))
 #TODO   잡음 제거 
 # Median Blur Filter 적용 
 
-print( "Noise Ellimination" )
+# 잡음 제거 함수 
+def remove_noise( image ) :
+    log.info( "remove noise...." )
 
-noise_removed = np.empty( ( height, width ), dtype='f') 
+    h = len( image ) # image height
+    w = len( image[0] ) # image width
 
-ksize = 5
+    data = np.empty( [h, w], dtype='f') 
 
-target_image = grayscale
+    ksize = 5
 
-for y in range( height ) : 
-    for x in range( width ) :
-        window = target_image[ y : y + ksize, x : x + ksize ]
-        median = np.median( window )
-        noise_removed[y][x] = median
+    for y in range( height ) : 
+        for x in range( width ) :
+            window = image[ y : y + ksize, x : x + ksize ]
+            median = np.median( window )
+            data[y][x] = median
+        pass
     pass
-pass
+
+    return data
+pass #-- 잡음 제거 함수 
+
+noise_removed = remove_noise( grayscale )
 
 if 1 : # 잡음 제거  이미지 표출
     gs_row += 1 
@@ -220,25 +253,45 @@ pass #-- 잡음 제거  이미지 표출
 #-- 잡음 제거를 위한 Median Blur Filter
 
 #TODO     Grayscale histogram 생성 
-print( "Histogram" )
+
 # calculate histogram count
-histogram = np.zeros( 256, dtype='u8' )
+def make_histogram( image ) : 
+    log.info( "Make histogram ..." )
+    histogram = np.zeros( 256, dtype='u8' ) 
 
-target_image = noise_removed
-
-for y, row in enumerate( target_image ) : 
-    for x, gs in enumerate( row ) :
-        gs = (int)(round(gs))
-        histogram[ gs ] += 1
+    for _, row in enumerate( image ) : 
+        for x, gs in enumerate( row ) :
+            gs = (int)(round(gs))
+            histogram[ gs ] += 1
+        pass
     pass
-pass
-#-- calculate histogram
+
+    return histogram
+pass #-- calculate histogram
+
+#TODO    누적 히스토 그램
+def accumulate_histogram( image ) :
+    log.info( "accumulate histogram" )
+    sum = 0 
+
+    data = np.empty( len( image ), dtype=image[0].dtype ) 
+    for x, v in enumerate( image ) :
+        sum += v 
+        data[x] = sum
+    pass
+
+    return data
+pass # 누적 히스트 그램  
+
+histogram = make_histogram( noise_removed ) 
 
 hist_avg = np.average( histogram )
 hist_std = np.std( histogram )
 hist_max = np.max( histogram )
 
 print( "hist avg = %s, std = %s" % (hist_avg, hist_std)) 
+
+acc_histogram = accumulate_histogram( histogram )
 
 if 1 : # 히스토 그램 표출
     gs_row += 1 
@@ -248,42 +301,48 @@ if 1 : # 히스토 그램 표출
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
 
     charts = { }
+
+    # accumulated histogram
+    y = acc_histogram
+    x = [i for i, _ in enumerate( y ) ]
+    charts["accumulated"] = ax.bar( x, y, width=0.4, color='yellow', alpha=0.3 )
     
     # histogram bar chart
     y = histogram
     x = [i for i, _ in enumerate( y ) ]
-    charts["count"] = ax.bar( x, y, width=0.5, color='green', align='center', alpha=1.0)
+    charts["count"] = ax.bar( x, y, width=0.5, color='red' )
 
     # histogram std chart
-    x = [gs_avg - gs_std, gs_avg + gs_std]
+    x = [ gs_avg - gs_std, gs_avg + gs_std ]
     y = [ hist_max*0.95, hist_max*0.95 ]
     charts["std"] = ax.fill_between( x, y, color='cyan', alpha=0.5 ) 
     
     # histogram average chart
     x = [ gs_avg, ]
     y = [ hist_max, ]
-    charts["average"] = ax.bar(x, y, width=1, color='blue', align='center', alpha=0.5) 
-
-    loc = "upper right"
-
-    if gs_avg > 122 :
-        loc = "upper left"
-    pass
+    charts["average"] = ax.bar(x, y, width=0.5, color='blue', alpha=0.5) 
 
     if 1 : # 레전드 표출
-        t = ( charts["count"], charts["std"], charts["average"], )
-        l = ( "count", "std", "average", )
+        t = [ ]
+        l = list( charts.keys() )
+        l = sorted( l )
+        for k in l :
+            t.append( charts[ k ] )
+        pass
+
+        loc = "upper right"
+
+        if gs_avg > 122 :
+            loc = "upper left"
+        pass
+    
         ax.legend( t, l, loc=loc, shadow=True)
     pass #-- 레전드 표출 
 
     if 1 : # x 축 최대, 최소 설정 
-        min_x = gs_avg - gs_std*1.2
+        max_x = gs_std*1.2
 
-        if min_x < 0 :
-            min_x = 0 
-        pass
-
-        ax.set_xlim( min_x, 255 ) 
+        ax.set_xlim( 0, max_x ) 
     pass
 
     title = "Grayscale Histogram"
@@ -297,29 +356,27 @@ pass #-- 히스토 그램 표출
 
 print( "Binarization" )
 
-threshold = gs_avg
-
-print( "Threshold: %s" % threshold )
-
 # 이진화 계산 
-binarized = np.empty( ( height, width ), dtype='B')
+def binarize( image , threshold ): 
+    print( "binarize threshold: %s" % threshold )
 
-target_image = noise_removed
+    h = len( image ) # image height
+    w = len( image[0] ) # image width
 
-for y, row in enumerate( target_image ) :
-    for x, gs in enumerate( row ) :
-        gs = round( gs )
-        binarized[y][x] = (0, 1,)[ gs >= threshold ]
-        '''
-        if gs >= threshold :
-            bin[y][x] = 1 
-        else :
-            bin[y][x] = 0
+    data = np.empty( ( h, w ), dtype='B')
+
+    for y, row in enumerate( image ) :
+        for x, gs in enumerate( row ) :
+            gs = round( gs ) # 반올림.
+            data[y][x] = (0, 1,)[ gs >= threshold ] 
         pass
-        '''
-    pass
-pass 
-# -- 이진화 계산 
+    pass 
+
+    return data
+pass # -- 이진화 계산 
+
+threshold=gs_avg
+binarized = binarize( image = noise_removed, threshold=threshold )
 
 if 1 : # 이진 이미지 표출
     gs_row += 1 
@@ -344,19 +401,26 @@ pass #-- 이진 이미지 표출
 
 #TODO   Y 축 데이터 히스토그램
 
-print( "Y count" )
+def count_y_axis_signal( image, ksize ) : 
+    log.info( "y axis signal count" )
 
-target_image = binarized
+    h = len( image ) # image height
+    w = len( image[0] ) # image width
 
-y_counts = np.zeros( ( width, ), dtype='B')
-ksize = 1
+    data = np.zeros( [w], dtype='B')
+    ksize = 1
 
-for x in range( width ) :
-    window = target_image[ 0 : height , x : x + ksize ] 
-    count_signal = np.count_nonzero( window == 1 ) # 검정 바탕 흰색 카운트
-    # count_signal = np.count_nonzero( window == 0 ) # 흰 바탕 검정 카운트
-    y_counts[x] = count_signal
-pass
+    for x in range( width ) :
+        window = image[ 0 : height , x : x + ksize ] 
+        signal_count = np.count_nonzero( window == 1 ) # 검정 바탕 흰색 카운트
+        # signal_count = np.count_nonzero( window == 0 ) # 흰 바탕 검정 카운트
+        data[x] = signal_count
+    pass
+
+    return data
+pass #-- count_y_axis_signal
+
+y_counts = count_y_axis_signal( image= binarized, ksize = 1 )
 
 if 1 : # y count 표출 
     gs_row += 1 
@@ -380,8 +444,12 @@ if 1 : # y count 표출
     charts["y count"] = ax.bar( x, y, width=0.5, color='red', align='center', alpha=1.0) 
 
     if 0 : # 레전드 표출
-        t = ( charts["y count"] , )
-        l = ( "y count", )
+        t = [ ]
+        l = list( charts.keys() )
+        l = sorted( l )
+        for k in l :
+            t.append( charts[ k ] )
+        pass
         loc = "upper right"    
         ax.legend( t, l, loc=loc, shadow=True)
     pass #-- 레전드 표출  
