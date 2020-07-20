@@ -346,7 +346,7 @@ if 1 : # 히스토 그램 표출
     pass #-- 레전드 표출 
 
     if 1 : # x 축 최대, 최소 설정 
-        max_x = gs_std*1.2
+        max_x = gs_avg + gs_std*1.2 
 
         ax.set_xlim( 0, max_x ) 
     pass
