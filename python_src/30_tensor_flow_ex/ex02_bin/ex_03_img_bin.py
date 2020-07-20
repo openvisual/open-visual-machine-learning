@@ -284,14 +284,13 @@ def accumulate_histogram( image ) :
 pass # 누적 히스트 그램  
 
 histogram = make_histogram( noise_removed ) 
+acc_histogram = accumulate_histogram( histogram )
 
 hist_avg = np.average( histogram )
 hist_std = np.std( histogram )
 hist_max = np.max( histogram )
 
 print( "hist avg = %s, std = %s" % (hist_avg, hist_std)) 
-
-acc_histogram = accumulate_histogram( histogram )
 
 if 1 : # 히스토 그램 표출
     #gs_row += 1 
@@ -357,6 +356,10 @@ if 1 : # 히스토 그램 표출
 pass #-- 히스토 그램 표출
 
 #-- histogram 생성 
+
+#TODO    히스토그램 평활화
+
+#-- 히스토그램 평활화 
 
 #TODO    이진화
 
