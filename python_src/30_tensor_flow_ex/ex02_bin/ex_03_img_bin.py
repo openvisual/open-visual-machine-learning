@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 print( "Done Import.".center( 80, "*") )
 
+# 현재 파일의 폴더로 실행 폴더를 이동함. 
 print( "Pwd 1: %s" % os.getcwd())
 # change working dir to current file
 dirname = os.path.dirname(__file__)
@@ -27,6 +28,7 @@ if dirname :
     os.chdir( dirname )
     print( "Pwd 2: %s" % os.getcwd())
 pass
+#-- 현재 파일의 폴더로 실행 폴더를 이동함. 
 
 #TODO    원천 이미지 획득
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
