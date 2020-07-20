@@ -284,13 +284,13 @@ def accumulate_histogram( image ) :
 pass # 누적 히스트 그램  
 
 histogram = make_histogram( noise_removed ) 
-acc_histogram = accumulate_histogram( histogram )
+histogram_acc = accumulate_histogram( histogram )
 
 hist_avg = np.average( histogram )
 hist_std = np.std( histogram )
 hist_max = np.max( histogram )
 
-print( "hist avg = %s, std = %s" % (hist_avg, hist_std)) 
+log.info( "hist avg = %s, std = %s" % (hist_avg, hist_std) ) 
 
 if 1 : # 히스토 그램 표출
     #gs_row += 1 
@@ -302,7 +302,7 @@ if 1 : # 히스토 그램 표출
     charts = { }
 
     # accumulated histogram
-    y = acc_histogram
+    y = histogram_acc
     x = [i for i, _ in enumerate( y ) ]
     charts["accumulated"] = ax.bar( x, y, width=0.4, color='yellow', alpha=0.3 )
     
@@ -355,19 +355,62 @@ if 1 : # 히스토 그램 표출
     ax.set_ylabel( 'Count', rotation=90 ) 
 pass #-- 히스토 그램 표출
 
-#-- histogram 생성 
+#-- histogram 생성
 
 #TODO    히스토그램 평활화
+
+def normalize_image_by_histogram( image, histogram_acc ) :
+    log.info( "Normalize histogram")
+
+    data = np.empty( len( image ), dtype=image[0].dtype )
+
+    h = len( image ) # image height
+    w = len( image[0] ) # image width
+
+    N = h*w # pixel count
+    Lmax = np.max( image ) # max pixel value
+
+    for y, row in enumerate( image ):
+        for x, v in enumerate( row ):
+            v = round( v )
+            v = histogram_acc[ v ]*Lmax/N
+            v = round( v )
+            data[y][x] = v
+        pass
+    pass
+
+    return data
+pass
+
+target_image = noise_removed
+image_normalize = normalize_image_by_histogram( target_image, histogram_acc )
+
+if 1 : # 평활화 이미지 표출
+    gs_row += 1 
+    gs_col = 0 
+    colspan = gs_col_cnt
+    title = "Normalization" % threshold 
+    img = image_normalize
+    cmap = "gray"
+
+    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
+    img_show = ax.imshow( img, cmap=cmap )
+    
+    ax.set_xlabel( 'x\n%s' % title )
+    ax.set_ylabel( 'y', rotation=0 ) 
+
+    change_ax_border_color( ax, "green" )
+
+    fig.colorbar(img_show, ax=ax)
+pass #-- 평활화 이미지 표출 
 
 #-- 히스토그램 평활화 
 
 #TODO    이진화
 
-print( "Binarization" )
-
 # 이진화 계산 
 def binarize( image , threshold ): 
-    print( "binarize threshold: %s" % threshold )
+    print( "Binarize threshold: %s" % threshold )
 
     h = len( image ) # image height
     w = len( image[0] ) # image width
@@ -384,8 +427,9 @@ def binarize( image , threshold ):
     return data
 pass # -- 이진화 계산 
 
+target_image = image_normalize
 threshold=gs_avg
-binarized = binarize( image = noise_removed, threshold=threshold )
+binarized = binarize( image = target_image, threshold=threshold )
 
 if 1 : # 이진 이미지 표출
     gs_row += 1 
