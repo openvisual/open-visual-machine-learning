@@ -362,17 +362,17 @@ pass #-- 히스토 그램 표출
 def normalize_image_by_histogram( image, histogram_acc ) :
     log.info( "Normalize histogram")
 
-    data = np.empty( len( image ), dtype=image[0].dtype )
-
     h = len( image ) # image height
     w = len( image[0] ) # image width
+
+    data = np.empty( [h, w], dtype=image[0].dtype )
 
     N = h*w # pixel count
     Lmax = np.max( image ) # max pixel value
 
     for y, row in enumerate( image ):
         for x, v in enumerate( row ):
-            v = round( v )
+            v = int( round( v ) )
             v = histogram_acc[ v ]*Lmax/N
             v = round( v )
             data[y][x] = v
@@ -383,14 +383,14 @@ def normalize_image_by_histogram( image, histogram_acc ) :
 pass
 
 target_image = noise_removed
-image_normalize = normalize_image_by_histogram( target_image, histogram_acc )
+image_normalized = normalize_image_by_histogram( target_image, histogram_acc )
 
 if 1 : # 평활화 이미지 표출
     gs_row += 1 
     gs_col = 0 
     colspan = gs_col_cnt
-    title = "Normalization" % threshold 
-    img = image_normalize
+    title = "Normalization" 
+    img = image_normalized
     cmap = "gray"
 
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
@@ -409,8 +409,14 @@ pass #-- 평활화 이미지 표출
 #TODO    이진화
 
 # 이진화 계산 
-def binarize( image , threshold ): 
-    print( "Binarize threshold: %s" % threshold )
+def binarize_image( image, threshold = None ): 
+    log.info( "Binarize threshold" )
+
+    if not threshold : 
+        threshold= np.mean( image )
+    pass
+
+    log.info( "Threshold = %s" % threshold )
 
     h = len( image ) # image height
     w = len( image[0] ) # image width
@@ -424,19 +430,18 @@ def binarize( image , threshold ):
         pass
     pass 
 
-    return data
+    return data, threshold
 pass # -- 이진화 계산 
 
-target_image = image_normalize
-threshold=gs_avg
-binarized = binarize( image = target_image, threshold=threshold )
+target_image = image_normalized
+image_binarized, threshold = binarize_image( image = target_image, threshold = None )
 
 if 1 : # 이진 이미지 표출
     gs_row += 1 
     gs_col = 0 
     colspan = gs_col_cnt
     title = "Binarization (threshold=%s)" % threshold 
-    img = binarized
+    img = image_binarized
     cmap = "gray"
 
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
@@ -473,7 +478,8 @@ def count_y_axis_signal( image, ksize ) :
     return data
 pass #-- count_y_axis_signal
 
-y_counts = count_y_axis_signal( image= binarized, ksize = 1 )
+target_image = image_binarized
+y_counts = count_y_axis_signal( image= target_image, ksize = 1 )
 
 if 1 : # y count 표출 
     gs_row += 1 
@@ -483,7 +489,7 @@ if 1 : # y count 표출
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
 
     # 이진 이미지 표출
-    img = binarized
+    img = image_binarized
     cmap = "gray" 
     img_show = ax.imshow( img, cmap=cmap )
     fig.colorbar(img_show, ax=ax)
