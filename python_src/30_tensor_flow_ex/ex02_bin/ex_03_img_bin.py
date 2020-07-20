@@ -10,9 +10,7 @@ warnings.filterwarnings('ignore',category=FutureWarning)
 import logging as log
 log.basicConfig(
     format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
-    datefmt='%Y-%m-%d:%H:%M:%S',
-    level=log.INFO
-    )
+    datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
 import os, cv2, numpy as np, sys
 
@@ -235,8 +233,8 @@ noise_removed = remove_noise( grayscale )
 
 if 1 : # 잡음 제거  이미지 표출
     gs_row += 1 
-    gs_col = 0 
-    colspan = gs_col_cnt
+    gs_col = 1 
+    colspan = gs_col_cnt - gs_col
     img = noise_removed
     cmap = "gray"
     title = "Noise removed (Median Blur)"
@@ -296,9 +294,9 @@ print( "hist avg = %s, std = %s" % (hist_avg, hist_std))
 acc_histogram = accumulate_histogram( histogram )
 
 if 1 : # 히스토 그램 표출
-    gs_row += 1 
+    #gs_row += 1 
     gs_col = 0 
-    colspan = gs_col_cnt
+    colspan = 1
     
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
 
@@ -330,6 +328,12 @@ if 1 : # 히스토 그램 표출
         l = sorted( l )
         for k in l :
             t.append( charts[ k ] )
+        pass
+
+        for i, s in enumerate( l ) :
+            import re 
+            s = s[0] + re.sub(r'[aeiou]', '', s[1:]) 
+            l[i] = s[:4]
         pass
 
         loc = "upper right"
