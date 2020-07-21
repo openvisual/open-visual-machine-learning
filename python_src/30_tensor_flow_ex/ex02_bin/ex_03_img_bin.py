@@ -504,7 +504,7 @@ def threshold_golobal( image, threshold = None ):
     for y, row in enumerate( image ) :
         for x, gs in enumerate( row ) :
             gs = round( gs ) # 반올림.
-            data[y][x] = (0, 1,)[ gs >= threshold ]
+            data[y][x] = [0, 1][ gs >= threshold ]
         pass
     pass
 
@@ -529,11 +529,22 @@ def threshold_adaptive_mean( image, bsize = 3, c = 0 ):
 
     for y, row in enumerate( image ) :
         for x, gs in enumerate( row ) :
-            window = image[ y - ksize : y + ksize + 1, x - ksize : x + ksize + 1 ]
+            y0 = y - ksize 
+            x0 = x - ksize 
+
+            if y0 < 0 :
+                y0 = 0 
+            pass
+            
+            if x0 < 0 :
+                x0 = 0 
+            pass
+
+            window = image[ y0 : y + ksize + 1, x0 : x + ksize + 1 ]
             window_avg = np.average( window )
             threshold = window_avg - c
 
-            data[y][x] = (0, 1,)[ gs >= threshold ]
+            data[y][x] = [0, 1][ gs >= threshold ]
         pass
     pass
 
