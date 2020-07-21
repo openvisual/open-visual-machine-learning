@@ -82,8 +82,8 @@ pass #-- change_ax_border_color
 
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
 #img_path = "../data_ocr/sample_01/messi5.png"
-img_path = "../data_ocr/sample_01/hist_work_01.png"
-#img_path = "../data_ocr/sample_01/sample_21.png"
+#img_path = "../data_ocr/sample_01/hist_work_01.png"
+img_path = "../data_ocr/sample_01/sample_21.png"
 
 img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
@@ -491,11 +491,11 @@ def threshold_golobal( image, threshold = None ):
         pass
     pass
 
-    return data, threshold
+    return data, threshold, "global thresholding"
 pass # -- 전역 임계치 처리
 
-#TODO     지역 적응 임계치 처리
-def threshold_adaptive( image, bsize = 3, c = 0 ):
+#TODO     지역 평균 적응 임계치 처리
+def threshold_adaptive_mean( image, bsize = 3, c = 0 ):
     log.info( "Apdative threshold" )
 
     h = len( image ) # image height
@@ -518,15 +518,15 @@ def threshold_adaptive( image, bsize = 3, c = 0 ):
         pass
     pass
 
-    return data, -1
-pass # -- 지역 적응 임계치 처리
+    return data, -1, "adaptive mean thresholding"
+pass # -- 지역 평균 적응 임계치 처리
 
 #TODO      이진화 계산
 def binarize_image( image, threshold = None ):
     v = None
 
     if 1 :
-        v = threshold_adaptive( image, bsize = 5 )
+        v = threshold_adaptive_mean( image, bsize = 5 )
     else :
         v = threshold_golobal( image, threshold )
     pass
@@ -535,7 +535,7 @@ def binarize_image( image, threshold = None ):
 pass #-- 이진화 계산
 
 target_image = noise_removed
-image_binarized, threshold = binarize_image( image = target_image )
+image_binarized, threshold, thresh_algo = binarize_image( image = target_image )
 
 save_img_as_file( "image_binarized", image_binarized )
 
@@ -543,7 +543,7 @@ if 1 : # 이진 이미지 표출
     gs_row += 1
     gs_col = 0
     colspan = gs_col_cnt
-    title = "Binarization (threshold=%s)" % threshold
+    title = "Binarization (%s, %s)" % ( thresh_algo, threshold )
     img = image_binarized
     cmap = "gray"
 
