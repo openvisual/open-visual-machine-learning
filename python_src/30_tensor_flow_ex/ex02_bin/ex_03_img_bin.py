@@ -375,18 +375,22 @@ def normalize_image_by_histogram( image, histogram_acc ) :
     data = np.empty( [h, w], dtype=image.dtype )
 
     # https://en.wikipedia.org/wiki/Histogram_equalization
-    N = h*w # pixel count
-    Lmax = np.max( image ) # max pixel value
+    MN = h*w # pixel count
+    L = len( histogram_acc )
 
     cdf = histogram_acc
     cdf_min = np.min( np.nonzero(cdf) )
 
+    idx = 0 
+    L_over_MN_cdf_min = L/(MN - cdf_min)
     for y, row in enumerate( image ):
         for x, gs in enumerate( row ):
             gs = int( gs )
-            v = (cdf[gs] - cdf_min)/(N - cdf_min)*Lmax
-            v = round( v )
-            data[y][x] = v
+            v = (cdf[gs] - cdf_min)/L_over_MN_cdf_min
+            vv = round( v )
+            data[y][x] = vv
+
+            0 and log.info( "[%05d] gs = %d, v=%0.4f" % ( idx, gs, v ) )
         pass
     pass
 
