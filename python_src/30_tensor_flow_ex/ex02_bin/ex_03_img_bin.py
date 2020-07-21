@@ -200,17 +200,28 @@ pass
 # -- grayscale 변환
 
 #TODO   image reverse 변환 함수
-def reverse_image( image, max ) :
+def reverse_image( image , max = None ) :
     log.info( "reverse image...." )
 
     h = len( image ) # image height
     w = len( image[0] ) # image width
 
+    if max is None : 
+        max = np.max( image )
+
+        if max < 1 :
+            max = 1 
+        elif max > 1 :
+            max = 255
+        else :
+            max = 1
+        pass
+    pass
+
     data = np.empty( ( h, w ), dtype=image.dtype )
 
-    for y in range( h ) :
-        for x in range( w ) :
-            v = image[y][x]
+    for y, row in enumerate( image ) :
+        for x, v in enumerate( row ) :
             data[y][x] = max - v
         pass
     pass
@@ -222,7 +233,7 @@ pass
 # grayscale 변환
 grayscale = convert_to_grayscale( channels )
 # 영상 역전
-grayscale = reverse_image( grayscale, max = 255 )
+grayscale = reverse_image( grayscale )
 
 save_img_as_file( "grayscale", grayscale )
 
@@ -477,6 +488,8 @@ pass #-- 잡음 제거  이미지 표출
 def threshold_golobal( image, threshold = None ):
     log.info( "Global Threshold" )
 
+    reverse_required = 0
+
     if not threshold :
         threshold= np.average( image )
     pass
@@ -495,12 +508,14 @@ def threshold_golobal( image, threshold = None ):
         pass
     pass
 
-    return data, threshold, "global thresholding"
+    return data, threshold, "global thresholding", reverse_required
 pass # -- 전역 임계치 처리
 
 #TODO     지역 평균 적응 임계치 처리
 def threshold_adaptive_mean( image, bsize = 3, c = 0 ):
     log.info( "Apdative threshold" )
+
+    reverse_required = 1
 
     h = len( image ) # image height
     w = len( image[0] ) # image width
@@ -522,7 +537,7 @@ def threshold_adaptive_mean( image, bsize = 3, c = 0 ):
         pass
     pass
 
-    return data, -1, "adaptive mean thresholding"
+    return data, -1, "adaptive mean thresholding", reverse_required
 pass # -- 지역 평균 적응 임계치 처리
 
 #TODO      이진화 계산
@@ -539,9 +554,13 @@ def binarize_image( image, threshold = None ):
 pass #-- 이진화 계산
 
 target_image = noise_removed
-image_binarized, threshold, thresh_algo = binarize_image( image = target_image )
+image_binarized, threshold, thresh_algo, reverse_required = binarize_image( image = target_image )
 
-save_img_as_file( "image_binarized", image_binarized )
+if reverse_required :
+    image_binarized = reverse_image( image_binarized )
+pass
+
+save_img_as_file( "image_binarized(%s)" % thresh_algo, image_binarized )
 
 if 1 : # 이진 이미지 표출
     gs_row += 1
