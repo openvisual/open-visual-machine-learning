@@ -3,6 +3,8 @@
 # 변경 사항
 # 함수 모듈화
 # 히스토그램 정규화 추가
+# 결과 이미지 저장
+# Adaptive Thresholding 추가
 
 import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
@@ -79,9 +81,9 @@ pass #-- change_ax_border_color
 #TODO    원천 이미지 획득
 
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
-img_path = "../data_ocr/sample_01/sample_21.png"
-img_path = "../data_ocr/sample_01/hist_work_01.png"
 img_path = "../data_ocr/sample_01/messi5.png"
+img_path = "../data_ocr/sample_01/hist_work_01.png"
+img_path = "../data_ocr/sample_01/sample_21.png"
 
 img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
@@ -204,7 +206,7 @@ def reverse_image( image, max ) :
     h = len( image ) # image height
     w = len( image[0] ) # image width
 
-    data = np.empty( ( h, w ), dtype='f')
+    data = np.empty( ( h, w ), dtype=image.dtype )
 
     for y in range( h ) :
         for x in range( w ) :
@@ -250,7 +252,7 @@ sg_max = np.max( grayscale )
 log.info( "grayscale avg = %s, std = %s" % (gs_avg, gs_std))
 #-- grayscale 변환
 
-#TODO     Grayscale histogram 생성
+#TODO     Histogram 생성
 
 # calculate histogram count
 def make_histogram( grayscale ) :
@@ -269,13 +271,13 @@ def make_histogram( grayscale ) :
 pass #-- calculate histogram
 
 #TODO    누적 히스토 그램
-def accumulate_histogram( image ) :
+def accumulate_histogram( histogram ) :
     log.info( "accumulate histogram" )
 
     sum = 0
 
-    data = np.empty( len( image ), dtype='u8' )
-    for x, v in enumerate( image ) :
+    data = np.empty( len( histogram ), dtype=histogram.dtype )
+    for x, v in enumerate( histogram ) :
         sum += v
         data[x] = sum
     pass
@@ -370,7 +372,7 @@ def normalize_image_by_histogram( image, histogram_acc ) :
     h = len( image ) # image height
     w = len( image[0] ) # image width
 
-    data = np.empty( [h, w], dtype=image[0].dtype )
+    data = np.empty( [h, w], dtype=image.dtype )
 
     # https://en.wikipedia.org/wiki/Histogram_equalization
     N = h*w # pixel count
@@ -380,9 +382,9 @@ def normalize_image_by_histogram( image, histogram_acc ) :
     cdf_min = np.min( np.nonzero(cdf) )
 
     for y, row in enumerate( image ):
-        for x, v in enumerate( row ):
-            v = int( v )
-            v = (cdf[v] - cdf_min)/(N - cdf_min)*Lmax
+        for x, gs in enumerate( row ):
+            gs = int( gs )
+            v = (cdf[gs] - cdf_min)/(N - cdf_min)*Lmax
             v = round( v )
             data[y][x] = v
         pass
@@ -420,15 +422,13 @@ pass #-- 평활화 이미지 표출
 # Median Blur Filter 적용
 
 # 잡음 제거 함수
-def remove_noise( image ) :
+def remove_noise( image, ksize = 3 ) :
     log.info( "remove noise...." )
 
     h = len( image ) # image height
     w = len( image[0] ) # image width
 
     data = np.empty( [h, w], dtype='f')
-
-    ksize = 5
 
     for y in range( height ) :
         for x in range( width ) :
@@ -441,7 +441,8 @@ def remove_noise( image ) :
     return data
 pass #-- 잡음 제거 함수
 
-noise_removed = remove_noise( image_normalized )
+ksize = 3
+noise_removed = remove_noise( image_normalized, ksize )
 
 save_img_as_file( "noise_removed", noise_removed )
 
@@ -451,7 +452,7 @@ if 1 : # 잡음 제거  이미지 표출
     colspan = gs_col_cnt - gs_col
     img = noise_removed
     cmap = "gray"
-    title = "Noise removed (Median Blur)"
+    title = "Noise removed (Median Blur, ksize=%d)" % ( ksize, )
 
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
 
@@ -468,8 +469,8 @@ pass #-- 잡음 제거  이미지 표출
 
 #TODO    이진화
 
-# 이진화 계산
-def binarize_image( image, threshold = None ):
+#TODO     전역 임계치 처리
+def threshold_golobal( image, threshold = None ):
     log.info( "Binarize threshold" )
 
     if not threshold :
@@ -491,7 +492,39 @@ def binarize_image( image, threshold = None ):
     pass
 
     return data, threshold
-pass # -- 이진화 계산
+pass # -- 전역 임계치 처리
+
+#TODO     지역 적응 임계치 처리
+def threshold_adaptive( image, bsize = 3, c = 0 ):
+    log.info( "Binarize threshold" )
+    h = len( image ) # image height
+    w = len( image[0] ) # image width
+
+    data = np.empty( ( h, w ), dtype='B')
+
+    for y, row in enumerate( image ) :
+        for x, gs in enumerate( row ) :
+            window = image[ y : y + bsize, x : x + bsize ]
+            gs = round( gs ) # 반올림.
+            data[y][x] = (0, 1,)[ gs >= threshold ]
+        pass
+    pass
+
+    return data, -1
+pass # -- 지역 적응 임계치 처리
+
+#TODO      이진화 계산
+def binarize_image( image, threshold = None ):
+    v = None
+
+    if 0 :
+        v = threshold_adaptive( image, bsize = 5 )
+    else :
+        v = threshold_golobal( image, threshold )
+    pass
+
+    return v
+pass #-- 이진화 계산
 
 target_image = noise_removed
 image_binarized, threshold = binarize_image( image = target_image )
