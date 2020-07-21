@@ -513,7 +513,7 @@ pass # -- 전역 임계치 처리
 
 #TODO     지역 평균 적응 임계치 처리
 def threshold_adaptive_mean( image, bsize = 3, c = 0 ):
-    log.info( "Apdative threshold" )
+    log.info( "Apdative threshold mean" ) 
 
     reverse_required = 1
 
@@ -522,15 +522,15 @@ def threshold_adaptive_mean( image, bsize = 3, c = 0 ):
 
     data = np.empty( ( h, w ), dtype='B')
 
-    ksize = int( bsize/2 )
-    if ksize < 1 :
-        ksize = 1
+    b = int( bsize/2 )
+    if b < 1 :
+        b = 1
     pass
 
     for y, row in enumerate( image ) :
         for x, gs in enumerate( row ) :
-            y0 = y - ksize 
-            x0 = x - ksize 
+            y0 = y - b 
+            x0 = x - b 
 
             if y0 < 0 :
                 y0 = 0 
@@ -540,7 +540,7 @@ def threshold_adaptive_mean( image, bsize = 3, c = 0 ):
                 x0 = 0 
             pass
 
-            window = image[ y0 : y + ksize + 1, x0 : x + ksize + 1 ]
+            window = image[ y0 : y + b + 1, x0 : x + b + 1 ]
             window_avg = np.average( window )
             threshold = window_avg - c
 
@@ -551,12 +551,60 @@ def threshold_adaptive_mean( image, bsize = 3, c = 0 ):
     return data, -1, "adaptive mean thresholding", reverse_required
 pass # -- 지역 평균 적응 임계치 처리
 
+#TODO     지역 가우시안 적응 임계치 처리
+def threshold_adaptive_gaussian( image, bsize = 3, c = 0 ):
+    log.info( "Apdative threshold gaussian" ) 
+
+    # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#getgaussiankernel
+
+    reverse_required = 1
+
+    h = len( image ) # image height
+    w = len( image[0] ) # image width
+
+    data = np.empty( ( h, w ), dtype='B')
+
+    ksize = bsize
+
+    b = int( bsize/2 )
+    if b < 1 :
+        b = 1
+    pass
+
+    sigma = 0.3*((ksize-1)*0.5 - 1) + 0.8
+
+    for y, row in enumerate( image ) :
+        for x, gs in enumerate( row ) :
+            y0 = y - b 
+            x0 = x - b 
+
+            if y0 < 0 :
+                y0 = 0 
+            pass
+            
+            if x0 < 0 :
+                x0 = 0 
+            pass
+
+            window = image[ y0 : y + b + 1, x0 : x + b + 1 ]
+            window_avg = np.average( window )
+            threshold = window_avg - c
+
+            data[y][x] = [0, 1][ gs >= threshold ]
+        pass
+    pass
+
+    return data, -1, "adaptive gaussian thresholding", reverse_required
+pass # -- 지역 가우시안 적응 임계치 처리
+
 #TODO      이진화 계산
 def binarize_image( image, threshold = None ):
     v = None
 
     if 1 :
-        v = threshold_adaptive_mean( image, bsize = 5 )
+        v = threshold_adaptive_gaussian( image, bsize = 5 )
+    elif 1 :
+        v = threshold_adaptive_mean( image, bsize = 3 )
     else :
         v = threshold_golobal( image, threshold )
     pass
