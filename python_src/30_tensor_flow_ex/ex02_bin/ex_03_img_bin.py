@@ -81,9 +81,9 @@ pass #-- change_ax_border_color
 #TODO    원천 이미지 획득
 
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
-img_path = "../data_ocr/sample_01/messi5.png"
+#img_path = "../data_ocr/sample_01/messi5.png"
 img_path = "../data_ocr/sample_01/hist_work_01.png"
-img_path = "../data_ocr/sample_01/sample_21.png"
+#img_path = "../data_ocr/sample_01/sample_21.png"
 
 img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
@@ -423,7 +423,7 @@ pass #-- 평활화 이미지 표출
 
 # 잡음 제거 함수
 def remove_noise( image, ksize = 3 ) :
-    log.info( "remove noise...." )
+    log.info( "Remove noise...." )
 
     h = len( image ) # image height
     w = len( image[0] ) # image width
@@ -471,7 +471,7 @@ pass #-- 잡음 제거  이미지 표출
 
 #TODO     전역 임계치 처리
 def threshold_golobal( image, threshold = None ):
-    log.info( "Binarize threshold" )
+    log.info( "Global Threshold" )
 
     if not threshold :
         threshold= np.average( image )
@@ -496,16 +496,24 @@ pass # -- 전역 임계치 처리
 
 #TODO     지역 적응 임계치 처리
 def threshold_adaptive( image, bsize = 3, c = 0 ):
-    log.info( "Binarize threshold" )
+    log.info( "Apdative threshold" )
+
     h = len( image ) # image height
     w = len( image[0] ) # image width
 
     data = np.empty( ( h, w ), dtype='B')
 
+    ksize = int( bsize/2 )
+    if ksize < 1 :
+        ksize = 1
+    pass
+
     for y, row in enumerate( image ) :
         for x, gs in enumerate( row ) :
-            window = image[ y : y + bsize, x : x + bsize ]
-            gs = round( gs ) # 반올림.
+            window = image[ y - ksize : y + ksize + 1, x - ksize : x + ksize + 1 ]
+            window_avg = np.average( window )
+            threshold = window_avg - c
+
             data[y][x] = (0, 1,)[ gs >= threshold ]
         pass
     pass
@@ -517,7 +525,7 @@ pass # -- 지역 적응 임계치 처리
 def binarize_image( image, threshold = None ):
     v = None
 
-    if 0 :
+    if 1 :
         v = threshold_adaptive( image, bsize = 5 )
     else :
         v = threshold_golobal( image, threshold )
