@@ -5,7 +5,8 @@
 # 히스토그램 정규화 추가
 
 import warnings
-warnings.filterwarnings('ignore',category=FutureWarning)
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 import logging as log
 log.basicConfig(
@@ -29,9 +30,11 @@ pass
 #-- 현재 파일의 폴더로 실행 폴더를 이동함.
 
 #TODO    원천 이미지 획득
+
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
 #img_path = '../data_opencv_sample/messi5.jpg'
 img_path = "../data_ocr/sample_01/sample_21.png"
+img_path = "../data_ocr/sample_01/hist_work_01.png"
 
 img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
@@ -179,11 +182,27 @@ grayscale = convert_to_grayscale( channels )
 target_image = grayscale
 grayscale = reverse_image( target_image, max = 255 )
 
+img_save_cnt = 0
+
+def img_file_name( work ) :
+    img_save_cnt += 1
+    fn = img_path
+    k = fn.rfind( "." )
+    fn = fn[ : k ] + ( "_%02d_" % img_save_cnt) + work + fn[k:]
+    return fn
+pass #-- img_file_name
+
+def save_img_as_file( work, img, cmap="gray"):
+    plt.imsave( img_file_name( work ), img, cmap='gray' )
+pass #-- save_img_as_file
+
+save_img_as_file( "grayscale", grayscale )
+
 if 1 : # 그레이 스케일 이미지 표출
     gs_row += 1
     gs_col = 0
     colspan = gs_col_cnt
-    img = grayscale
+    img = target_image
     cmap = "gray"
     title = "Grayscale"
 
@@ -232,6 +251,8 @@ pass #-- 잡음 제거 함수
 
 noise_removed = remove_noise( grayscale )
 
+save_img_as_file( "noise_removed", noise_removed )
+
 if 1 : # 잡음 제거  이미지 표출
     gs_row += 1
     gs_col = 1
@@ -256,13 +277,14 @@ pass #-- 잡음 제거  이미지 표출
 #TODO     Grayscale histogram 생성
 
 # calculate histogram count
-def make_histogram( image ) :
+def make_histogram( grayscale ) :
     log.info( "Make histogram ..." )
+
     histogram = np.zeros( 256, dtype='u8' )
 
-    for _, row in enumerate( image ) :
+    for _, row in enumerate( grayscale ) :
         for x, gs in enumerate( row ) :
-            gs = (int)(round(gs))
+            gs = (int)( gs )
             histogram[ gs ] += 1
         pass
     pass
@@ -273,9 +295,10 @@ pass #-- calculate histogram
 #TODO    누적 히스토 그램
 def accumulate_histogram( image ) :
     log.info( "accumulate histogram" )
+
     sum = 0
 
-    data = np.empty( len( image ), dtype=image[0].dtype )
+    data = np.empty( len( image ), dtype='u8' )
     for x, v in enumerate( image ) :
         sum += v
         data[x] = sum
@@ -302,7 +325,7 @@ def show_histogram( histogram , histogram_acc, title ): # 히스토 그램 표�
 
     log.info( "hist avg = %s, std = %s" % (hist_avg, hist_std) )
 
-    if histogram_acc :
+    if histogram_acc is not None :
         # accumulated histogram
         y = histogram_acc
         x = [i for i, _ in enumerate( y ) ]
@@ -358,7 +381,7 @@ def show_histogram( histogram , histogram_acc, title ): # 히스토 그램 표�
 pass #-- 히스토 그램 표출
 
 if 1 :
-    show_histogram( histogram, hisogram_acc, title = "Grayscale Histogram" )
+    show_histogram( histogram, histogram_acc, title = "Grayscale Histogram" )
 pass
 
 #-- histogram 생성
@@ -378,7 +401,7 @@ def normalize_image_by_histogram( image, histogram_acc ) :
 
     for y, row in enumerate( image ):
         for x, v in enumerate( row ):
-            v = int( round( v ) )
+            v = int( v )
             v = histogram_acc[ v ]*Lmax/N
             v = round( v )
             data[y][x] = v
@@ -390,6 +413,8 @@ pass #-- normalize_image_by_histogram
 
 target_image = noise_removed
 image_normalized = normalize_image_by_histogram( target_image, histogram_acc )
+
+save_img_as_file( "image_normalized", image_normalized )
 
 if 1 : # 평활화 이미지 표출
     gs_row += 1
@@ -440,7 +465,10 @@ def binarize_image( image, threshold = None ):
 pass # -- 이진화 계산
 
 target_image = image_normalized
-image_binarized, threshold = binarize_image( image = target_image, threshold = None )
+#target_image = noise_removed
+image_binarized, threshold = binarize_image( image = target_image )
+
+save_img_as_file( "image_binarized", image_binarized )
 
 if 1 : # 이진 이미지 표출
     gs_row += 1
