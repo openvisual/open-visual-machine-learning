@@ -572,6 +572,14 @@ def threshold_adaptive_gaussian( image, bsize = 3, c = 0 ):
     pass
 
     sigma = 0.3*((ksize-1)*0.5 - 1) + 0.8
+    ss = sigma*sigma
+    pi_2_ss = 2*pi*ss
+
+    # g(x,y) = exp( -(x^2 + y^2)/s^2 )/(2pi*s^2)
+    def g(x, y) :
+        v = exp( -(x*x + y*y)/ss )/pi_2_ss
+        return v
+    pass
 
     for y, row in enumerate( image ) :
         for x, gs in enumerate( row ) :
@@ -587,7 +595,9 @@ def threshold_adaptive_gaussian( image, bsize = 3, c = 0 ):
             pass
 
             window = image[ y0 : y + b + 1, x0 : x + b + 1 ]
+
             window_avg = np.average( window )
+            
             threshold = window_avg - c
 
             data[y][x] = [0, 1][ gs >= threshold ]
