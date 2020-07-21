@@ -29,12 +29,59 @@ if dirname :
 pass
 #-- 현재 파일의 폴더로 실행 폴더를 이동함.
 
+#TODO     이미지 저장 함수
+img_save_cnt = 0
+
+def img_file_name( work ) :
+    global img_save_cnt
+    img_save_cnt += 1
+
+    fn = img_path
+
+    root = fn[ : fn.rfind( "/") ]
+
+    folder = root + "/temp"
+
+    if os.path.exists( folder ):
+        if not os.path.isdir( folder ) :
+            os.remove( folder )
+            os.mkdir( folder )
+        else :
+            # do nothing
+            pass
+        pass
+    else :
+        os.mkdir( folder )
+    pass
+
+    fn = fn.replace( root , "" )
+    k = fn.rfind( "." )
+    fn = folder + fn[ : k ] + ( "_%02d_" % img_save_cnt) + work + fn[k:]
+    return fn
+pass #-- img_file_name
+
+def save_img_as_file( work, img, cmap="gray"):
+    fn = img_file_name( work )
+    plt.imsave( fn, img, cmap='gray' )
+
+    log.info( "Image saved as file name[%s]" % fn )
+pass #-- save_img_as_file
+
+# -- 이미지 저장 함수
+
+# pyplot ax 의 프레임 경계 색상 변경
+def change_ax_border_color( ax, color ) :
+    for spine in ax.spines.values():
+        spine.set_edgecolor( color )
+    pass
+pass #-- change_ax_border_color
+
 #TODO    원천 이미지 획득
 
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
-#img_path = '../data_opencv_sample/messi5.jpg'
 img_path = "../data_ocr/sample_01/sample_21.png"
 img_path = "../data_ocr/sample_01/hist_work_01.png"
+img_path = "../data_ocr/sample_01/messi5.png"
 
 img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
@@ -46,6 +93,8 @@ channel_no  = img_org.shape[2]
 print( "Image path: %s" % img_path )
 print( "Image widh: %s, height: %s, channel: %s" % (width,height,channel_no ) )
 
+save_img_as_file( "org", img_org, cmap="rgb" )
+
 fig = plt.figure(figsize=(10, 10), constrained_layout=True)
 
 # org img, channel img, gray scale, median blur, histogram, bin, y_count
@@ -56,13 +105,6 @@ gs_row = -1
 gs_col = 0
 
 gridSpec = GridSpec( gs_row_cnt, gs_col_cnt, figure=fig )
-
-# pyplot ax 의 프레임 경계 색상 변경
-def change_ax_border_color( ax, color ) :
-    for spine in ax.spines.values():
-        spine.set_edgecolor( color )
-    pass
-pass
 
 if 1 : # 원본 이미지 표출
     gs_row += 1
@@ -177,32 +219,16 @@ pass
 
 # grayscale 변환
 grayscale = convert_to_grayscale( channels )
-
 # 영상 역전
-target_image = grayscale
-grayscale = reverse_image( target_image, max = 255 )
-
-img_save_cnt = 0
-
-def img_file_name( work ) :
-    img_save_cnt += 1
-    fn = img_path
-    k = fn.rfind( "." )
-    fn = fn[ : k ] + ( "_%02d_" % img_save_cnt) + work + fn[k:]
-    return fn
-pass #-- img_file_name
-
-def save_img_as_file( work, img, cmap="gray"):
-    plt.imsave( img_file_name( work ), img, cmap='gray' )
-pass #-- save_img_as_file
+grayscale = reverse_image( grayscale, max = 255 )
 
 save_img_as_file( "grayscale", grayscale )
 
 if 1 : # 그레이 스케일 이미지 표출
     gs_row += 1
-    gs_col = 0
-    colspan = gs_col_cnt
-    img = target_image
+    gs_col = 1
+    colspan = gs_col_cnt - gs_col
+    img = grayscale
     cmap = "gray"
     title = "Grayscale"
 
@@ -221,58 +247,8 @@ gs_avg = np.average( grayscale )
 gs_std = np.std( grayscale )
 sg_max = np.max( grayscale )
 
-print( "grayscale avg = %s, std = %s" % (gs_avg, gs_std))
+log.info( "grayscale avg = %s, std = %s" % (gs_avg, gs_std))
 #-- grayscale 변환
-
-#TODO   잡음 제거
-# Median Blur Filter 적용
-
-# 잡음 제거 함수
-def remove_noise( image ) :
-    log.info( "remove noise...." )
-
-    h = len( image ) # image height
-    w = len( image[0] ) # image width
-
-    data = np.empty( [h, w], dtype='f')
-
-    ksize = 5
-
-    for y in range( height ) :
-        for x in range( width ) :
-            window = image[ y : y + ksize, x : x + ksize ]
-            median = np.median( window )
-            data[y][x] = median
-        pass
-    pass
-
-    return data
-pass #-- 잡음 제거 함수
-
-noise_removed = remove_noise( grayscale )
-
-save_img_as_file( "noise_removed", noise_removed )
-
-if 1 : # 잡음 제거  이미지 표출
-    gs_row += 1
-    gs_col = 1
-    colspan = gs_col_cnt - gs_col
-    img = noise_removed
-    cmap = "gray"
-    title = "Noise removed (Median Blur)"
-
-    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
-
-    img_show = ax.imshow( img, cmap=cmap )
-    ax.set_xlabel( 'x\n%s' % title )
-    ax.set_ylabel( 'y', rotation=0 )
-
-    change_ax_border_color( ax, "blue" )
-
-    fig.colorbar(img_show, ax=ax)
-pass #-- 잡음 제거  이미지 표출
-
-#-- 잡음 제거를 위한 Median Blur Filter
 
 #TODO     Grayscale histogram 생성
 
@@ -307,7 +283,7 @@ def accumulate_histogram( image ) :
     return data
 pass # 누적 히스트 그램
 
-histogram = make_histogram( noise_removed )
+histogram = make_histogram( grayscale )
 histogram_acc = accumulate_histogram( histogram )
 
 def show_histogram( histogram , histogram_acc, title ): # 히스토 그램 표출
@@ -396,13 +372,17 @@ def normalize_image_by_histogram( image, histogram_acc ) :
 
     data = np.empty( [h, w], dtype=image[0].dtype )
 
+    # https://en.wikipedia.org/wiki/Histogram_equalization
     N = h*w # pixel count
     Lmax = np.max( image ) # max pixel value
+
+    cdf = histogram_acc
+    cdf_min = np.min( np.nonzero(cdf) )
 
     for y, row in enumerate( image ):
         for x, v in enumerate( row ):
             v = int( v )
-            v = histogram_acc[ v ]*Lmax/N
+            v = (cdf[v] - cdf_min)/(N - cdf_min)*Lmax
             v = round( v )
             data[y][x] = v
         pass
@@ -411,8 +391,7 @@ def normalize_image_by_histogram( image, histogram_acc ) :
     return data
 pass #-- normalize_image_by_histogram
 
-target_image = noise_removed
-image_normalized = normalize_image_by_histogram( target_image, histogram_acc )
+image_normalized = normalize_image_by_histogram( grayscale, histogram_acc )
 
 save_img_as_file( "image_normalized", image_normalized )
 
@@ -436,6 +415,56 @@ if 1 : # 평활화 이미지 표출
 pass #-- 평활화 이미지 표출
 
 #-- 히스토그램 평활화
+
+#TODO   잡음 제거
+# Median Blur Filter 적용
+
+# 잡음 제거 함수
+def remove_noise( image ) :
+    log.info( "remove noise...." )
+
+    h = len( image ) # image height
+    w = len( image[0] ) # image width
+
+    data = np.empty( [h, w], dtype='f')
+
+    ksize = 5
+
+    for y in range( height ) :
+        for x in range( width ) :
+            window = image[ y : y + ksize, x : x + ksize ]
+            median = np.median( window )
+            data[y][x] = median
+        pass
+    pass
+
+    return data
+pass #-- 잡음 제거 함수
+
+noise_removed = remove_noise( image_normalized )
+
+save_img_as_file( "noise_removed", noise_removed )
+
+if 1 : # 잡음 제거  이미지 표출
+    gs_row += 1
+    gs_col = 1
+    colspan = gs_col_cnt - gs_col
+    img = noise_removed
+    cmap = "gray"
+    title = "Noise removed (Median Blur)"
+
+    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
+
+    img_show = ax.imshow( img, cmap=cmap )
+    ax.set_xlabel( 'x\n%s' % title )
+    ax.set_ylabel( 'y', rotation=0 )
+
+    change_ax_border_color( ax, "blue" )
+
+    fig.colorbar(img_show, ax=ax)
+pass #-- 잡음 제거  이미지 표출
+
+#-- 잡음 제거를 위한 Median Blur Filter
 
 #TODO    이진화
 
@@ -464,8 +493,7 @@ def binarize_image( image, threshold = None ):
     return data, threshold
 pass # -- 이진화 계산
 
-target_image = image_normalized
-#target_image = noise_removed
+target_image = noise_removed
 image_binarized, threshold = binarize_image( image = target_image )
 
 save_img_as_file( "image_binarized", image_binarized )
