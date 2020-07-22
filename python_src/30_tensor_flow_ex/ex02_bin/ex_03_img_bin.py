@@ -16,6 +16,8 @@ log.basicConfig(
     datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
 import os, cv2, numpy as np, sys
+import math
+from math import pi
 
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
@@ -206,11 +208,11 @@ def reverse_image( image , max = None ) :
     h = len( image ) # image height
     w = len( image[0] ) # image width
 
-    if max is None : 
+    if max is None :
         max = np.max( image )
 
         if max < 1 :
-            max = 1 
+            max = 1
         elif max > 1 :
             max = 255
         else :
@@ -392,7 +394,7 @@ def normalize_image_by_histogram( image, histogram_acc ) :
     cdf = histogram_acc
     cdf_min = np.min( np.nonzero(cdf) )
 
-    idx = 0 
+    idx = 0
     L_over_MN_cdf_min = L/(MN - cdf_min)
     for y, row in enumerate( image ):
         for x, gs in enumerate( row ):
@@ -513,7 +515,7 @@ pass # -- 전역 임계치 처리
 
 #TODO     지역 평균 적응 임계치 처리
 def threshold_adaptive_mean( image, bsize = 3, c = 0 ):
-    log.info( "Apdative threshold mean" ) 
+    log.info( "Apdative threshold mean" )
 
     reverse_required = 1
 
@@ -529,15 +531,15 @@ def threshold_adaptive_mean( image, bsize = 3, c = 0 ):
 
     for y, row in enumerate( image ) :
         for x, gs in enumerate( row ) :
-            y0 = y - b 
-            x0 = x - b 
+            y0 = y - b
+            x0 = x - b
 
             if y0 < 0 :
-                y0 = 0 
+                y0 = 0
             pass
-            
+
             if x0 < 0 :
-                x0 = 0 
+                x0 = 0
             pass
 
             window = image[ y0 : y + b + 1, x0 : x + b + 1 ]
@@ -553,7 +555,7 @@ pass # -- 지역 평균 적응 임계치 처리
 
 #TODO     지역 가우시안 적응 임계치 처리
 def threshold_adaptive_gaussian( image, bsize = 3, c = 0 ):
-    log.info( "Apdative threshold gaussian" ) 
+    log.info( "Apdative threshold gaussian" )
 
     # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#getgaussiankernel
 
@@ -564,41 +566,44 @@ def threshold_adaptive_gaussian( image, bsize = 3, c = 0 ):
 
     data = np.empty( ( h, w ), dtype='B')
 
-    ksize = bsize
-
     b = int( bsize/2 )
     if b < 1 :
         b = 1
     pass
 
-    sigma = 0.3*((ksize-1)*0.5 - 1) + 0.8
-    ss = sigma*sigma
-    pi_2_ss = 2*pi*ss
-
     # g(x,y) = exp( -(x^2 + y^2)/s^2 )/(2pi*s^2)
-    def g(x, y) :
-        v = exp( -(x*x + y*y)/ss )/pi_2_ss
+    def gaussian(x, y, bsize) :
+        sigma = 0.3*((bsize-1)*0.5 - 1) + 0.8
+        ss = sigma*sigma
+        pi_2_ss = 2*math.pi*ss
+
+        b = int( bsize/2 )
+
+        x = x - b
+        y = y - b
+
+        v = math.exp( -(x*x + y*y)/ss )/pi_2_ss
+
         return v
+    pass
+
+    def gaussian_sum( window, bsize ) :
+        gs = 0
+
+        for y, row in enumerate( window ) :
+            for x, gs in enumerate( row ) :
+                gs += gs*gaussian( x, y , bsize )
+            pass
+        pass
+
+        return gs
     pass
 
     for y, row in enumerate( image ) :
         for x, gs in enumerate( row ) :
-            y0 = y - b 
-            x0 = x - b 
+            window = image[ y : y + bsize, x : x + bsize ]
 
-            if y0 < 0 :
-                y0 = 0 
-            pass
-            
-            if x0 < 0 :
-                x0 = 0 
-            pass
-
-            window = image[ y0 : y + b + 1, x0 : x + b + 1 ]
-
-            window_avg = np.average( window )
-            
-            threshold = window_avg - c
+            threshold = gaussian_sum( window, bsize ) - c
 
             data[y][x] = [0, 1][ gs >= threshold ]
         pass
@@ -612,7 +617,7 @@ def binarize_image( image, threshold = None ):
     v = None
 
     if 1 :
-        v = threshold_adaptive_gaussian( image, bsize = 5 )
+        v = threshold_adaptive_gaussian( image, bsize = 3 )
     elif 1 :
         v = threshold_adaptive_mean( image, bsize = 3 )
     else :
