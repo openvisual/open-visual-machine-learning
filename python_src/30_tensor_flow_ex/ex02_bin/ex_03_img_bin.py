@@ -11,8 +11,7 @@ warnings.filterwarnings('ignore', category=FutureWarning)
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 import logging as log
-log.basicConfig(
-    format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
+log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
     datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
 import os, cv2, numpy as np, sys
@@ -85,8 +84,8 @@ pass #-- change_ax_border_color
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
 #img_path = "../data_ocr/sample_01/messi5.png"
 #img_path = "../data_ocr/sample_01/hist_work_01.png"
-#img_path = "../data_ocr/sample_01/sample_21.png"
-img_path = "../data_yegan/ex_01/_1018877.JPG"
+img_path = "../data_ocr/sample_01/sample_21.png"
+#img_path = "../data_yegan/ex_01/_1018877.JPG"
 
 img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
@@ -179,8 +178,13 @@ def convert_to_grayscale( channels ) :
 
     r_channel = channels[ 0 ]
     g_channel = channels[ 1 ]
-    b_channel = channels[ 1 ]
+    b_channel = channels[ 2 ]
 
+    data = r_channel*0.299 + g_channel*0.587 + b_channel*0.114
+
+    data = data.astype( np.int16 ) 
+
+    '''
     h = len( r_channel ) # image height
     w = len( r_channel[0] ) # image width
 
@@ -197,12 +201,13 @@ def convert_to_grayscale( channels ) :
             data[y][x] = gs
         pass
     pass
+    '''
 
     return data
 pass
 # -- grayscale 변환
 
-#TODO   image reverse 변환 함수
+#TODO   영상 역전 함수
 def reverse_image( image , max = None ) :
     log.info( "Reverse image...." )
 
@@ -221,6 +226,8 @@ def reverse_image( image , max = None ) :
         pass
     pass
 
+    data = max - image
+    '''
     data = np.empty( ( h, w ), dtype=image.dtype )
 
     for y, row in enumerate( image ) :
@@ -228,10 +235,11 @@ def reverse_image( image , max = None ) :
             data[y][x] = max - v
         pass
     pass
+    '''
 
     return data
 pass
-# -- image reverse 변환
+# -- 영상 역전 함수
 
 # grayscale 변환
 grayscale = convert_to_grayscale( channels )
@@ -276,7 +284,7 @@ def make_histogram( grayscale ) :
 
     for _, row in enumerate( grayscale ) :
         for x, gs in enumerate( row ) :
-            gs = (int)( gs )
+            #gs = (int)( gs )
             histogram[ gs ] += 1
         pass
     pass
@@ -286,7 +294,7 @@ pass #-- calculate histogram
 
 #TODO    누적 히스토 그램
 def accumulate_histogram( histogram ) :
-    log.info( "Accumulate histogram" )
+    log.info( "Accumulate histogram ..." )
 
     sum = 0
 
@@ -381,7 +389,8 @@ pass
 #TODO    히스토그램 평활화
 
 def normalize_image_by_histogram( image, histogram_acc ) :
-    log.info( "Normalize histogram")
+    msg = "Normalize histogram"
+    log.info( "%s ..." % msg )
 
     h = len( image ) # image height
     w = len( image[0] ) # image width
@@ -397,17 +406,19 @@ def normalize_image_by_histogram( image, histogram_acc ) :
 
     idx = 0
     L_over_MN_cdf_min = L/(MN - cdf_min)
+
     for y, row in enumerate( image ):
         for x, gs in enumerate( row ):
-            gs = int( gs )
             v = (cdf[gs] - cdf_min)*L_over_MN_cdf_min
-            vv = round( v )
+            vv = int( round( v ) )
             data[y][x] = vv
 
             0 and log.info( "[%05d] gs = %d, v=%0.4f" % ( idx, gs, v ) )
             idx += 1
         pass
     pass
+
+    log.info( "Done. %s" % msg )
 
     return data
 pass #-- normalize_image_by_histogram
@@ -442,7 +453,8 @@ pass #-- 평활화 이미지 표출
 
 # 잡음 제거 함수
 def remove_noise( image, ksize = 3 ) :
-    log.info( "Remove noise...." )
+    msg = "Remove noise" 
+    log.info( "%s ..." % msg )
 
     h = len( image ) # image height
     w = len( image[0] ) # image width
@@ -474,8 +486,49 @@ def remove_noise( image, ksize = 3 ) :
         pass
     pass
 
+    log.info( "Done. %s" % msg )
+
     return data
 pass #-- 잡음 제거 함수
+
+def my_median_blur( image, ksize = 3 ) :
+    msg = "Remove noise" 
+    log.info( "%s ..." % msg )
+
+    h = len( image ) # image height
+    w = len( image[0] ) # image width
+
+    b = int( ksize/2 )
+
+    data = np.empty( [h, w], dtype=image.dtype )
+
+    idx = 0
+    for y in range( height ) :
+        for x in range( width ) :
+            y0 = y - b
+            x0 = x - b
+
+            if y0 < 0 :
+                y0 = 0
+            pass
+
+            if x0 < 0 :
+                x0 = 0
+            pass
+
+            window = image[ y0 : y + b + 1, x0 : x + b + 1 ]
+            median = np.median( window )
+            data[y][x] = median
+
+            0 and log.info( "[%05d] data[%d][%d] = %.4f" % (idx, y, x, median) )
+            idx += 1
+        pass
+    pass
+
+    log.info( "Done. %s" % msg )
+    
+    return data
+pass #-- my median blur
 
 ksize = 3
 noise_removed = remove_noise( image_normalized, ksize )
@@ -574,6 +627,31 @@ pass # -- 지역 평균 적응 임계치 처리
 
 #TODO     지역 가우시안 적응 임계치 처리
 def threshold_adaptive_gaussian( image, bsize = 3, c = 0 ):
+    if 1 :
+        v = threshold_adaptive_gaussian_opencv( image, bsize = bsize, c = c )
+    else :
+        v = threshold_adaptive_gaussian_my( image, bsize = bsize, c = c )
+    pass
+
+    return v
+pass
+
+def threshold_adaptive_gaussian_opencv( image, bsize = 3, c = 0 ):
+    msg = "Apdative threshold gaussian opencv"
+    log.info( msg )
+
+    # https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_thresholding/py_thresholding.html
+
+    reverse_required = 1 
+
+    image = image.astype(np.uint8)
+
+    data = cv2.adaptiveThreshold(image, 1, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, bsize, c)
+
+    return data, -1, "adaptive gaussian thresholding opencv", reverse_required
+pass # -- 지역 가우시안 적응 임계치 처리
+
+def threshold_adaptive_gaussian_my( image, bsize = 3, c = 0 ):
     log.info( "Apdative threshold gaussian" )
 
     # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#getgaussiankernel
@@ -589,6 +667,8 @@ def threshold_adaptive_gaussian( image, bsize = 3, c = 0 ):
     if b < 1 :
         b = 1
     pass
+
+    image_pad= np.pad(image, b,'constant', constant_values=(0)) 
 
     def gaussian(x, y, bsize) :
         sigma = 0.3*((bsize-1)*0.5 - 1) + 0.8
@@ -610,45 +690,37 @@ def threshold_adaptive_gaussian( image, bsize = 3, c = 0 ):
         gs_sum = 0
 
         for y, row in enumerate( window ) :
-            for x, p in enumerate( row ) :
-                gs_sum += p*gaussian( x, y , bsize )
+            for x, v in enumerate( row ) :
+                gs_sum += v*gaussian( y, x, bsize )
             pass
         pass
 
         return gs_sum
     pass #-- gaussian_sum
 
-    for y, row in enumerate( image ) :
+    for y, row in enumerate( image_pad ) :
         for x, gs in enumerate( row ) :
-            window = np.zeros( ( bsize, bsize ), dtype= image.dtype )
+            if ( b <= y < len(image_pad) - b ) and ( b<= x < len(row) - b ):
+                window = image_pad[ y - b : y + b + 1 , x - b : x + b + 1 ] 
 
-            for ty in range( -b, bsize ) :
-                for tx in range( -b, bsize ) :
-                    wy = y + ty
-                    wx = x + tx
-                    if wy > -1 and wx > -1 :
-                        window[ty + b][tx + b] = image[y + ty][x + tx]
-                    pass
-                pass
+                threshold = gaussian_sum( window, bsize ) - c
+
+                data[y - b][x - b] = [0, 1][ gs >= threshold ]
             pass
-
-            threshold = gaussian_sum( window, bsize ) - c
-
-            data[y][x] = [0, 1][ gs >= threshold ]
         pass
     pass
 
-    return data, -1, "adaptive gaussian thresholding", reverse_required
+    return data, -1, "adaptive gaussian thresholding my", reverse_required
 pass # -- 지역 가우시안 적응 임계치 처리
 
 #TODO      이진화 계산
 def binarize_image( image, threshold = None ):
     v = None
 
-    if 0 :
+    if 1 :
         v = threshold_adaptive_gaussian( image, bsize = 3, c = 5 )
     elif 1 :
-        v = threshold_adaptive_mean( image, bsize = 3, c = 5 )
+        v = threshold_adaptive_mean( image, bsize = 3, c = 0 )
     else :
         v = threshold_golobal( image, threshold )
     pass
