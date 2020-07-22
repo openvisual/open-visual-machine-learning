@@ -559,7 +559,7 @@ def threshold_adaptive_gaussian( image, bsize = 3, c = 0 ):
 
     # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#getgaussiankernel
 
-    reverse_required = 1
+    reverse_required = 0
 
     h = len( image ) # image height
     w = len( image[0] ) # image width
@@ -571,7 +571,6 @@ def threshold_adaptive_gaussian( image, bsize = 3, c = 0 ):
         b = 1
     pass
 
-    # g(x,y) = exp( -(x^2 + y^2)/s^2 )/(2pi*s^2)
     def gaussian(x, y, bsize) :
         sigma = 0.3*((bsize-1)*0.5 - 1) + 0.8
         ss = sigma*sigma
@@ -583,25 +582,36 @@ def threshold_adaptive_gaussian( image, bsize = 3, c = 0 ):
         y = y - b
 
         v = math.exp( -(x*x + y*y)/ss )/pi_2_ss
+        # g(x,y) = exp( -(x^2 + y^2)/s^2 )/(2pi*s^2)
 
         return v
-    pass
+    pass #-- gaussian
 
     def gaussian_sum( window, bsize ) :
-        gs = 0
+        gs_sum = 0
 
         for y, row in enumerate( window ) :
-            for x, gs in enumerate( row ) :
-                gs += gs*gaussian( x, y , bsize )
+            for x, p in enumerate( row ) :
+                gs_sum += p*gaussian( x, y , bsize )
             pass
         pass
 
-        return gs
-    pass
+        return gs_sum
+    pass #-- gaussian_sum
 
     for y, row in enumerate( image ) :
         for x, gs in enumerate( row ) :
-            window = image[ y : y + bsize, x : x + bsize ]
+            window = np.zeros( ( bsize, bsize ), dtype= image.dtype )
+
+            for ty in range( -b, bsize ) :
+                for tx in range( -b, bsize ) :
+                    wy = y + ty
+                    wx = x + tx
+                    if wy > -1 and wx > -1 :
+                        window[ty + b][tx + b] = image[y + ty][x + tx]
+                    pass
+                pass
+            pass
 
             threshold = gaussian_sum( window, bsize ) - c
 
@@ -617,9 +627,9 @@ def binarize_image( image, threshold = None ):
     v = None
 
     if 1 :
-        v = threshold_adaptive_gaussian( image, bsize = 3 )
+        v = threshold_adaptive_gaussian( image, bsize = 3, c = 5 )
     elif 1 :
-        v = threshold_adaptive_mean( image, bsize = 3 )
+        v = threshold_adaptive_mean( image, bsize = 3, c = 5 )
     else :
         v = threshold_golobal( image, threshold )
     pass
