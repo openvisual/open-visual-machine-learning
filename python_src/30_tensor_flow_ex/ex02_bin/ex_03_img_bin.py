@@ -85,7 +85,8 @@ pass #-- change_ax_border_color
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
 #img_path = "../data_ocr/sample_01/messi5.png"
 #img_path = "../data_ocr/sample_01/hist_work_01.png"
-img_path = "../data_ocr/sample_01/sample_21.png"
+#img_path = "../data_ocr/sample_01/sample_21.png"
+img_path = "../data_yegan/ex_01/_1018877.JPG"
 
 img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
@@ -174,7 +175,7 @@ pass
 
 # grayscale 변환 함수
 def convert_to_grayscale( channels ) :
-    log.info( "convert to grayscale...." )
+    log.info( "Convert to grayscale...." )
 
     r_channel = channels[ 0 ]
     g_channel = channels[ 1 ]
@@ -203,7 +204,7 @@ pass
 
 #TODO   image reverse 변환 함수
 def reverse_image( image , max = None ) :
-    log.info( "reverse image...." )
+    log.info( "Reverse image...." )
 
     h = len( image ) # image height
     w = len( image[0] ) # image width
@@ -285,7 +286,7 @@ pass #-- calculate histogram
 
 #TODO    누적 히스토 그램
 def accumulate_histogram( histogram ) :
-    log.info( "accumulate histogram" )
+    log.info( "Accumulate histogram" )
 
     sum = 0
 
@@ -388,7 +389,7 @@ def normalize_image_by_histogram( image, histogram_acc ) :
     data = np.empty( [h, w], dtype=image.dtype )
 
     # https://en.wikipedia.org/wiki/Histogram_equalization
-    MN = h*w # pixel count
+    MN = h*w
     L = len( histogram_acc )
 
     cdf = histogram_acc
@@ -399,11 +400,12 @@ def normalize_image_by_histogram( image, histogram_acc ) :
     for y, row in enumerate( image ):
         for x, gs in enumerate( row ):
             gs = int( gs )
-            v = (cdf[gs] - cdf_min)/L_over_MN_cdf_min
+            v = (cdf[gs] - cdf_min)*L_over_MN_cdf_min
             vv = round( v )
             data[y][x] = vv
 
             0 and log.info( "[%05d] gs = %d, v=%0.4f" % ( idx, gs, v ) )
+            idx += 1
         pass
     pass
 
@@ -445,13 +447,30 @@ def remove_noise( image, ksize = 3 ) :
     h = len( image ) # image height
     w = len( image[0] ) # image width
 
-    data = np.empty( [h, w], dtype='f')
+    b = int( ksize/2 )
 
+    data = np.empty( [h, w], dtype=image.dtype )
+
+    idx = 0
     for y in range( height ) :
         for x in range( width ) :
-            window = image[ y : y + ksize, x : x + ksize ]
+            y0 = y - b
+            x0 = x - b
+
+            if y0 < 0 :
+                y0 = 0
+            pass
+
+            if x0 < 0 :
+                x0 = 0
+            pass
+
+            window = image[ y0 : y + b + 1, x0 : x + b + 1 ]
             median = np.median( window )
             data[y][x] = median
+
+            0 and log.info( "[%05d] data[%d][%d] = %.4f" % (idx, y, x, median) )
+            idx += 1
         pass
     pass
 
@@ -626,7 +645,7 @@ pass # -- 지역 가우시안 적응 임계치 처리
 def binarize_image( image, threshold = None ):
     v = None
 
-    if 1 :
+    if 0 :
         v = threshold_adaptive_gaussian( image, bsize = 3, c = 5 )
     elif 1 :
         v = threshold_adaptive_mean( image, bsize = 3, c = 5 )
@@ -670,7 +689,8 @@ pass #-- 이진 이미지 표출
 #TODO   Y 축 데이터 히스토그램
 
 def count_y_axis_signal( image, ksize ) :
-    log.info( "y axis signal count" )
+    msg = "y axis signal count"
+    log.info( msg )
 
     h = len( image ) # image height
     w = len( image[0] ) # image width
@@ -685,6 +705,7 @@ def count_y_axis_signal( image, ksize ) :
         data[x] = signal_count
     pass
 
+    log.info( "Done. %s" % msg )
     return data
 pass #-- count_y_axis_signal
 
