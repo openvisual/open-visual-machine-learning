@@ -84,6 +84,7 @@ pass #-- change_ax_border_color
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
 #img_path = "../data_ocr/sample_01/messi5.png"
 #img_path = "../data_ocr/sample_01/hist_work_01.png"
+#img_path = "../data_ocr/sample_01/gosu_01.png"
 img_path = "../data_ocr/sample_01/sample_21.png"
 #img_path = "../data_yegan/ex_01/_1018877.JPG"
 
@@ -722,7 +723,8 @@ def binarize_image( image, threshold = None ):
     elif 0 :
         v = threshold_adaptive_mean( image, bsize = 3, c = 0 )
     else :
-        v = threshold_golobal( image, threshold )
+        threshold = np.average( image )*1.1
+        v = threshold_golobal( image, threshold = threshold )
     pass
 
     return v
@@ -767,11 +769,11 @@ def count_y_axis_signal( image, ksize ) :
     h = len( image ) # image height
     w = len( image[0] ) # image width
 
-    data = np.zeros( [w], dtype='B')
+    data = np.zeros( w, dtype='B')
     ksize = 1
 
-    for x in range( width ) :
-        window = image[ 0 : height , x : x + ksize ]
+    for x in range( w ) :
+        window = image[ 0 : h , x : x + ksize ]
         signal_count = np.count_nonzero( window == 1 ) # 검정 바탕 흰색 카운트
         # signal_count = np.count_nonzero( window == 0 ) # 흰 바탕 검정 카운트
         data[x] = signal_count
@@ -784,7 +786,9 @@ pass #-- count_y_axis_signal
 target_image = image_binarized
 y_counts = count_y_axis_signal( image= target_image, ksize = 1 )
 
-np.savetxt("./yount.csv", y_counts, delimiter=",")
+# y count 데이터를 csv 파일로 저장 
+
+y_counts.tofile( "./y_count.csv", sep=',', format='%s') 
 
 if 1 : # y count 표출 
     gs_row += 1
