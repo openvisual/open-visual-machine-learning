@@ -728,10 +728,11 @@ def binarize_image( image, threshold = None ):
     v = None
 
     if 1 :
-        bsize = len( image )/15
+        bsize = 5
         v = threshold_adaptive_gaussian( image, bsize = bsize, c = 5 )
     elif 0 :
-        v = threshold_adaptive_mean( image, bsize = 3, c = 0 )
+        bsize = 3
+        v = threshold_adaptive_mean( image, bsize = bsize, c = 0 )
     else :
         threshold = np.average( image )*1.1
         v = threshold_golobal( image, threshold = threshold )
