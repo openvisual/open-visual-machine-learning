@@ -645,11 +645,13 @@ def threshold_adaptive_gaussian_opencv( image, bsize = 3, c = 0 ):
 
     reverse_required = 1 
 
+    bsize = 2*int( bsize/2 )  + 1
+
     image = image.astype(np.uint8)
 
     data = cv2.adaptiveThreshold(image, 1, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, bsize, c)
 
-    return data, -1, "adaptive gaussian thresholding opencv", reverse_required
+    return data, ("bsize = %s" % bsize), "adaptive gaussian thresholding opencv", reverse_required
 pass # -- 지역 가우시안 적응 임계치 처리
 
 def threshold_adaptive_gaussian_my( image, bsize = 3, c = 0 ):
@@ -658,6 +660,8 @@ def threshold_adaptive_gaussian_my( image, bsize = 3, c = 0 ):
     # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#getgaussiankernel
 
     reverse_required = 0
+
+    bsize = 2*int( bsize/2 )  + 1
 
     h = len( image ) # image height
     w = len( image[0] ) # image width
@@ -711,15 +715,16 @@ def threshold_adaptive_gaussian_my( image, bsize = 3, c = 0 ):
         pass
     pass
 
-    return data, -1, "adaptive gaussian thresholding my", reverse_required
+    return data, ("bsize = %s" % bsize), "adaptive gaussian thresholding my", reverse_required
 pass # -- 지역 가우시안 적응 임계치 처리
 
 #TODO      이진화 계산
 def binarize_image( image, threshold = None ):
     v = None
 
-    if 0 :
-        v = threshold_adaptive_gaussian( image, bsize = 3, c = 5 )
+    if 1 :
+        bsize = len( image )/15
+        v = threshold_adaptive_gaussian( image, bsize = bsize, c = 5 )
     elif 0 :
         v = threshold_adaptive_mean( image, bsize = 3, c = 0 )
     else :
