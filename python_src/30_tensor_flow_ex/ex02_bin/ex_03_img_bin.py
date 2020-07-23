@@ -717,9 +717,9 @@ pass # -- 지역 가우시안 적응 임계치 처리
 def binarize_image( image, threshold = None ):
     v = None
 
-    if 1 :
+    if 0 :
         v = threshold_adaptive_gaussian( image, bsize = 3, c = 5 )
-    elif 1 :
+    elif 0 :
         v = threshold_adaptive_mean( image, bsize = 3, c = 0 )
     else :
         v = threshold_golobal( image, threshold )
@@ -784,7 +784,9 @@ pass #-- count_y_axis_signal
 target_image = image_binarized
 y_counts = count_y_axis_signal( image= target_image, ksize = 1 )
 
-if 1 : # y count 표출
+np.savetxt("./yount.csv", y_counts, delimiter=",")
+
+if 1 : # y count 표출 
     gs_row += 1
     gs_col = 0
     colspan = gs_col_cnt
