@@ -32,6 +32,13 @@ if dirname :
 pass
 #-- 현재 파일의 폴더로 실행 폴더를 이동함.
 
+# 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
+#img_path = "../data_ocr/sample_01/messi5.png"
+#img_path = "../data_ocr/sample_01/hist_work_01.png"
+#img_path = "../data_ocr/sample_01/gosu_01.png"
+img_path = "../data_ocr/sample_01/sample_21.png"
+img_path = "../data_yegan/ex_01/_1018877.JPG"
+
 #TODO     이미지 저장 함수
 img_save_cnt = 0
 
@@ -80,13 +87,6 @@ def change_ax_border_color( ax, color ) :
 pass #-- change_ax_border_color
 
 #TODO    원천 이미지 획득
-
-# 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
-#img_path = "../data_ocr/sample_01/messi5.png"
-#img_path = "../data_ocr/sample_01/hist_work_01.png"
-#img_path = "../data_ocr/sample_01/gosu_01.png"
-img_path = "../data_ocr/sample_01/sample_21.png"
-#img_path = "../data_yegan/ex_01/_1018877.JPG"
 
 img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 
@@ -457,33 +457,38 @@ def remove_noise( image, ksize = 3 ) :
     msg = "Remove noise" 
     log.info( "%s ..." % msg )
 
-    h = len( image ) # image height
-    w = len( image[0] ) # image width
+    if 1 :
+        log.info( "cv2.medianBlur( image, ksize )" )
+        data = cv2.medianBlur( image, ksize )
+    else :
+        h = len( image ) # image height
+        w = len( image[0] ) # image width
 
-    b = int( ksize/2 )
+        b = int( ksize/2 )
 
-    data = np.empty( [h, w], dtype=image.dtype )
+        data = np.empty( [h, w], dtype=image.dtype )
 
-    idx = 0
-    for y in range( height ) :
-        for x in range( width ) :
-            y0 = y - b
-            x0 = x - b
+        idx = 0
+        for y in range( height ) :
+            for x in range( width ) :
+                y0 = y - b
+                x0 = x - b
 
-            if y0 < 0 :
-                y0 = 0
+                if y0 < 0 :
+                    y0 = 0
+                pass
+
+                if x0 < 0 :
+                    x0 = 0
+                pass
+
+                window = image[ y0 : y + b + 1, x0 : x + b + 1 ]
+                median = np.median( window )
+                data[y][x] = median
+
+                0 and log.info( "[%05d] data[%d][%d] = %.4f" % (idx, y, x, median) )
+                idx += 1
             pass
-
-            if x0 < 0 :
-                x0 = 0
-            pass
-
-            window = image[ y0 : y + b + 1, x0 : x + b + 1 ]
-            median = np.median( window )
-            data[y][x] = median
-
-            0 and log.info( "[%05d] data[%d][%d] = %.4f" % (idx, y, x, median) )
-            idx += 1
         pass
     pass
 
