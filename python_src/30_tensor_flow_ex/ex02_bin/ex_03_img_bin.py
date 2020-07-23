@@ -457,7 +457,15 @@ def remove_noise( image, ksize = 3 ) :
     msg = "Remove noise" 
     log.info( "%s ..." % msg )
 
-    if 1 :
+    algorithm = "bilateralFilter"
+
+    if "bilateralFilter" == algorithm :
+        log.info( "cv.bilateralFilter(img,ksize,75,75)" )
+
+        image = image.astype(np.uint8)
+
+        data = cv2.bilateralFilter( image,ksize,75,75)
+    elif 1 :
         log.info( "cv2.medianBlur( image, ksize )" )
         data = cv2.medianBlur( image, ksize )
     else :
@@ -494,52 +502,13 @@ def remove_noise( image, ksize = 3 ) :
 
     log.info( "Done. %s" % msg )
 
-    return data
+    return data , algorithm
 pass #-- 잡음 제거 함수
 
-def my_median_blur( image, ksize = 3 ) :
-    msg = "Remove noise" 
-    log.info( "%s ..." % msg )
-
-    h = len( image ) # image height
-    w = len( image[0] ) # image width
-
-    b = int( ksize/2 )
-
-    data = np.empty( [h, w], dtype=image.dtype )
-
-    idx = 0
-    for y in range( height ) :
-        for x in range( width ) :
-            y0 = y - b
-            x0 = x - b
-
-            if y0 < 0 :
-                y0 = 0
-            pass
-
-            if x0 < 0 :
-                x0 = 0
-            pass
-
-            window = image[ y0 : y + b + 1, x0 : x + b + 1 ]
-            median = np.median( window )
-            data[y][x] = median
-
-            0 and log.info( "[%05d] data[%d][%d] = %.4f" % (idx, y, x, median) )
-            idx += 1
-        pass
-    pass
-
-    log.info( "Done. %s" % msg )
-    
-    return data
-pass #-- my median blur
-
 ksize = 3
-noise_removed = remove_noise( image_normalized, ksize )
+noise_removed, algorithm = remove_noise( image_normalized, ksize )
 
-save_img_as_file( "noise_removed", noise_removed )
+save_img_as_file( "noise_removed(%s)" % algorithm, noise_removed )
 
 if 1 : # 잡음 제거  이미지 표출
     gs_row += 1
