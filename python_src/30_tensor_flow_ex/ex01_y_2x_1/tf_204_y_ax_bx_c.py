@@ -51,7 +51,7 @@ print( "output count = %s" % output_count )
 # 신경망 만들기 
 model.add( Dense(output_count, input_shape=input_shape) )
 
-model.compile( optimizer='adam', loss='mse', metrics=['accuracy'] )
+model.compile( optimizer='adam', loss='mae', metrics=['accuracy'] )
 
 epochs = 8_000
 model.fit( questions, answers, epochs=epochs, batch_size=7 ) 
