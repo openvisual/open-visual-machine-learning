@@ -14,6 +14,15 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QPushButton 
 from PyQt5.Qt import *
 
+import tensorflow as tf
+from tensorflow import keras
+
+from tensorflow.keras import callbacks 
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Lambda  
+from tensorflow.python.keras import backend as K 
+
 class QuestAns :
     def __init__(self, quest, answer) :
         self.quest = quest
@@ -46,6 +55,8 @@ class DatasetTableModel(QtCore.QAbstractTableModel):
         self.dataChanged.emit(self.index(0, y), self.index( self.colCount , y)) 
 
         self.layoutChanged.emit()
+
+        self.tableView.scrollToBottom()
     pass # appendData
 
     def create_data(self) :
@@ -177,7 +188,7 @@ class DatasetTableModel(QtCore.QAbstractTableModel):
 #TODO DatasetTableModel
 pass #-- DatasetTableModel
 
-class MyQtApp(QtWidgets.QMainWindow):
+class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     def __init__(self):
         super(MyQtApp, self).__init__() # Call the inherited classes __init__ method
         
@@ -194,12 +205,103 @@ class MyQtApp(QtWidgets.QMainWindow):
 
         tableModel.adjustColumnWidth()
 
+        # connect signals to slots
         self.x.valueChanged.connect( self.when_x_valueChanged ) 
         self.x.editingFinished.connect( self.when_x_editingFinished ) 
 
         self.append.clicked.connect( self.when_append_clicked )
-    
+        self.start.clicked.connect( self.when_start_clicked )
+
+        # 학습 모델 생성 
+        model = keras.models.Sequential( )
+        model.add(Dense(1, input_shape=[1] ))  
+        model.compile( optimizer='adam', loss="mae", metrics=['accuracy'] )
+
+        self.model = model    
     pass #MyQtApp __init__
+
+    # callbacks
+
+    def on_train_begin(self, logs=None):
+        print("on_train_begin" )
+
+        progressBar = self.progressBar
+        
+        progressBar.setValue( progressBar.minimum() )
+        progressBar.setEnabled( True ) 
+    pass
+
+    def on_train_end(self, logs=None):
+        print("on_train_end" )
+
+        progressBar = self.progressBar
+        
+        progressBar.setValue( progressBar.maximum() )
+        progressBar.setDisabled( True ) 
+    pass
+
+    def on_epoch_begin(self, epoch, logs=None):
+        log.info("\n\nStart epoch %s of training." % ( epoch  + 1 ) )
+
+        epochs = self.epochs
+
+        value = (100*epoch)/epochs
+        
+        progressBar = self.progressBar
+        
+        progressBar.setValue( int( value ) ) 
+    pass
+
+    def on_epoch_end(self, epoch, logs=None):
+        #  ['loss', 'mean_squared_error', 'val_loss', 'val_mean_squared_error']
+        keys = list(logs.keys())
+
+        #log.info( "%s" % keys )
+        
+        loss = logs[ "loss" ] #TODO 2010 손실 값 키 설정 loss key set 
+
+        log.info( "\ncurr epoch[%s] val_loss = %s\n" % ( epoch + 1, loss ) ) 
+
+        log.info("\nEnd epoch {} of training; got log keys: {}\n".format(epoch, keys)) 
+
+        epochs = self.epochs
+
+        value = (100*epoch)/epochs
+        
+        progressBar = self.progressBar
+        
+        progressBar.setValue( int( value ) ) 
+    pass
+
+    # -- callbacks
+
+    def when_start_clicked( self ) : 
+        log.info( "when_start_clicked" )
+
+        tableView = self.datasetTableView
+        tableModel = tableView.model()
+
+        questAnsList = tableModel.data 
+
+        questions = [ qa.quest for qa in questAnsList ]
+        answers = [ qa.answer for qa in questAnsList ]
+
+        print( "questions: ", questions )
+        print( "answers: ", answers )
+
+        questions = questions*100
+        answers = answers*100
+
+        model = self.model
+
+        self.epochs = 30
+
+        epochs = self.epochs
+
+        callbacks = [ self ]
+        model.fit( questions, answers, epochs=epochs, batch_size=7, callbacks=callbacks )  
+
+    pass #-- when_start_clicked
 
     def when_x_valueChanged(self, i ) :
         log.info( "when_x_changed: %s" % i )
