@@ -291,9 +291,9 @@ def make_histogram( grayscale ) :
     pass
 
     return histogram
-pass #-- calculate histogram
+pass # -- calculate histogram
 
-#TODO    누적 히스토 그램
+# TODO    누적 히스토 그램
 def accumulate_histogram( histogram ) :
     log.info( "Accumulate histogram ..." )
 
@@ -312,7 +312,7 @@ histogram = make_histogram( grayscale )
 histogram_acc = accumulate_histogram( histogram )
 
 def show_histogram( histogram , histogram_acc, title ): # 히스토 그램 표출
-    #gs_row += 1
+    # gs_row += 1
     gs_col = 0
     colspan = 1
 
