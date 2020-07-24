@@ -1,47 +1,114 @@
 # -*- coding: utf-8 -*-
 
-import os, sys
-from PyQt5 import QtWidgets, uic 
+import os, sys, datetime
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+import warnings
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+
+import logging as log
+log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
+
+from PyQt5 import QtWidgets, uic, QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt 
 from PyQt5.QtWidgets import QPushButton 
 from PyQt5.Qt import *
 
+class QuestAns :
+    def __init__(self, quest, answer) :
+        self.quest = quest
+        self.answer = answer
+    pass
+pass
+
 #TODO      DatasetTableModel
 class DatasetTableModel(QtCore.QAbstractTableModel):
-    def __init__(self ):
+    def __init__(self, tableView ):
         super(DatasetTableModel, self).__init__()
 
-        self.table_header = [ "y" , "x" ]
+        self.colCount = 4 
 
-        data = [
-            [4, 9, 2],
-            [1, 0, 0],
-            [3, 5, 0],
-            [3, 3, 2],
-            [7, 8, 9],
-        ]
-        
-        self.data = data
-    pass
+        self.tableView = tableView
+
+        self.table_header = [ "Question" , "Answer" ] 
+
+        self.data = self.create_data()  
+    pass #-- __init__
+
+    def appendData( self, data ):
+        log.info( "appendData" )
+        #self.data.append( data )
+
+        self.data.append( data ) 
+
+        y = len( self.data )
+
+        self.dataChanged.emit(self.index(0, y), self.index( self.colCount , y)) 
+
+        self.layoutChanged.emit()
+    pass # appendData
+
+    def create_data(self) :
+        questAnsList = []
+
+        # 질문/정답 만들기 
+        questAnsList.append( QuestAns( -1.0, -3.0 ) )
+        questAnsList.append( QuestAns( 0.0, -1.0 ) )
+        questAnsList.append( QuestAns( 1.0, 1.0 ) )
+        questAnsList.append( QuestAns( 2.0, 1.0 ) )
+        questAnsList.append( QuestAns( 3.0, 5.0 ) )
+        questAnsList.append( QuestAns( 4.0, 7.0 ) )
+        questAnsList.append( QuestAns( 5.0, 9.0 ) )
+
+        return questAnsList
+    pass #-- create_data
+
+    def cell_value( self, index) :
+        row = index.row()
+        col = index.column()
+
+        # get cell value
+        value = "" 
+
+        if col == 0 :
+            value = row + 1
+        else :
+            questAns = self.data[ row ]
+            if col == 1 :
+                value = questAns.quest 
+            elif col == 2 :
+                value = questAns.answer
+            else : 
+                value = ""
+            pass
+        pass 
+
+        return value
+    pass # cell values    
 
     def data(self, index, role):
         if role == Qt.BackgroundRole :
             return self.getBackgroundBrush( index )
         elif role == Qt.ForegroundRole :
             return self.getForegroundBrush( index )
-        elif role == Qt.DisplayRole: 
-            row = index.row()
-            col = index.column()
+        else : 
+            value = self.cell_value( index )
 
-            if col == 0 :
-                return row + 1
-            else :
-                return self.data[ row ][ col - 1 ]
-            pass
+            if role == Qt.DisplayRole: 
+                return value
+            elif Qt.TextAlignmentRole == role : 
+                if type( value ) == int :
+                    return  Qt.AlignRight | QtCore.Qt.AlignVCenter
+                elif type( value ) == float :
+                    return  Qt.AlignRight | QtCore.Qt.AlignVCenter
+                elif isinstance( value, datetime.date) :
+                    return Qt.AlignHCenter | QtCore.Qt.AlignVCenter
+                else :
+                    return Qt.AlignLeft | QtCore.Qt.AlignVCenter
+                pass
+            pass # -- return cell alignment value
         pass
-    pass
+    pass #-- data
 
     def rowCount(self, index):
         # The length of the outer list.
@@ -50,7 +117,7 @@ class DatasetTableModel(QtCore.QAbstractTableModel):
     def columnCount(self, index):
         # The following takes the first sub-list, and returns
         # the length (only works if all rows are an equal length)
-        return len(self.data[0]) + 1
+        return self.colCount
     pass
 
     # headerData
@@ -77,19 +144,35 @@ class DatasetTableModel(QtCore.QAbstractTableModel):
     def getBackgroundBrush(self , index ):
         row = index.row()
         
-        if row%2 == 1 :
+        if row%2 == 0 :
             return QBrush( Qt.lightGray )
         else : 
             return None
         pass
-    pass
-    # -- getBackgroundBrush
+    pass # -- getBackgroundBrush
     
     # getForegroundBrush
     def getForegroundBrush(self , index ):
         return None
-    pass
-    # -- getForegroundBrush
+    pass # -- getForegroundBrush
+
+    def adjustColumnWidth( self ):
+        tableView = self.tableView 
+        
+        # column width setting
+        header = tableView.horizontalHeader()     
+        
+        colCount = self.columnCount( tableView )
+        
+        for idx in range( 0, colCount ) :
+            if colCount - 1 > idx :
+                header.setSectionResizeMode( idx, QHeaderView.ResizeToContents )
+            else :
+                header.setSectionResizeMode( idx, QHeaderView.Stretch )
+            pass
+        pass
+        # -- column width setting
+    pass # -- adjustColumnWidth
 
 #TODO DatasetTableModel
 pass #-- DatasetTableModel
@@ -105,10 +188,48 @@ class MyQtApp(QtWidgets.QMainWindow):
         progressBar.setValue( 0 )
         progressBar.setDisabled( True )
 
-        datasetTableView = self.datasetTableView
-        datasetTableModel = DatasetTableModel()
-        datasetTableView.setModel( datasetTableModel )
-    pass
+        tableView = self.datasetTableView
+        tableModel = DatasetTableModel( tableView )
+        tableView.setModel( tableModel )
+
+        tableModel.adjustColumnWidth()
+
+        self.x.valueChanged.connect( self.when_x_valueChanged ) 
+        self.x.editingFinished.connect( self.when_x_editingFinished ) 
+
+        self.append.clicked.connect( self.when_append_clicked )
+    
+    pass #MyQtApp __init__
+
+    def when_x_valueChanged(self, i ) :
+        log.info( "when_x_changed: %s" % i )
+
+        y =  2*i - 1
+        self.y.setText( "%s" % ( y ) )
+    pass #-- when_x_valueChanged
+
+    def when_append_clicked( self ):
+        log.info( "when_append_clicked" )
+
+        self.appendData()
+    pass #-- when_append_clicked
+
+    def when_x_editingFinished(self) :
+        log.info( "when_x_editingFinished" )
+
+        self.appendData()
+    pass #-- when_x_editingFinished
+
+    def appendData( self ) : 
+        tableView = self.datasetTableView 
+        tableModel = tableView.model()
+        
+        x = self.x.value() 
+        y = int( self.y.text().strip() )
+        questAns = QuestAns( x, y )
+
+        tableModel.appendData( questAns )
+    pass #-- when_x_editingFinished
 
     def when_MyPushButton_clicked(self) :
         print( "when_MyPushButton_clicked" )
