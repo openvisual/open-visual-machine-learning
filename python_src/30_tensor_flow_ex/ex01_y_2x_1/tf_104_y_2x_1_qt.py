@@ -210,10 +210,14 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         progressBar = self.progressBar
         
         progressBar.setValue( 0 )
-        progressBar.setDisabled( True )
+        progressBar.setDisabled( 1 )
 
-        self.myQuestion.setDisabled( True )
-        self.answer.setDisabled( True )
+        answer = self.answer
+        myQuestion = self.myQuestion
+        
+        answer.setDisabled( 1 )
+        myQuestion.setDisabled( 1 )
+        myQuestion.setValidator( QtGui.QDoubleValidator() )
 
         tableView = self.datasetTableView
         tableModel = DatasetTableModel( tableView )
