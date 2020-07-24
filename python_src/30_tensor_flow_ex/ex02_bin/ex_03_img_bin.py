@@ -183,7 +183,7 @@ def convert_to_grayscale( channels ) :
 
     data = r_channel*0.299 + g_channel*0.587 + b_channel*0.114
 
-    data = data.astype( np.int16 ) 
+    data = data.astype( np.int16 )
 
     '''
     h = len( r_channel ) # image height

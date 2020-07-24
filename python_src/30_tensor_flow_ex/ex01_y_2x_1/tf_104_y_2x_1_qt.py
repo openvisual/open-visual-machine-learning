@@ -201,6 +201,7 @@ class Stream(QtCore.QObject):
 pass
 
 class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
+
     def __init__(self):
         super(MyQtApp, self).__init__() # Call the inherited classes __init__ method
         
@@ -210,6 +211,9 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         
         progressBar.setValue( 0 )
         progressBar.setDisabled( True )
+
+        self.myQuestion.setDisabled( True )
+        self.answer.setDisabled( True )
 
         tableView = self.datasetTableView
         tableModel = DatasetTableModel( tableView )
@@ -223,6 +227,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
         self.append.clicked.connect( self.when_append_clicked )
         self.start.clicked.connect( self.when_start_clicked )
+        self.answer.clicked.connect( self.when_answer_clicked )
 
         # 학습 모델 생성 
         model = keras.models.Sequential( )
@@ -232,8 +237,23 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         self.model = model
 
         sys.stdout = Stream(newText=self.onUpdateText)
-
     pass #MyQtApp __init__
+
+    def when_answer_clicked( self ):
+        log.info( "when_answer_clicked" )
+
+        my_questions = [ 10 ]
+
+        print( "\nMy Questions = " , my_questions )
+
+        model = self.model
+
+        my_answers = model.predict( my_questions ) 
+
+        first_answer = my_answers[0][0]
+
+        self.theAnswer.setText( "%s" % first_answer ) 
+    pass
 
     def onUpdateText(self, text):
         textEdit = self.learningState
@@ -262,6 +282,12 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         
         progressBar.setValue( progressBar.maximum() )
         progressBar.setDisabled( True ) 
+
+        myQuestion = self.myQuestion
+        myQuestion.setDisabled( False )
+        
+        answer = self.answer
+        answer.setDisabled( False )
     pass
 
     def on_epoch_begin(self, epoch, logs=None):

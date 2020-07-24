@@ -155,7 +155,14 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="myQuestion"/>
+               <widget class="QLineEdit" name="myQuestion">
+                <property name="inputMethodHints">
+                 <set>Qt::ImhDigitsOnly</set>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QPushButton" name="answer">
@@ -230,7 +237,7 @@
      <x>0</x>
      <y>0</y>
      <width>734</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
