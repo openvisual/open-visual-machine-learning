@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os, sys, datetime
+import os, sys, datetime 
 
 import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
@@ -188,6 +188,18 @@ class DatasetTableModel(QtCore.QAbstractTableModel):
 #TODO DatasetTableModel
 pass #-- DatasetTableModel
 
+class Stream(QtCore.QObject):
+    newText = QtCore.pyqtSignal(str)
+
+    def write(self, text):
+        self.newText.emit(str(text))
+    pass
+
+    def flush(self):
+        pass
+    pass
+pass
+
 class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     def __init__(self):
         super(MyQtApp, self).__init__() # Call the inherited classes __init__ method
@@ -217,8 +229,20 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         model.add(Dense(1, input_shape=[1] ))  
         model.compile( optimizer='adam', loss="mae", metrics=['accuracy'] )
 
-        self.model = model    
+        self.model = model
+
+        sys.stdout = Stream(newText=self.onUpdateText)
+
     pass #MyQtApp __init__
+
+    def onUpdateText(self, text):
+        textEdit = self.learningState
+        cursor = textEdit.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.End)
+        cursor.insertText(text)
+        textEdit.setTextCursor(cursor)
+        textEdit.ensureCursorVisible()
+    pass
 
     # callbacks
 
@@ -278,6 +302,8 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     def when_start_clicked( self ) : 
         log.info( "when_start_clicked" )
 
+        self.learningState.setText( "" )
+
         tableView = self.datasetTableView
         tableModel = tableView.model()
 
@@ -331,14 +357,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         questAns = QuestAns( x, y )
 
         tableModel.appendData( questAns )
-    pass #-- when_x_editingFinished
-
-    def when_MyPushButton_clicked(self) :
-        print( "when_MyPushButton_clicked" )
-
-        myText = self.myLineEdit.text()
-        self.myLabel.setText( myText )
-    pass
+    pass #-- when_x_editingFinished 
 pass
 
 if __name__ == '__main__':
