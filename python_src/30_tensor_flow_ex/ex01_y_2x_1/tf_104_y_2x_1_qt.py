@@ -260,7 +260,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     pass
 
     def onUpdateText(self, text):
-        textEdit = self.learningState
+        textEdit = self.learnState
         cursor = textEdit.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
         cursor.insertText(text)
@@ -332,7 +332,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     def when_start_clicked( self ) : 
         log.info( "when_start_clicked" )
 
-        self.learningState.setText( "" )
+        self.learnState.setText( "" )
 
         tableView = self.datasetTableView
         tableModel = tableView.model()
@@ -375,7 +375,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     def when_x_editingFinished(self) :
         log.info( "when_x_editingFinished" )
 
-        self.appendData()
+        #self.appendData()
     pass #-- when_x_editingFinished
 
     def appendData( self ) : 
