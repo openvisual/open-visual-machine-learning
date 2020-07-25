@@ -31,71 +31,55 @@ class QuestAns :
 pass
 
 #TODO      DatasetTableModel
-class DatasetTableModel(QtCore.QAbstractTableModel):
+class MyTableModel(QtCore.QAbstractTableModel):
     def __init__(self, tableView ):
-        super(DatasetTableModel, self).__init__()
-
-        self.colCount = 4 
+        super(MyTableModel, self).__init__()
 
         self.tableView = tableView
 
-        self.table_header = [ "Question" , "Answer" ] 
+        self.table_header = self.table_header()
+
+        self.col_count = len( self.table_header ) + 2
 
         self.data = self.create_data()  
     pass #-- __init__
 
-    def appendData( self, data ):
-        log.info( "appendData" )
-        #self.data.append( data )
+    def rowCount(self, index):
+        # The length of the outer list.
+        return len(self.data)
 
-        self.data.append( data ) 
+    def columnCount(self, index):
+        # The following takes the first sub-list, and returns
+        # the length (only works if all rows are an equal length)
+        return self.col_count
+    pass
 
-        y = len( self.data )
+    def table_header(self):
+        header = [ "Question" , "Answer" ] 
+        return header
+    pass
 
-        self.dataChanged.emit(self.index(0, y), self.index( self.colCount , y)) 
-
-        self.layoutChanged.emit()
-
-        self.tableView.scrollToBottom()
-    pass # appendData
-
-    def create_data(self) :
-        questAnsList = []
-
-        # 질문/정답 만들기 
-        questAnsList.append( QuestAns( -1.0, -3.0 ) )
-        questAnsList.append( QuestAns( 0.0, -1.0 ) )
-        questAnsList.append( QuestAns( 1.0, 1.0 ) )
-        questAnsList.append( QuestAns( 2.0, 1.0 ) )
-        questAnsList.append( QuestAns( 3.0, 5.0 ) )
-        questAnsList.append( QuestAns( 4.0, 7.0 ) )
-        questAnsList.append( QuestAns( 5.0, 9.0 ) )
-
-        return questAnsList
-    pass #-- create_data
-
-    def cell_value( self, index) :
-        row = index.row()
+    def format_of_value( self, index, value ) :
         col = index.column()
 
-        # get cell value
-        value = "" 
+        fmt = ""
 
-        if col == 0 :
-            value = row + 1
-        else :
-            questAns = self.data[ row ]
-            if col == 1 :
-                value = questAns.quest 
-            elif col == 2 :
-                value = questAns.answer
+        tv = type( value )
+
+        if tv == type( 0 ) :
+            fmt = ",d"
+        elif tv == type( 0.1 ) :
+            if float( int( value ) ) == value :
+                fmt = ",.0f"
             else : 
-                value = ""
+                fmt = ",.4f"
             pass
-        pass 
+        pass
 
-        return value
-    pass # cell values    
+        log.info( "type = %s, format = %s, value = %s" % (tv, fmt, value) )
+
+        return fmt
+    pass # -- format_of_value
 
     def data(self, index, role):
         if role == Qt.BackgroundRole :
@@ -106,7 +90,12 @@ class DatasetTableModel(QtCore.QAbstractTableModel):
             value = self.cell_value( index )
 
             if role == Qt.DisplayRole: 
-                return value
+                fmt = self.format_of_value( index, value )
+                if fmt : 
+                    return format(value, fmt)
+                else :
+                    return value
+                pass
             elif Qt.TextAlignmentRole == role : 
                 if type( value ) == int :
                     return  Qt.AlignRight | QtCore.Qt.AlignVCenter
@@ -120,16 +109,6 @@ class DatasetTableModel(QtCore.QAbstractTableModel):
             pass # -- return cell alignment value
         pass
     pass #-- data
-
-    def rowCount(self, index):
-        # The length of the outer list.
-        return len(self.data)
-
-    def columnCount(self, index):
-        # The following takes the first sub-list, and returns
-        # the length (only works if all rows are an equal length)
-        return self.colCount
-    pass
 
     # headerData
     def headerData(self, col, orientation, role):
@@ -173,10 +152,10 @@ class DatasetTableModel(QtCore.QAbstractTableModel):
         # column width setting
         header = tableView.horizontalHeader()     
         
-        colCount = self.columnCount( tableView )
+        col_count = self.col_count
         
-        for idx in range( 0, colCount ) :
-            if colCount - 1 > idx :
+        for idx in range( 0, col_count ) :
+            if idx < col_count - 1 :
                 header.setSectionResizeMode( idx, QHeaderView.ResizeToContents )
             else :
                 header.setSectionResizeMode( idx, QHeaderView.Stretch )
@@ -187,6 +166,68 @@ class DatasetTableModel(QtCore.QAbstractTableModel):
 
 #TODO DatasetTableModel
 pass #-- DatasetTableModel
+
+class DatasetTableModel( MyTableModel ):
+    def __init__(self, tableView ):
+        super(DatasetTableModel, self).__init__( tableView ) 
+    pass
+
+    def appendData( self, data ):
+        log.info( "appendData" )
+        #self.data.append( data )
+
+        col_count = self.col_count
+
+        self.data.append( data ) 
+
+        y = len( self.data )
+
+        self.dataChanged.emit(self.index(0, y), self.index( col_count, y)) 
+
+        self.layoutChanged.emit()
+
+        self.tableView.scrollToBottom()
+    pass # appendData
+
+    def create_data(self) :
+        questAnsList = []
+
+        # 질문/정답 만들기 
+        questAnsList.append( QuestAns( -1.0, -3.0 ) )
+        questAnsList.append( QuestAns( 0.0, -1.0 ) )
+        questAnsList.append( QuestAns( 1.0, 1.0 ) )
+        questAnsList.append( QuestAns( 2.0, 1.0 ) )
+        questAnsList.append( QuestAns( 3.0, 5.0 ) )
+        questAnsList.append( QuestAns( 4.0, 7.0 ) )
+        questAnsList.append( QuestAns( 5.0, 9.0 ) )
+
+        return questAnsList
+    pass #-- create_data 
+
+    def cell_value( self, index) :
+        row = index.row()
+        col = index.column()
+
+        # get cell value
+        value = "" 
+
+        if col == 0 :
+            value = row + 1
+        else :
+            questAns = self.data[ row ]
+            if col == 1 :
+                value = questAns.quest 
+            elif col == 2 :
+                value = questAns.answer
+            else : 
+                value = ""
+            pass
+        pass 
+
+        return value
+    pass # cell values
+    
+pass
 
 class Stream(QtCore.QObject):
     newText = QtCore.pyqtSignal(str)
