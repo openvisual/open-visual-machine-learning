@@ -484,8 +484,13 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
             tableModel = tableView.model()
             row = epoch
             row_data = tableModel.dataList[ row ]
-            row_data[ "loss" ] = logs[ "loss" ]
-            row_data[ "acc" ]  = logs[ "acc" ]
+
+            for k in [ "loss", "acc", "size" ,  ] : 
+                if k in logs : 
+                    row_data[ k ] = logs[ k ]
+                pass
+            pass 
+
             col_count = tableModel.col_count 
 
             x = col_count
@@ -506,15 +511,19 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         keys = list(logs.keys())
         0 and log.info("...Training: start of batch {}; got log keys: {}".format(batch, keys))
 
-        size = logs[ "size" ]
-
         if 1 : 
             # update learn table
             tableView = self.learnTableView
             tableModel = tableView.model()
             row = self.epoch
             row_data = tableModel.dataList[ row ]
-            row_data[ "size" ] = logs[ "size" ]
+
+            for k in [ "loss", "acc", "size" ,  ] : 
+                if k in logs : 
+                    row_data[ k ] = logs[ k ]
+                pass
+            pass
+
             col_count = tableModel.col_count 
 
             x = col_count
@@ -528,11 +537,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
     def on_train_batch_end(self, batch, logs=None):
         keys = list(logs.keys())
-        0 and log.info("...Training: end of batch {}; got log keys: {}".format(batch, keys))
-
-        size = logs[ "size" ]
-        loss = logs[ "loss" ]
-        acc  = logs[ "acc"  ]
+        0 and log.info("...Training: end of batch {}; got log keys: {}".format(batch, keys)) 
 
         if 1 : 
             # update learn table
@@ -540,9 +545,13 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
             tableModel = tableView.model()
             row = self.epoch
             row_data = tableModel.dataList[ row ]
-            row_data[ "loss" ] = logs[ "loss" ]
-            row_data[ "acc" ]  = logs[ "acc" ]
-            row_data[ "size" ] = logs[ "size" ]
+
+            for k in [ "loss", "acc", "size" ,  ] : 
+                if k in logs : 
+                    row_data[ k ] = logs[ k ]
+                pass
+            pass 
+
             col_count = tableModel.col_count 
 
             x = col_count
