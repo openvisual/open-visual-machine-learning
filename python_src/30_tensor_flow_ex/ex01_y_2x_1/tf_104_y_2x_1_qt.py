@@ -41,22 +41,37 @@ class MyTableModel(QtCore.QAbstractTableModel):
 
         self.col_count = len( table_header ) + 2
 
-        self.data = self.create_data()  
+        self.dataList = self.create_data_list()  
     pass #-- __init__
+
+    def appendData( self, data ):
+        log.info( "appendData" )
+        #self.dataList.append( data )
+
+        col_count = self.col_count
+
+        self.dataList.append( data ) 
+
+        row_count = len( self.dataList )
+
+        x = col_count
+        y = row_count
+
+        self.dataChanged.emit(self.index(0, y), self.index( x, y)) 
+
+        self.layoutChanged.emit()
+
+        self.tableView.scrollToBottom() 
+    pass # appendData
 
     def rowCount(self, index):
         # The length of the outer list.
-        return len(self.data)
+        return len(self.dataList)
 
     def columnCount(self, index):
         # The following takes the first sub-list, and returns
         # the length (only works if all rows are an equal length)
         return self.col_count
-    pass
-
-    def table_header(self):
-        header = [ "Question" , "Answer" ] 
-        return header
     pass
 
     def format_of_value( self, index, value ) :
@@ -172,24 +187,12 @@ class DatasetTableModel( MyTableModel ):
         super(DatasetTableModel, self).__init__( tableView ) 
     pass
 
-    def appendData( self, data ):
-        log.info( "appendData" )
-        #self.data.append( data )
+    def table_header(self):
+        header = [ "Question" , "Answer" ] 
+        return header
+    pass 
 
-        col_count = self.col_count
-
-        self.data.append( data ) 
-
-        y = len( self.data )
-
-        self.dataChanged.emit(self.index(0, y), self.index( col_count, y)) 
-
-        self.layoutChanged.emit()
-
-        self.tableView.scrollToBottom() 
-    pass # appendData
-
-    def create_data(self) :
+    def create_data_list(self) :
         questAnsList = []
 
         # 질문/정답 만들기 
@@ -214,7 +217,7 @@ class DatasetTableModel( MyTableModel ):
         if col == 0 :
             value = row + 1
         else :
-            questAns = self.data[ row ]
+            questAns = self.dataList[ row ]
             if col == 1 :
                 value = questAns.quest 
             elif col == 2 :
@@ -227,19 +230,48 @@ class DatasetTableModel( MyTableModel ):
         return value
     pass # cell values
     
-pass
+pass #-- DatasetTableModel
 
-class Stream(QtCore.QObject):
-    newText = QtCore.pyqtSignal(str)
-
-    def write(self, text):
-        self.newText.emit(str(text))
+class LearnTableModel( MyTableModel ):
+    def __init__(self, tableView ):
+        super(LearnTableModel, self).__init__( tableView ) 
     pass
 
-    def flush(self):
-        pass
-    pass
-pass
+    def table_header(self):
+        header = [ "Batch" , "Size", "ETA", "Elapsed", "Loss" , "Accuracy",  ] 
+        return header
+    pass 
+
+    def create_data_list(self) :
+        dataList = []  
+
+        return dataList
+    pass #-- create_data 
+
+    def cell_value( self, index) :
+        row = index.row()
+        col = index.column()
+
+        # get cell value
+        value = "" 
+
+        if col == 0 :
+            value = row + 1
+        else :
+            questAns = self.dataList[ row ]
+            if col == 1 :
+                value = questAns.quest 
+            elif col == 2 :
+                value = questAns.answer
+            else : 
+                value = ""
+            pass
+        pass 
+
+        return value
+    pass # cell values
+    
+pass #-- LearnTableModel
 
 class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
@@ -260,11 +292,21 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         myQuestion.setDisabled( 1 )
         myQuestion.setValidator( QtGui.QDoubleValidator() )
 
-        tableView = self.datasetTableView
-        tableModel = DatasetTableModel( tableView )
-        tableView.setModel( tableModel )
+        if 1 : 
+            tableView = self.datasetTableView
+            tableModel = DatasetTableModel( tableView )
+            tableView.setModel( tableModel )
 
-        tableModel.adjustColumnWidth()
+            tableModel.adjustColumnWidth()
+        pass
+
+        if 1 : 
+            tableView = self.learnTableView
+            tableModel = LearnTableModel( tableView )
+            tableView.setModel( tableModel )
+
+            tableModel.adjustColumnWidth()
+        pass
 
         # connect signals to slots
         self.x.valueChanged.connect( self.when_x_valueChanged ) 
@@ -287,6 +329,18 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
         self.statusbar.showMessage( "안녕하세요? 반갑습니다." )
 
+        class Stream(QtCore.QObject):
+            newText = QtCore.pyqtSignal(str)
+
+            def write(self, text):
+                self.newText.emit(str(text))
+            pass
+
+            def flush(self):
+                pass
+            pass
+        pass
+
         sys.stdout = Stream(newText=self.onUpdateText)
     pass #MyQtApp __init__
 
@@ -305,7 +359,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         else :
             answer.setEnabled( 1 )
         pass
-    pass
+    pass # -- when_my_question_textChanged
 
     def when_answer_clicked( self ):
         log.info( "when_answer_clicked" )
@@ -321,7 +375,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         first_answer = my_answers[0][0]
 
         self.theAnswer.setText( "%s" % first_answer ) 
-    pass
+    pass # -- when_answer_clicked
 
     def onUpdateText(self, text):
         textEdit = self.learnState
@@ -330,12 +384,14 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         cursor.insertText(text)
         textEdit.setTextCursor(cursor)
         textEdit.ensureCursorVisible()
-    pass
+    pass # -- onUpdateText
 
     # callbacks
 
     def on_train_begin(self, logs=None):
         print("on_train_begin" )
+
+        self.curr_epoch = -1
 
         answer = self.answer
         myQuestion = self.myQuestion
@@ -348,10 +404,12 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         myQuestion.setDisabled( 1 )
 
         self.statusbar.showMessage( "학습을 시작합니다." )
-    pass
+    pass # -- on_train_begin
 
     def on_train_end(self, logs=None):
         print("on_train_end" )
+
+        self.curr_epoch = -2
 
         progressBar = self.progressBar
         myQuestion = self.myQuestion
@@ -363,10 +421,12 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
         msg = "학습이 성공적으로 종료되었습니다. 질문을 입력하면 정답을 추론합니다."
         self.statusbar.showMessage( msg )
-    pass
+    pass # -- on_train_end
 
     def on_epoch_begin(self, epoch, logs=None):
         log.info("\n\nStart epoch %s of training." % ( epoch  + 1 ) )
+
+        self.curr_epoch = epoch
 
         epochs = self.epochs
 
@@ -377,7 +437,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         progressBar.setValue( int( value ) ) 
 
         self.statusbar.showMessage( "학습 %d 단계가 진행중입니다." % epoch )
-    pass
+    pass # -- on_epoch_begin
 
     def on_epoch_end(self, epoch, logs=None):
         #  ['loss', 'mean_squared_error', 'val_loss', 'val_mean_squared_error']
@@ -398,7 +458,23 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         progressBar = self.progressBar
         
         progressBar.setValue( int( value ) ) 
-    pass
+    pass #-- on_epoch_end
+
+    def on_train_batch_begin(self, batch, logs=None):
+        keys = list(logs.keys())
+        log.info("...Training: start of batch {}; got log keys: {}".format(batch, keys))
+
+        size = logs[ "size" ]
+    pass # -- on_train_batch_begin
+
+    def on_train_batch_end(self, batch, logs=None):
+        keys = list(logs.keys())
+        log.info("...Training: end of batch {}; got log keys: {}".format(batch, keys))
+
+        size = logs[ "size" ]
+        loss = logs[ "loss" ]
+        acc  = logs[ "acc"  ]
+    pass # -- on_train_batch_begin
 
     # -- callbacks
 
@@ -410,7 +486,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         tableView = self.datasetTableView
         tableModel = tableView.model()
 
-        questAnsList = tableModel.data 
+        questAnsList = tableModel.dataList
 
         questions = [ qa.quest for qa in questAnsList ]
         answers = [ qa.answer for qa in questAnsList ]
@@ -463,7 +539,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
         tableModel.appendData( questAns )
     pass #-- when_x_editingFinished 
-pass
+pass # -- MyQtApp
 
 if __name__ == '__main__':
     print( "Pwd 1: %s" % os.getcwd())
@@ -477,8 +553,9 @@ if __name__ == '__main__':
 
     # Create an instance of QtWidgets.QApplication
     app = QtWidgets.QApplication(sys.argv)
+    app.setWindowIcon(QtGui.QIcon('window_icon_01.png')) 
     window = MyQtApp() # Create an instance of our class
     window.show()
+    window.setWindowIcon(QtGui.QIcon('window_icon_01.png')) 
     app.exec_() # Start the application
-pass
-
+pass # -- main
