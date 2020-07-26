@@ -39,21 +39,26 @@ class MyTableModel(QtCore.QAbstractTableModel):
         table_header = self.table_header()
         self.table_header = table_header
 
-        self.col_count = len( table_header ) + 2
+        self.col_count = len( table_header ) + 1
 
         self.dataList = self.create_data_list()  
     pass #-- __init__
+
+    def remove_all_rows( self ) :
+        self.dataList.clear()
+
+        self.layoutChanged.emit()
+    pass
 
     def appendData( self, data ):
         log.info( "appendData" )
         #self.dataList.append( data )
 
-        col_count = self.col_count
-
         self.dataList.append( data ) 
 
         row_count = len( self.dataList )
 
+        col_count = self.col_count 
         x = col_count
         y = row_count
 
@@ -97,6 +102,9 @@ class MyTableModel(QtCore.QAbstractTableModel):
     pass # -- format_of_value
 
     def data(self, index, role):
+        row = index.row()
+        col = index.column()
+
         if role == Qt.BackgroundRole :
             return self.getBackgroundBrush( index )
         elif role == Qt.ForegroundRole :
@@ -107,7 +115,12 @@ class MyTableModel(QtCore.QAbstractTableModel):
             if role == Qt.DisplayRole: 
                 fmt = self.format_of_value( index, value )
                 if fmt : 
-                    return format(value, fmt)
+                    value_org = value
+                    value = format(value, fmt)
+
+                    log.info( "row = %s, col = %s, fmt = %s, value = %s -> %s" % ( row, col, fmt, value_org, value ))
+                    
+                    return value
                 else :
                     return value
                 pass
@@ -130,10 +143,8 @@ class MyTableModel(QtCore.QAbstractTableModel):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             table_header = self.table_header
 
-            if col == 0 :
-                return "No."
-            elif col <= len( table_header ) :
-                header = table_header[ col - 1 ] 
+            if col < len( table_header ) :
+                header = table_header[ col ] 
 
                 return header
             else :
@@ -188,8 +199,8 @@ class DatasetTableModel( MyTableModel ):
     pass
 
     def table_header(self):
-        header = [ "Question" , "Answer" ] 
-        return header
+        table_header = [ "No.", "Question" , "Answer" ] 
+        return table_header
     pass 
 
     def create_data_list(self) :
@@ -238,8 +249,8 @@ class LearnTableModel( MyTableModel ):
     pass
 
     def table_header(self):
-        header = [ "Batch" , "Size", "ETA", "Elapsed", "Loss" , "Accuracy",  ] 
-        return header
+        table_header = [ "No.", "Batch" , "Size", "Loss" , "Acc", "ETA", "Elapsed" ] 
+        return table_header
     pass 
 
     def create_data_list(self) :
@@ -252,21 +263,29 @@ class LearnTableModel( MyTableModel ):
         row = index.row()
         col = index.column()
 
-        # get cell value
+        0 and log.info( "row = %s, col = %s" % (row, col) )
+        
+        # cell value
         value = "" 
 
         if col == 0 :
             value = row + 1
         else :
-            questAns = self.dataList[ row ]
-            if col == 1 :
-                value = questAns.quest 
-            elif col == 2 :
-                value = questAns.answer
-            else : 
-                value = ""
+            logs = self.dataList[ row ]
+
+            table_header = self.table_header
+
+            if col < len( table_header ) :  
+                key = table_header[ col ]
+                key = key.strip().lower()
+
+                if key in logs :
+                    value = logs[ key ]
+                pass
             pass
         pass 
+
+        log.info( "row = %s, col = %s, value = %s" % (row, col, value))
 
         return value
     pass # cell values
@@ -403,6 +422,10 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         answer.setDisabled( 1 )
         myQuestion.setDisabled( 1 )
 
+        tableView = self.learnTableView 
+        tableModel = tableView.model()
+        tableModel.remove_all_rows() 
+
         self.statusbar.showMessage( "학습을 시작합니다." )
     pass # -- on_train_begin
 
@@ -424,19 +447,23 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     pass # -- on_train_end
 
     def on_epoch_begin(self, epoch, logs=None):
-        log.info("\n\nStart epoch %s of training." % ( epoch  + 1 ) )
+        keys = list(logs.keys())
+        log.info("\n\nStart epoch {} of training; got log keys: {}\n".format(epoch, keys)) 
 
-        self.curr_epoch = epoch
+        self.epoch = epoch
 
         epochs = self.epochs
-
         value = (100*epoch)/epochs
         
         progressBar = self.progressBar
-        
         progressBar.setValue( int( value ) ) 
-
         self.statusbar.showMessage( "학습 %d 단계가 진행중입니다." % epoch )
+
+        tableView = self.learnTableView
+        tableModel = tableView.model()
+
+        tableModel.appendData( logs ) 
+
     pass # -- on_epoch_begin
 
     def on_epoch_end(self, epoch, logs=None):
@@ -451,29 +478,79 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
         log.info("\nEnd epoch {} of training; got log keys: {}\n".format(epoch, keys)) 
 
-        epochs = self.epochs
+        if 1 : 
+            # update learn table
+            tableView = self.learnTableView
+            tableModel = tableView.model()
+            row = epoch
+            row_data = tableModel.dataList[ row ]
+            row_data[ "loss" ] = logs[ "loss" ]
+            row_data[ "acc" ]  = logs[ "acc" ]
+            col_count = tableModel.col_count 
 
-        value = (100*epoch)/epochs
-        
-        progressBar = self.progressBar
-        
+            x = col_count
+            y = row
+
+            #tableModel.dataChanged.emit(tableModel.index(0, y), tableModel.index( x, y))  
+            tableModel.layoutChanged.emit()
+        pass
+
+        epochs = self.epochs 
+        value = (100*epoch)/epochs 
+        progressBar = self.progressBar 
+
         progressBar.setValue( int( value ) ) 
     pass #-- on_epoch_end
 
     def on_train_batch_begin(self, batch, logs=None):
         keys = list(logs.keys())
-        log.info("...Training: start of batch {}; got log keys: {}".format(batch, keys))
+        0 and log.info("...Training: start of batch {}; got log keys: {}".format(batch, keys))
 
         size = logs[ "size" ]
+
+        if 1 : 
+            # update learn table
+            tableView = self.learnTableView
+            tableModel = tableView.model()
+            row = self.epoch
+            row_data = tableModel.dataList[ row ]
+            row_data[ "size" ] = logs[ "size" ]
+            col_count = tableModel.col_count 
+
+            x = col_count
+            y = row
+
+            #tableModel.dataChanged.emit(tableModel.index(0, y), tableModel.index( x, y))  
+            tableModel.adjustColumnWidth()
+            tableModel.layoutChanged.emit()
+        pass
     pass # -- on_train_batch_begin
 
     def on_train_batch_end(self, batch, logs=None):
         keys = list(logs.keys())
-        log.info("...Training: end of batch {}; got log keys: {}".format(batch, keys))
+        0 and log.info("...Training: end of batch {}; got log keys: {}".format(batch, keys))
 
         size = logs[ "size" ]
         loss = logs[ "loss" ]
         acc  = logs[ "acc"  ]
+
+        if 1 : 
+            # update learn table
+            tableView = self.learnTableView
+            tableModel = tableView.model()
+            row = self.epoch
+            row_data = tableModel.dataList[ row ]
+            row_data[ "loss" ] = logs[ "loss" ]
+            row_data[ "acc" ]  = logs[ "acc" ]
+            row_data[ "size" ] = logs[ "size" ]
+            col_count = tableModel.col_count 
+
+            x = col_count
+            y = row
+
+            #tableModel.dataChanged.emit(tableModel.index(0, y), tableModel.index( x, y))  
+            tableModel.layoutChanged.emit()
+        pass
     pass # -- on_train_batch_begin
 
     # -- callbacks
