@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import os, sys, datetime 
 
 import warnings
@@ -37,9 +36,10 @@ class MyTableModel(QtCore.QAbstractTableModel):
 
         self.tableView = tableView
 
-        self.table_header = self.table_header()
+        table_header = self.table_header()
+        self.table_header = table_header
 
-        self.col_count = len( self.table_header ) + 2
+        self.col_count = len( table_header ) + 2
 
         self.data = self.create_data()  
     pass #-- __init__
@@ -76,7 +76,7 @@ class MyTableModel(QtCore.QAbstractTableModel):
             pass
         pass
 
-        log.info( "type = %s, format = %s, value = %s" % (tv, fmt, value) )
+        0 and log.info( "type = %s, format = %s, value = %s" % (tv, fmt, value) )
 
         return fmt
     pass # -- format_of_value
@@ -131,7 +131,7 @@ class MyTableModel(QtCore.QAbstractTableModel):
     pass
     # -- headerData
     # getBackgroundBrush
-    def getBackgroundBrush(self , index ):
+    def getBackgroundBrush(self, index):
         row = index.row()
         
         if row%2 == 0 :
@@ -142,7 +142,7 @@ class MyTableModel(QtCore.QAbstractTableModel):
     pass # -- getBackgroundBrush
     
     # getForegroundBrush
-    def getForegroundBrush(self , index ):
+    def getForegroundBrush(self, index):
         return None
     pass # -- getForegroundBrush
 
@@ -186,7 +186,7 @@ class DatasetTableModel( MyTableModel ):
 
         self.layoutChanged.emit()
 
-        self.tableView.scrollToBottom()
+        self.tableView.scrollToBottom() 
     pass # appendData
 
     def create_data(self) :
@@ -273,6 +273,10 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         self.append.clicked.connect( self.when_append_clicked )
         self.start.clicked.connect( self.when_start_clicked )
         self.answer.clicked.connect( self.when_answer_clicked )
+        self.myQuestion.textChanged.connect( self.when_my_question_textChanged )
+
+        self.actionExit.triggered.connect(self.close_app)
+
 
         # 학습 모델 생성 
         model = keras.models.Sequential( )
@@ -281,8 +285,27 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
         self.model = model
 
+        self.statusbar.showMessage( "안녕하세요? 반갑습니다." )
+
         sys.stdout = Stream(newText=self.onUpdateText)
     pass #MyQtApp __init__
+
+    def close_app( self ):
+        log.info( "close app" )
+        self.hide()
+        sys.exit()
+    pass #-- close_app
+
+    def when_my_question_textChanged( self, text ):
+        log.info( "when_my_question_clicked" )
+
+        answer = self.answer
+        if len( text ) < 1 :
+            answer.setDisabled( 1 )
+        else :
+            answer.setEnabled( 1 )
+        pass
+    pass
 
     def when_answer_clicked( self ):
         log.info( "when_answer_clicked" )
@@ -314,25 +337,32 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     def on_train_begin(self, logs=None):
         print("on_train_begin" )
 
+        answer = self.answer
+        myQuestion = self.myQuestion
         progressBar = self.progressBar
         
         progressBar.setValue( progressBar.minimum() )
         progressBar.setEnabled( True ) 
+
+        answer.setDisabled( 1 )
+        myQuestion.setDisabled( 1 )
+
+        self.statusbar.showMessage( "학습을 시작합니다." )
     pass
 
     def on_train_end(self, logs=None):
         print("on_train_end" )
 
         progressBar = self.progressBar
+        myQuestion = self.myQuestion
         
         progressBar.setValue( progressBar.maximum() )
-        progressBar.setDisabled( True ) 
+        progressBar.setDisabled( 1 ) 
 
-        myQuestion = self.myQuestion
-        myQuestion.setDisabled( False )
-        
-        answer = self.answer
-        answer.setDisabled( False )
+        myQuestion.setEnabled( 1 ) 
+
+        msg = "학습이 성공적으로 종료되었습니다. 질문을 입력하면 정답을 추론합니다."
+        self.statusbar.showMessage( msg )
     pass
 
     def on_epoch_begin(self, epoch, logs=None):
@@ -345,6 +375,8 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         progressBar = self.progressBar
         
         progressBar.setValue( int( value ) ) 
+
+        self.statusbar.showMessage( "학습 %d 단계가 진행중입니다." % epoch )
     pass
 
     def on_epoch_end(self, epoch, logs=None):
@@ -411,6 +443,8 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         log.info( "when_append_clicked" )
 
         self.appendData()
+
+        self.statusbar.showMessage( "데이터셋에 질문과 정답이 추가되었습니다." )
     pass #-- when_append_clicked
 
     def when_x_editingFinished(self) :
