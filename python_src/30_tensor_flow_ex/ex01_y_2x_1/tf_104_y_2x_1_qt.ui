@@ -233,7 +233,7 @@
           <item row="0" column="1">
            <widget class="QLineEdit" name="myQuestion">
             <property name="toolTip">
-             <string>질문 입력후에, 정답 버튼을 클릭하세요.</string>
+             <string>질문을 잘  입력후에, 정답 버튼을 클릭하세요.</string>
             </property>
             <property name="styleSheet">
              <string notr="true"/>
@@ -241,11 +241,14 @@
             <property name="inputMethodHints">
              <set>Qt::ImhFormattedNumbersOnly</set>
             </property>
+            <property name="inputMask">
+             <string/>
+            </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
             <property name="placeholderText">
-             <string>질문을 입력하세요.</string>
+             <string>여기서 질문을 입력하세요.</string>
             </property>
            </widget>
           </item>
