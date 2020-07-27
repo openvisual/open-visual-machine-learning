@@ -260,6 +260,11 @@ class LearnTableModel( MyTableModel ):
     def create_data_list(self) :
         dataList = []
 
+        if 0 :
+            logs = { "acc" : 0.2857143, "loss" : 0.571787 }
+            dataList.append( logs )
+        pass
+
         return dataList
     pass #-- create_data
 
@@ -300,7 +305,7 @@ class LearnTableModel( MyTableModel ):
         return value
     pass # cell values
 
-pass #-- LearnTableModel
+pass # -- LearnTableModel
 
 class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
@@ -332,7 +337,8 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         if 1 :
             tableView = self.learnTableView
             tableModel = LearnTableModel( tableView )
-            tableView.setModel( tableModel ) 
+            tableView.setModel( tableModel )
+
             tableModel.adjustColumnWidth()
         pass
 
@@ -370,13 +376,13 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         pass
 
         sys.stdout = Stream(newText=self.onUpdateText)
-    pass #MyQtApp __init__
+    pass # MyQtApp __init__
 
     def close_app( self ):
         log.info( "close app" )
         self.hide()
         sys.exit()
-    pass #-- close_app
+    pass # -- close_app
 
     def when_my_question_textChanged( self, text ):
         log.info( "when_my_question_clicked" )
@@ -416,21 +422,26 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
     def update_row_data_from_logs(self, row_data, logs):
 
-        for i, k in enumerate( [ "loss", "acc", "size", ] ):
-            if k in logs:
-                row_data[k] = logs[k]
-                log.info( "[%02d] row_data[%s] = %s" % ( i, k, logs[k]) )
-            pass
+        idx = 0
+
+        if "acc" in logs :
+            acc = logs[ "acc" ]
+            acc = 0.0 + float( acc )
+            row_data[ "acc" ] = acc
+
+            log.info("[%02d] row_data[%s] = %s" % (idx, "acc", acc ) )
+
+            idx += 1
         pass
 
-        if "accuracy" in logs:
-            row_data["accuracy"] = logs["accuracy"]
-            row_data["accr"] = logs["accuracy"]
-            row_data["acc"] = logs["accuracy"]
-        elif "accr" in logs:
-            row_data["accuracy"] = logs["accr"]
-            row_data["accr"] = logs["accr"]
-            row_data["acc"] = logs["accr"]
+        if "loss" in logs :
+            loss = logs[ "loss" ]
+            loss = 0.0 + float( loss )
+            row_data[ "loss" ] = loss
+
+            log.info("[%02d] row_data[%s] = %s" % (idx, "loss", loss ) )
+
+            idx += 1
         pass
 
     pass  # -- update_row_data_from_logs
