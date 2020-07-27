@@ -105,7 +105,9 @@ class MyTableModel(QtCore.QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        if role == Qt.BackgroundRole :
+        if not index.isValid():
+            return QVariant()
+        elif role == Qt.BackgroundRole :
             return self.getBackgroundBrush( index )
         elif role == Qt.ForegroundRole :
             return self.getForegroundBrush( index )
@@ -134,6 +136,8 @@ class MyTableModel(QtCore.QAbstractTableModel):
                 else :
                     return Qt.AlignLeft | QtCore.Qt.AlignVCenter
                 pass
+            else :
+                return QVariant()
             pass # -- return cell alignment value
         pass
     pass #-- data
@@ -281,11 +285,11 @@ class LearnTableModel( MyTableModel ):
 
                 if key in logs :
                     value = logs[ key ]
+
+                    0 and log.info( "row = %s, col = %s, key = %s, value = %s" % (row, col, key, value))
                 else :
                     value = "__"
-                pass
-
-                0 and log.info( "row = %s, col = %s, key = %s, value = %s" % (row, col, key, value))
+                pass 
             else :
                 value = "__"
             pass
@@ -328,8 +332,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         if 1 :
             tableView = self.learnTableView
             tableModel = LearnTableModel( tableView )
-            tableView.setModel( tableModel )
-
+            tableView.setModel( tableModel ) 
             tableModel.adjustColumnWidth()
         pass
 
@@ -412,9 +415,11 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     pass # -- onUpdateText
 
     def update_row_data_from_logs(self, row_data, logs):
-        for k in ["loss", "accuracy", "size", ]:
+
+        for i, k in enumerate( [ "loss", "acc", "size", ] ):
             if k in logs:
                 row_data[k] = logs[k]
+                log.info( "[%02d] row_data[%s] = %s" % ( i, k, logs[k]) )
             pass
         pass
 
