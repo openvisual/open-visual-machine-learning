@@ -332,28 +332,9 @@ def remove_noise( image, ksize = 3 ) :
 pass #-- 잡음 제거 함수
 
 ksize = 3
-noise_removed, algorithm = remove_noise( grayscale, ksize = ksize )
+grayscale, algorithm = remove_noise( grayscale, ksize = ksize )
 
 save_img_as_file( "noise_removed(%s)" % algorithm, grayscale )
-
-if 1 : # 잡음 제거  이미지 표출
-    gs_row += 1
-    gs_col = 1
-    colspan = gs_col_cnt - gs_col
-    img = noise_removed
-    cmap = "gray"
-    title = "Noise removed (%s, ksize=%s)" % ( algorithm, ksize, )
-
-    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
-
-    img_show = ax.imshow( img, cmap=cmap )
-    ax.set_xlabel( 'x\n%s' % title )
-    ax.set_ylabel( 'y', rotation=0 )
-
-    change_ax_border_color( ax, "blue" )
-
-    fig.colorbar(img_show, ax=ax)
-pass #-- 잡음 제거  이미지 표출
 
 #-- 잡음 제거를 위한 Median Blur Filter
 
@@ -396,7 +377,6 @@ histogram_acc = accumulate_histogram( histogram )
 def show_histogram( histogram , histogram_acc, title ): # 히스토 그램 표출
     #global gs_row
 
-    #gs_row += 1
     gs_col = 0
     colspan = 1
 
@@ -465,11 +445,32 @@ def show_histogram( histogram , histogram_acc, title ): # 히스토 그램 표�
     ax.set_ylabel( 'Count', rotation=90 )
 pass #-- 히스토 그램 표출
 
-if 1 :
+if 0 :
+    gs_row += 1
+
     show_histogram( histogram, histogram_acc, title = "Grayscale Histogram" )
 pass
 
 #-- histogram 생성
+
+if 1 : # 잡음 제거  이미지 표출
+    gs_row += 1
+    gs_col = 0
+    colspan = gs_col_cnt - gs_col
+    img = grayscale
+    cmap = "gray"
+    title = "Noise removed (%s, ksize=%s)" % ( algorithm, ksize, )
+
+    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
+
+    img_show = ax.imshow( img, cmap=cmap )
+    ax.set_xlabel( 'x\n%s' % title )
+    ax.set_ylabel( 'y', rotation=0 )
+
+    change_ax_border_color( ax, "blue" )
+
+    fig.colorbar(img_show, ax=ax)
+pass #-- 잡음 제거  이미지 표출
 
 #TODO    히스토그램 평활화
 
@@ -508,7 +509,7 @@ def normalize_image_by_histogram( image, histogram_acc ) :
     return data
 pass #-- normalize_image_by_histogram
 
-image_normalized = normalize_image_by_histogram( noise_removed, histogram_acc )
+image_normalized = normalize_image_by_histogram( grayscale, histogram_acc )
 
 save_img_as_file( "image_normalized", image_normalized )
 
@@ -712,8 +713,7 @@ def binarize_image( image, threshold = None ):
     return v
 pass #-- 이진화 계산
 
-target_image = noise_removed
-image_binarized, threshold, thresh_algo, reverse_required = binarize_image( image = target_image )
+image_binarized, threshold, thresh_algo, reverse_required = binarize_image( image = grayscale )
 
 if reverse_required :
     image_binarized = reverse_image( image_binarized )
