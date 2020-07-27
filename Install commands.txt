@@ -38,11 +38,10 @@ open-visual-machine-learning
 경진대회에서 사용한 환경 TensorFlow 설치
 pip install numpy, matplotlib, PyQt5
 pip install tensorflow
-pip install torch
-pip install torchvision
+pip install torch, torchvision
 pip install opencv-contrib-python
+pip install orange3
 
+$ orang3-canvas
 
 # end
-
-

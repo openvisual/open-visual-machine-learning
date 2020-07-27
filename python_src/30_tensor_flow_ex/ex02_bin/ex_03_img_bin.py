@@ -632,7 +632,7 @@ def threshold_adaptive_gaussian_opencv( image, bsize = 3, c = 0 ):
 pass # -- 지역 가우시안 적응 임계치 처리
 
 def threshold_adaptive_gaussian_my( image, bsize = 3, c = 0 ):
-    log.info( "Apdative threshold gaussian" )
+    log.info( "Apdative threshold gaussian my" )
 
     # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#getgaussiankernel
 
@@ -650,10 +650,16 @@ def threshold_adaptive_gaussian_my( image, bsize = 3, c = 0 ):
         b = 1
     pass
 
+    # the threshold value T(x,y) is a weighted sum (cross-correlation with a Gaussian window)
+    # of the blockSize×blockSize neighborhood of (x,y) minus C
+
     image_pad= np.pad(image, b,'constant', constant_values=(0))
 
     def gaussian(x, y, bsize) :
-        sigma = 0.3*((bsize-1)*0.5 - 1) + 0.8
+        #  The default sigma is used for the specified blockSize
+        sigma = bsize
+        # ksize	Aperture size. It should be odd ( ksizemod2=1 ) and positive.
+        # sigma = 0.3 * ((ksize - 1) * 0.5 - 1) + 0.8
         ss = sigma*sigma
         pi_2_ss = 2*math.pi*ss
 
@@ -671,6 +677,7 @@ def threshold_adaptive_gaussian_my( image, bsize = 3, c = 0 ):
     def gaussian_sum( window, bsize ) :
         gs_sum = 0
 
+        # L = len( window )*len( window[0] )
         for y, row in enumerate( window ) :
             for x, v in enumerate( row ) :
                 gs_sum += v*gaussian( y, x, bsize )

@@ -42,18 +42,28 @@ class MyTableModel(QtCore.QAbstractTableModel):
         self.col_count = len( table_header ) + 1
 
         self.dataList = self.create_data_list()
+
+        self.dataChanged.connect(self.repaintTableView)
     pass #-- __init__
+
+    def repaintTableView(self):
+        log.info( "repaintTableView()")
+    pass
 
     def remove_all_rows( self ) :
         self.dataList.clear()
 
         self.layoutChanged.emit()
-    pass
+    pass # -- remove_all_rows
 
     def appendData( self, data ):
         log.info( "appendData" )
 
+        #self.beginInsertRows(QtCore.QModelIndex(), self.rowCount(), self.rowCount() + 1)
+
         self.dataList.append( data )
+
+        #self.endInsertRows()
 
         self.layoutChanged.emit()
 
