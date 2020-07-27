@@ -27,10 +27,13 @@ print( "TensorFlow version : %s" % tf.__version__)
 
 print( "Keras version : %s" % keras.__version__ )
 
-import torch
-print( "Torch version : %s" % torch.__version__ )
-import torchvision
-print( "Torchvision version : %s" % torchvision.__version__ )
+try :
+    import torch
+    print( "Torch version : %s" % torch.__version__ )
+    import torchvision
+    print( "Torchvision version : %s" % torchvision.__version__ )
+except :
+    print( "Troch is not installed." )
 
 # OpenCV version
 try:

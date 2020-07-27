@@ -1,0 +1,48 @@
+https://github.com/openvisual/open-visual-machine-learning.git
+
+Anaconda Prompt에서 아래의 명령어들을 실행
+Conda 프로그램을 업데이트
+conda update -n base conda -y
+설치된 파이썬 패키지 전부를 업데이트
+conda update --all -y
+TensorFlow 설치
+conda install tensorflow-gpu -y
+Torch 설치
+conda install pytorch -c pytorch -y
+TorchVision 설치
+conda install torchvision -c pytorch -y
+OpenCV 설치
+conda install -c michael_wild opencv-contrib=3.7.0a0
+conda install -c defaults opencv -y
+conda uninstall opencv
+
+pip install opencv-contrib-python
+
+import cv2
+sift = cv2.xfeatures2d.SIFT_create()
+
+Anaconda Prompt 에서 아래의 명령어들을 실행한다.
+conda 환경 목록 출력
+conda  env list
+conda 환경 만들기
+conda create --name my_env --clone root
+conda 환경 활성화
+conda activate my_env
+conda 환경 삭제 (필요 없을 경우에만 삭제)
+conda env remove -n my_env
+
+pip install opencv-contrib-python
+
+open-visual-machine-learning
+
+경진대회에서 사용한 환경 TensorFlow 설치
+pip install numpy, matplotlib, PyQt5
+pip install tensorflow
+pip install torch
+pip install torchvision
+pip install opencv-contrib-python
+
+
+# end
+
+

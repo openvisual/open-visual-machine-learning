@@ -37,7 +37,7 @@ pass
 #img_path = "../data_ocr/sample_01/hist_work_01.png"
 #img_path = "../data_ocr/sample_01/gosu_01.png"
 img_path = "../data_ocr/sample_01/sample_21.png"
-img_path = "../data_yegan/ex_01/_1018877.JPG"
+#img_path = "../data_yegan/ex_01/_1018877.JPG"
 
 #TODO     이미지 저장 함수
 img_save_cnt = 0
@@ -454,7 +454,7 @@ pass #-- 평활화 이미지 표출
 
 # 잡음 제거 함수
 def remove_noise( image, ksize = 3 ) :
-    msg = "Remove noise" 
+    msg = "Remove noise"
     log.info( "%s ..." % msg )
 
     algorithm = "bilateralFilter"
@@ -617,7 +617,7 @@ def threshold_adaptive_gaussian_opencv( image, bsize = 3, c = 0 ):
 
     # https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_thresholding/py_thresholding.html
 
-    reverse_required = 1 
+    reverse_required = 1
 
     bsize = 2*int( bsize/2 )  + 1
 
@@ -647,7 +647,7 @@ def threshold_adaptive_gaussian_my( image, bsize = 3, c = 0 ):
         b = 1
     pass
 
-    image_pad= np.pad(image, b,'constant', constant_values=(0)) 
+    image_pad= np.pad(image, b,'constant', constant_values=(0))
 
     def gaussian(x, y, bsize) :
         sigma = 0.3*((bsize-1)*0.5 - 1) + 0.8
@@ -680,7 +680,7 @@ def threshold_adaptive_gaussian_my( image, bsize = 3, c = 0 ):
     for y, row in enumerate( image_pad ) :
         for x, gs in enumerate( row ) :
             if ( b <= y < len(image_pad) - b ) and ( b<= x < len(row) - b ):
-                window = image_pad[ y - b : y + b + 1 , x - b : x + b + 1 ] 
+                window = image_pad[ y - b : y + b + 1 , x - b : x + b + 1 ]
 
                 threshold = gaussian_sum( window, bsize ) - c
 
@@ -766,11 +766,11 @@ pass #-- count_y_axis_signal
 target_image = image_binarized
 y_counts = count_y_axis_signal( image= target_image, ksize = 1 )
 
-# y count 데이터를 csv 파일로 저장 
+# y count 데이터를 csv 파일로 저장
 
-y_counts.tofile( "./y_count.csv", sep=',', format='%s') 
+y_counts.tofile( "./y_count.csv", sep=',', format='%s')
 
-if 1 : # y count 표출 
+if 1 : # y count 표출
     gs_row += 1
     gs_col = 0
     colspan = gs_col_cnt

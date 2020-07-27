@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="f58aa50b-619d-467d-8eef-7133548e8037" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../../.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/30_tensor_flow_ex.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/30_tensor_flow_ex.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/other.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ex00_ver/tf_000_sys_ver.py" beforeDir="false" afterPath="$PROJECT_DIR$/ex00_ver/tf_000_sys_ver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ex01_y_2x_1/tf_104_y_2x_1_qt copy.ui" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ex01_y_2x_1/tf_104_y_2x_1_qt.py" beforeDir="false" afterPath="$PROJECT_DIR$/ex01_y_2x_1/tf_104_y_2x_1_qt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ex02_bin/ex_03_img_bin.py" beforeDir="false" afterPath="$PROJECT_DIR$/ex02_bin/ex_03_img_bin.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProjectId" id="1fFia45zD7VYRh0eUVax0eVpw8B" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RunManager" selected="Python.tf_104_y_2x_1_qt">
+    <configuration name="tf_000_sys_ver" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="30_tensor_flow_ex" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/ex00_ver" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ex00_ver/tf_000_sys_ver.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="tf_102_y_2x_1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="30_tensor_flow_ex" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/ex01_y_2x_1" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ex01_y_2x_1/tf_102_y_2x_1.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="tf_104_y_2x_1_qt" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="30_tensor_flow_ex" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/ex01_y_2x_1" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ex01_y_2x_1/tf_104_y_2x_1_qt.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.tf_104_y_2x_1_qt" />
+        <item itemvalue="Python.tf_102_y_2x_1" />
+        <item itemvalue="Python.tf_000_sys_ver" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f58aa50b-619d-467d-8eef-7133548e8037" name="Default Changelist" comment="" />
+      <created>1595820302217</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1595820302217</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="776" y="185" key="#Inspections" timestamp="1595825023497">
+      <screen x="0" y="0" width="1857" height="1080" />
+    </state>
+    <state x="776" y="185" key="#Inspections/0.0.1857.1080@0.0.1857.1080" timestamp="1595825023497" />
+    <state width="1362" height="266" key="GridCell.Tab.0.bottom" timestamp="1595827405675">
+      <screen x="0" y="0" width="1857" height="1080" />
+    </state>
+    <state width="1362" height="266" key="GridCell.Tab.0.bottom/0.0.1857.1080@0.0.1857.1080" timestamp="1595827405675" />
+    <state width="1362" height="266" key="GridCell.Tab.0.center" timestamp="1595827405675">
+      <screen x="0" y="0" width="1857" height="1080" />
+    </state>
+    <state width="1362" height="266" key="GridCell.Tab.0.center/0.0.1857.1080@0.0.1857.1080" timestamp="1595827405675" />
+    <state width="1362" height="266" key="GridCell.Tab.0.left" timestamp="1595827405674">
+      <screen x="0" y="0" width="1857" height="1080" />
+    </state>
+    <state width="1362" height="266" key="GridCell.Tab.0.left/0.0.1857.1080@0.0.1857.1080" timestamp="1595827405674" />
+    <state width="1362" height="266" key="GridCell.Tab.0.right" timestamp="1595827405675">
+      <screen x="0" y="0" width="1857" height="1080" />
+    </state>
+    <state width="1362" height="266" key="GridCell.Tab.0.right/0.0.1857.1080@0.0.1857.1080" timestamp="1595827405675" />
+    <state x="598" y="187" key="SettingsEditor" timestamp="1595824832623">
+      <screen x="0" y="0" width="1857" height="1080" />
+    </state>
+    <state x="598" y="187" key="SettingsEditor/0.0.1857.1080@0.0.1857.1080" timestamp="1595824832623" />
+  </component>
+</project>
