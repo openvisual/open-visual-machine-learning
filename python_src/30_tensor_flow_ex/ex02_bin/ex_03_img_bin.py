@@ -709,7 +709,8 @@ def binarize_image( image, threshold = None ):
     if 1 :
         h = len(image)  # image height
         w = len(image[0])  # image width
-        bsize = w/2 if w > h else h/2
+        bsize = w if w > h else h
+        bsize = bsize/2
         v = threshold_adaptive_gaussian( image, bsize = bsize, c = 5 )
     elif 0 :
         bsize = 3
