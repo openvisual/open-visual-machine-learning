@@ -620,7 +620,7 @@ def threshold_adaptive_gaussian_opencv( image, bsize = 3, c = 0 ):
 
     # https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_thresholding/py_thresholding.html
 
-    reverse_required = 1
+    reverse_required = 0
 
     bsize = 2*int( bsize/2 )  + 1
 
@@ -707,7 +707,9 @@ def binarize_image( image, threshold = None ):
     v = None
 
     if 1 :
-        bsize = 5
+        h = len(image)  # image height
+        w = len(image[0])  # image width
+        bsize = w/2 if w > h else h/2
         v = threshold_adaptive_gaussian( image, bsize = bsize, c = 5 )
     elif 0 :
         bsize = 3
