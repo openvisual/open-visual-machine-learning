@@ -239,7 +239,7 @@ class LearnTableModel( MyTableModel ):
     pass
 
     def table_header(self):
-        table_header = [ "No.", "Loss" , "Acc", "Batch" , "Size", "ETA", "Elapsed" ]
+        table_header = [ "No.", "Loss" , "Acc", "Elapsed", "ETA" ]
         return table_header
     pass
 
@@ -473,8 +473,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     pass # -- on_train_end
 
     def on_epoch_begin(self, epoch, logs=None):
-        keys = list(logs.keys())
-        log.info("\n\nStart epoch {} of training; got log keys: {}\n".format(epoch, keys))
+        log.info("on_epoch_begin {} of training; got log keys: {}\n".format(epoch, list( logs.keys() )))
 
         self.epoch = epoch
 
@@ -493,16 +492,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     pass # -- on_epoch_begin
 
     def on_epoch_end(self, epoch, logs=None):
-        #  ['loss', 'mean_squared_error', 'val_loss', 'val_mean_squared_error']
-        keys = list(logs.keys())
-
-        #log.info( "%s" % keys )
-
-        loss = logs[ "loss" ] #TODO 2010 손실 값 키 설정 loss key set
-
-        log.info( "\ncurr epoch[%s] val_loss = %s\n" % ( epoch + 1, loss ) )
-
-        log.info("\nEnd epoch {} of training; got log keys: {}\n".format(epoch, keys))
+        log.info("on_epoch_end {} of training; got log keys: {}".format(epoch, list(logs.keys())))
 
         if 1 :
             # update learn table
@@ -513,12 +503,6 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
             self.update_row_data_from_logs( row_data, logs)
 
-            col_count = tableModel.col_count
-
-            x = col_count
-            y = row
-
-            #tableModel.dataChanged.emit(tableModel.index(0, y), tableModel.index( x, y))
             tableModel.layoutChanged.emit()
         pass
 
@@ -530,8 +514,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     pass #-- on_epoch_end
 
     def on_train_batch_begin(self, batch, logs=None):
-        keys = list(logs.keys())
-        0 and log.info("...Training: start of batch {}; got log keys: {}".format(batch, keys))
+        1 and log.info("on_train_batch_begin {}; got log keys: {}".format(batch, list(logs.keys())))
 
         if 1 :
             # update learn table
@@ -554,8 +537,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     pass # -- on_train_batch_begin
 
     def on_train_batch_end(self, batch, logs=None):
-        keys = list(logs.keys())
-        0 and log.info("...Training: end of batch {}; got log keys: {}".format(batch, keys))
+        1 and log.info("on_train_batch_end {}; got log keys: {}".format(batch, list(logs.keys())))
 
         if 1 :
             # update learn table
@@ -566,12 +548,6 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
             self.update_row_data_from_logs( row_data, logs)
 
-            col_count = tableModel.col_count
-
-            x = col_count
-            y = row
-
-            #tableModel.dataChanged.emit(tableModel.index(0, y), tableModel.index( x, y))
             tableModel.layoutChanged.emit()
         pass
     pass # -- on_train_batch_begin

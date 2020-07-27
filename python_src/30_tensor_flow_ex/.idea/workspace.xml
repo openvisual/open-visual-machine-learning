@@ -2,17 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f58aa50b-619d-467d-8eef-7133548e8037" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../../.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/30_tensor_flow_ex.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/30_tensor_flow_ex.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/other.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ex00_ver/tf_000_sys_ver.py" beforeDir="false" afterPath="$PROJECT_DIR$/ex00_ver/tf_000_sys_ver.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ex01_y_2x_1/tf_104_y_2x_1_qt copy.ui" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ex01_y_2x_1/tf_104_y_2x_1_qt.py" beforeDir="false" afterPath="$PROJECT_DIR$/ex01_y_2x_1/tf_104_y_2x_1_qt.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ex02_bin/ex_03_img_bin.py" beforeDir="false" afterPath="$PROJECT_DIR$/ex02_bin/ex_03_img_bin.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,25 +115,29 @@
       <screen x="0" y="0" width="1857" height="1080" />
     </state>
     <state x="776" y="185" key="#Inspections/0.0.1857.1080@0.0.1857.1080" timestamp="1595825023497" />
-    <state width="1362" height="266" key="GridCell.Tab.0.bottom" timestamp="1595827405675">
+    <state width="1362" height="266" key="GridCell.Tab.0.bottom" timestamp="1595829337302">
       <screen x="0" y="0" width="1857" height="1080" />
     </state>
-    <state width="1362" height="266" key="GridCell.Tab.0.bottom/0.0.1857.1080@0.0.1857.1080" timestamp="1595827405675" />
-    <state width="1362" height="266" key="GridCell.Tab.0.center" timestamp="1595827405675">
+    <state width="1362" height="266" key="GridCell.Tab.0.bottom/0.0.1857.1080@0.0.1857.1080" timestamp="1595829337302" />
+    <state width="1362" height="266" key="GridCell.Tab.0.center" timestamp="1595829337302">
       <screen x="0" y="0" width="1857" height="1080" />
     </state>
-    <state width="1362" height="266" key="GridCell.Tab.0.center/0.0.1857.1080@0.0.1857.1080" timestamp="1595827405675" />
-    <state width="1362" height="266" key="GridCell.Tab.0.left" timestamp="1595827405674">
+    <state width="1362" height="266" key="GridCell.Tab.0.center/0.0.1857.1080@0.0.1857.1080" timestamp="1595829337302" />
+    <state width="1362" height="266" key="GridCell.Tab.0.left" timestamp="1595829337302">
       <screen x="0" y="0" width="1857" height="1080" />
     </state>
-    <state width="1362" height="266" key="GridCell.Tab.0.left/0.0.1857.1080@0.0.1857.1080" timestamp="1595827405674" />
-    <state width="1362" height="266" key="GridCell.Tab.0.right" timestamp="1595827405675">
+    <state width="1362" height="266" key="GridCell.Tab.0.left/0.0.1857.1080@0.0.1857.1080" timestamp="1595829337302" />
+    <state width="1362" height="266" key="GridCell.Tab.0.right" timestamp="1595829337302">
       <screen x="0" y="0" width="1857" height="1080" />
     </state>
-    <state width="1362" height="266" key="GridCell.Tab.0.right/0.0.1857.1080@0.0.1857.1080" timestamp="1595827405675" />
+    <state width="1362" height="266" key="GridCell.Tab.0.right/0.0.1857.1080@0.0.1857.1080" timestamp="1595829337302" />
     <state x="598" y="187" key="SettingsEditor" timestamp="1595824832623">
       <screen x="0" y="0" width="1857" height="1080" />
     </state>
     <state x="598" y="187" key="SettingsEditor/0.0.1857.1080@0.0.1857.1080" timestamp="1595824832623" />
+    <state x="738" y="453" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1595828935733">
+      <screen x="0" y="0" width="1857" height="1080" />
+    </state>
+    <state x="738" y="453" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1857.1080@0.0.1857.1080" timestamp="1595828935733" />
   </component>
 </project>
