@@ -29,7 +29,7 @@ class QuestAns :
     pass
 pass
 
-#TODO      DatasetTableModel
+# TODO      DatasetTableModel
 class MyTableModel(QtCore.QAbstractTableModel):
     def __init__(self, tableView ):
         super(MyTableModel, self).__init__()
@@ -44,7 +44,7 @@ class MyTableModel(QtCore.QAbstractTableModel):
         self.dataList = self.create_data_list()
 
         self.dataChanged.connect(self.repaintTableView)
-    pass #-- __init__
+    pass # -- __init__
 
     def repaintTableView(self):
         log.info( "repaintTableView()")
@@ -387,7 +387,27 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     def when_my_question_textChanged( self, text ):
         log.info( "when_my_question_clicked" )
 
+        text_org = text
+
+        text = text.replace( ",", "" ).strip()
+
+        ts = text.split( "." )
+
+        text = "{:,d}".format( int( ts[0] ) )
+
+        if len( ts ) == 2 :
+            text += "."
+            if len( ts[1] ) > 0 :
+                text += ts[1]
+            pass
+        pass
+
+        if text_org != text :
+            self.myQuestion.setText( text )
+        pass
+
         answer = self.answer
+
         if len( text ) < 1 :
             answer.setDisabled( 1 )
         else :
