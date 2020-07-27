@@ -104,7 +104,7 @@ fig = plt.figure(figsize=(10, 10), constrained_layout=True)
 
 # org img, channel img, gray scale, median blur, histogram, bin, y_count
 gs_row_cnt = 7
-gs_col_cnt = 3
+gs_col_cnt = 4
 
 gs_row = -1
 gs_col = 0
@@ -251,7 +251,7 @@ save_img_as_file( "grayscale", grayscale )
 
 if 1 : # 그레이 스케일 이미지 표출
     gs_row += 1
-    gs_col = 1
+    gs_col = 0
     colspan = gs_col_cnt - gs_col
     img = grayscale
     cmap = "gray"
@@ -274,6 +274,88 @@ sg_max = np.max( grayscale )
 
 log.info( "grayscale avg = %s, std = %s" % (gs_avg, gs_std))
 #-- grayscale 변환
+
+#TODO   잡음 제거
+#Median Blur Filter 적용
+
+# 잡음 제거 함수
+def remove_noise( image, ksize = 3 ) :
+    msg = "Remove noise"
+    log.info( "%s ..." % msg )
+
+    algorithm = "cv.bilateralFilter"
+
+    if "cv.bilateralFilter" == algorithm :
+        log.info( "cv.bilateralFilter(img,ksize,75,75)" )
+
+        image = image.astype(np.uint8)
+
+        data = cv2.bilateralFilter( image,ksize,75,75)
+    elif "cv2.medianBlur" == algorithm:
+        log.info( "cv2.medianBlur( image, ksize )" )
+        data = cv2.medianBlur( image, ksize )
+    else :
+        h = len( image ) # image height
+        w = len( image[0] ) # image width
+
+        b = int( ksize/2 )
+
+        data = np.empty( [h, w], dtype=image.dtype )
+
+        idx = 0
+        for y in range( height ) :
+            for x in range( width ) :
+                y0 = y - b
+                x0 = x - b
+
+                if y0 < 0 :
+                    y0 = 0
+                pass
+
+                if x0 < 0 :
+                    x0 = 0
+                pass
+
+                window = image[ y0 : y + b + 1, x0 : x + b + 1 ]
+                median = np.median( window )
+                data[y][x] = median
+
+                0 and log.info( "[%05d] data[%d][%d] = %.4f" % (idx, y, x, median) )
+                idx += 1
+            pass
+        pass
+    pass
+
+    log.info( "Done. %s" % msg )
+
+    return data , algorithm
+pass #-- 잡음 제거 함수
+
+ksize = 3
+noise_removed, algorithm = remove_noise( grayscale, ksize = ksize )
+
+save_img_as_file( "noise_removed(%s)" % algorithm, grayscale )
+
+if 1 : # 잡음 제거  이미지 표출
+    gs_row += 1
+    gs_col = 1
+    colspan = gs_col_cnt - gs_col
+    img = noise_removed
+    cmap = "gray"
+    title = "Noise removed (%s, ksize=%s)" % ( algorithm, ksize, )
+
+    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
+
+    img_show = ax.imshow( img, cmap=cmap )
+    ax.set_xlabel( 'x\n%s' % title )
+    ax.set_ylabel( 'y', rotation=0 )
+
+    change_ax_border_color( ax, "blue" )
+
+    fig.colorbar(img_show, ax=ax)
+pass #-- 잡음 제거  이미지 표출
+
+#-- 잡음 제거를 위한 Median Blur Filter
 
 #TODO     Histogram 생성
 
@@ -312,7 +394,9 @@ histogram = make_histogram( grayscale )
 histogram_acc = accumulate_histogram( histogram )
 
 def show_histogram( histogram , histogram_acc, title ): # 히스토 그램 표출
-    # gs_row += 1
+    #global gs_row
+
+    #gs_row += 1
     gs_col = 0
     colspan = 1
 
@@ -424,12 +508,12 @@ def normalize_image_by_histogram( image, histogram_acc ) :
     return data
 pass #-- normalize_image_by_histogram
 
-image_normalized = normalize_image_by_histogram( grayscale, histogram_acc )
+image_normalized = normalize_image_by_histogram( noise_removed, histogram_acc )
 
 save_img_as_file( "image_normalized", image_normalized )
 
 if 1 : # 평활화 이미지 표출
-    gs_row += 1
+    #gs_row += 1
     gs_col = 0
     colspan = gs_col_cnt
     title = "Normalization"
@@ -448,88 +532,6 @@ if 1 : # 평활화 이미지 표출
 pass #-- 평활화 이미지 표출
 
 #-- 히스토그램 평활화
-
-#TODO   잡음 제거
-# Median Blur Filter 적용
-
-# 잡음 제거 함수
-def remove_noise( image, ksize = 3 ) :
-    msg = "Remove noise"
-    log.info( "%s ..." % msg )
-
-    algorithm = "bilateralFilter"
-
-    if "bilateralFilter" == algorithm :
-        log.info( "cv.bilateralFilter(img,ksize,75,75)" )
-
-        image = image.astype(np.uint8)
-
-        data = cv2.bilateralFilter( image,ksize,75,75)
-    elif 1 :
-        log.info( "cv2.medianBlur( image, ksize )" )
-        data = cv2.medianBlur( image, ksize )
-    else :
-        h = len( image ) # image height
-        w = len( image[0] ) # image width
-
-        b = int( ksize/2 )
-
-        data = np.empty( [h, w], dtype=image.dtype )
-
-        idx = 0
-        for y in range( height ) :
-            for x in range( width ) :
-                y0 = y - b
-                x0 = x - b
-
-                if y0 < 0 :
-                    y0 = 0
-                pass
-
-                if x0 < 0 :
-                    x0 = 0
-                pass
-
-                window = image[ y0 : y + b + 1, x0 : x + b + 1 ]
-                median = np.median( window )
-                data[y][x] = median
-
-                0 and log.info( "[%05d] data[%d][%d] = %.4f" % (idx, y, x, median) )
-                idx += 1
-            pass
-        pass
-    pass
-
-    log.info( "Done. %s" % msg )
-
-    return data , algorithm
-pass #-- 잡음 제거 함수
-
-ksize = 3
-noise_removed, algorithm = remove_noise( image_normalized, ksize )
-
-save_img_as_file( "noise_removed(%s)" % algorithm, noise_removed )
-
-if 1 : # 잡음 제거  이미지 표출
-    gs_row += 1
-    gs_col = 1
-    colspan = gs_col_cnt - gs_col
-    img = noise_removed
-    cmap = "gray"
-    title = "Noise removed (Median Blur, ksize=%d)" % ( ksize, )
-
-    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
-
-    img_show = ax.imshow( img, cmap=cmap )
-    ax.set_xlabel( 'x\n%s' % title )
-    ax.set_ylabel( 'y', rotation=0 )
-
-    change_ax_border_color( ax, "blue" )
-
-    fig.colorbar(img_show, ax=ax)
-pass #-- 잡음 제거  이미지 표출
-
-#-- 잡음 제거를 위한 Median Blur Filter
 
 #TODO    이진화
 
