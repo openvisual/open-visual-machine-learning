@@ -39,28 +39,31 @@ def profile(fn):
 
         if fn.__name__ not in PROF_DATA:
             PROF_DATA[fn.__name__] = [0, []]
+        pass
+
         PROF_DATA[fn.__name__][0] += 1
         PROF_DATA[fn.__name__][1].append(elapsed_time)
 
         return ret
 
     return with_profiling
+pass # -- profile(fn)
 
 def print_prof_data():
-    for fname, data in PROF_DATA :
+    for fname, data in PROF_DATA.items() :
         max_time = max(data[1])
         avg_time = sum(data[1]) / len(data[1])
-        fmt = "Function %s called %d times. Exe. time max: %.3f, average: %.3f"
+        fmt = "Function[ %s ] called %d times. Exe. time max: %.3f, average: %.3f"
         log.info( fmt % (fname, data[0], max_time, avg_time) )
     pass
 
     PROF_DATA.clear()
-pass
+pass # -- print_prof_data()
 
 def clear_prof_data():
     global PROF_DATA
     PROF_DATA = {}
-pass
+pass # -- clear_prof_data
 
 ''' --- profile functions '''
 

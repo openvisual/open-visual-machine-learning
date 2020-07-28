@@ -5,22 +5,17 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import warnings 
 warnings.filterwarnings('ignore',category=FutureWarning)
 
-from time import sleep
+import sys
 
 # TensorFlow and tf.keras
 import tensorflow as tf
 from tensorflow import keras
-
-# Helper libraries
-import numpy as np
-import matplotlib.pyplot as plt
 
 print( "" )
 print( "" )
 print( " Hello .... ".center( 80, "*" ) )
 print( "" )
 
-import sys
 print( "Python version : %s" % sys.version )
 
 print( "TensorFlow version : %s" % tf.__version__)
