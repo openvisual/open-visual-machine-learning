@@ -14,7 +14,57 @@ import logging as log
 log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
     datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
-import os, cv2, numpy as np, sys
+''' profile functions '''
+
+import time
+from functools import wraps
+
+PROF_DATA = {}
+
+# -- usage
+# @profile
+# def your_function(...):
+#       ....
+#
+# your_function( ... )
+# print_prof_data()
+def profile(fn):
+    @wraps(fn)
+    def with_profiling(*args, **kwargs):
+        start_time = time.time()
+
+        ret = fn(*args, **kwargs)
+
+        elapsed_time = time.time() - start_time
+
+        if fn.__name__ not in PROF_DATA:
+            PROF_DATA[fn.__name__] = [0, []]
+        PROF_DATA[fn.__name__][0] += 1
+        PROF_DATA[fn.__name__][1].append(elapsed_time)
+
+        return ret
+
+    return with_profiling
+
+def print_prof_data():
+    for fname, data in PROF_DATA :
+        max_time = max(data[1])
+        avg_time = sum(data[1]) / len(data[1])
+        fmt = "Function %s called %d times. Exe. time max: %.3f, average: %.3f"
+        log.info( fmt % (fname, data[0], max_time, avg_time) )
+    pass
+
+    PROF_DATA.clear()
+pass
+
+def clear_prof_data():
+    global PROF_DATA
+    PROF_DATA = {}
+pass
+
+''' --- profile functions '''
+
+import os, cv2, numpy as np, sys, time
 import math
 from math import pi
 
@@ -36,8 +86,8 @@ pass
 #img_path = "../data_ocr/sample_01/messi5.png"
 #img_path = "../data_ocr/sample_01/hist_work_01.png"
 #img_path = "../data_ocr/sample_01/gosu_01.png"
-img_path = "../data_ocr/sample_01/sample_21.png"
-#img_path = "../data_yegan/ex_01/_1018877.JPG"
+#img_path = "../data_ocr/sample_01/sample_21.png"
+img_path = "../data_yegan/ex_01/_1018877.JPG"
 
 #TODO     이미지 저장 함수
 img_save_cnt = 0
@@ -68,14 +118,14 @@ def img_file_name( work ) :
     k = fn.rfind( "." )
     fn = folder + fn[ : k ] + ( "_%02d_" % img_save_cnt) + work + fn[k:]
     return fn
-pass #-- img_file_name
+pass # -- img_file_name
 
 def save_img_as_file( work, img, cmap="gray"):
     fn = img_file_name( work )
     plt.imsave( fn, img, cmap='gray' )
 
     log.info( "Image saved as file name[%s]" % fn )
-pass #-- save_img_as_file
+pass # -- save_img_as_file
 
 # -- 이미지 저장 함수
 
@@ -342,33 +392,60 @@ save_img_as_file( "noise_removed(%s)" % algorithm, grayscale )
 
 # calculate histogram count
 def make_histogram( grayscale ) :
-    log.info( "Make histogram ..." )
+    msg = "Make histogram ..."
+    log.info(msg)
+
+    # using python list is faster than numpy array
+    histogram = [0]*256
+
+    for row in grayscale :
+        for gs in row :
+            #gs = (int)( gs )
+            #0 and log.info( "gs = %d" % gs)
+            histogram[ gs ] += 1
+        pass
+    pass
+
+    log.info("Done. %s" % msg)
+
+    return histogram
+pass # -- calculate histogram
+
+def make_histogram_old( grayscale ) :
+    # this code is too slow
+    msg = "Make histogram ..."
+    log.info( msg )
 
     histogram = np.zeros( 256, dtype='u8' )
 
-    for _, row in enumerate( grayscale ) :
-        for x, gs in enumerate( row ) :
+    for row in grayscale :
+        for gs in row :
             #gs = (int)( gs )
             histogram[ gs ] += 1
         pass
     pass
 
+    log.info( "Done. %s" % msg )
     return histogram
 pass # -- calculate histogram
 
 # TODO    누적 히스토 그램
 def accumulate_histogram( histogram ) :
-    log.info( "Accumulate histogram ..." )
+    msg = "Accumulate histogram ..."
+    log.info( msg )
+
+    acc = [0]*256
 
     sum = 0
 
-    data = np.empty( len( histogram ), dtype=histogram.dtype )
     for x, v in enumerate( histogram ) :
         sum += v
-        data[x] = sum
+        acc[x] = sum
     pass
 
-    return data
+    log.info( "Done. %s" % msg )
+
+    return acc
 pass # 누적 히스트 그램
 
 histogram = make_histogram( grayscale )
@@ -474,6 +551,7 @@ pass #-- 잡음 제거  이미지 표출
 
 #TODO    히스토그램 평활화
 
+@profile
 def normalize_image_by_histogram( image, histogram_acc ) :
     msg = "Normalize histogram"
     log.info( "%s ..." % msg )
@@ -488,7 +566,9 @@ def normalize_image_by_histogram( image, histogram_acc ) :
     L = len( histogram_acc )
 
     cdf = histogram_acc
-    cdf_min = np.min( np.nonzero(cdf) )
+
+    #cdf_min = cdf[ 0 ]
+    cdf_min = np.min(np.nonzero(cdf))
 
     idx = 0
     L_over_MN_cdf_min = L/(MN - cdf_min)
@@ -509,12 +589,51 @@ def normalize_image_by_histogram( image, histogram_acc ) :
     return data
 pass #-- normalize_image_by_histogram
 
+def normalize_image_by_histogram_old( image, histogram_acc ) :
+    msg = "Normalize histogram"
+    log.info( "%s ..." % msg )
+
+    h = len( image ) # image height
+    w = len( image[0] ) # image width
+
+    data = np.empty( [h, w], dtype=image.dtype )
+
+    # https://en.wikipedia.org/wiki/Histogram_equalization
+    MN = h*w
+    L = len( histogram_acc )
+
+    cdf = histogram_acc
+
+    #cdf_min = cdf[ 0 ]
+    cdf_min = np.min(np.nonzero(cdf))
+
+    idx = 0
+    L_over_MN_cdf_min = L/(MN - cdf_min)
+
+    for y, row in enumerate( image ):
+        for x, gs in enumerate( row ):
+            v = (cdf[gs] - cdf_min)*L_over_MN_cdf_min
+            vv = int( round( v ) )
+            data[y][x] = vv
+
+            0 and log.info( "[%05d] gs = %d, v=%0.4f" % ( idx, gs, v ) )
+            idx += 1
+        pass
+    pass
+
+    log.info( "Done. %s" % msg )
+
+    return data
+pass #-- normalize_image_by_histogram old
+
 image_normalized = normalize_image_by_histogram( grayscale, histogram_acc )
+
+print_prof_data()
 
 save_img_as_file( "image_normalized", image_normalized )
 
 if 1 : # 평활화 이미지 표출
-    #gs_row += 1
+    gs_row += 1
     gs_col = 0
     colspan = gs_col_cnt
     title = "Normalization"
