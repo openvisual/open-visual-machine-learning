@@ -16,11 +16,6 @@ log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(l
 
 ''' profile functions '''
 
-import time
-from functools import wraps
-
-PROF_DATA = {}
-
 # -- usage
 # @profile
 # def your_function(...):
@@ -28,6 +23,12 @@ PROF_DATA = {}
 #
 # your_function( ... )
 # print_prof_data()
+
+import time
+from functools import wraps
+
+PROF_DATA = {}
+
 def profile(fn):
     @wraps(fn)
     def with_profiling(*args, **kwargs):
