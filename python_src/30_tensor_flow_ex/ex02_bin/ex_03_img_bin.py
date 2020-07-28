@@ -150,7 +150,11 @@ def plot_image( image, title = "", cmap="gray", border_color = "black" ) :
 
     ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
 
-    img_show = ax.imshow( image, cmap=cmap )
+    h = len( image )
+    w = len( image[0] )
+
+    img_show = ax.imshow( image, cmap=cmap, extent=[0, w, 0, h] )
+
     ax.set_xlabel( title )
     ax.set_ylabel( 'y', rotation=0 )
 
@@ -384,7 +388,7 @@ save_img_as_file( "noise_removed(%s)" % algorithm, grayscale )
 
 title = "Noise removed (%s, ksize=%s)" % ( algorithm, ksize, )
 border_color = "blue"
-plot_image( grayscale, title=title, cmap="gray", border_color = border_color )
+ax, show_img = plot_image( grayscale, title=title, cmap="gray", border_color = border_color )
 
 #-- 잡음 제거를 위한 Median Blur Filter
 
@@ -400,7 +404,6 @@ def make_histogram( grayscale ) :
 
     for row in grayscale :
         for gs in row :
-            #gs = (int)( gs )
             histogram[ gs ] += 1
         pass
     pass
@@ -427,13 +430,16 @@ pass # 누적 히스트 그램
 histogram = make_histogram( grayscale )
 histogram_acc = accumulate_histogram( histogram )
 
-def show_histogram( histogram , histogram_acc, title ): # 히스토 그램 표출
+def show_histogram_on_plot( ax, image, histogram , histogram_acc ): # 히스토 그램 표출
     #global gs_row
 
-    gs_col = 0
-    colspan = 1
+    if 0 :
+        x = range(300)
+        ax.plot(x, x, '--', linewidth=2, color='firebrick')
+    pass
 
-    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
+    h = len( image )
+    w = len( image[0] )
 
     charts = { }
 
@@ -443,29 +449,40 @@ def show_histogram( histogram , histogram_acc, title ): # 히스토 그램 표�
 
     log.info( "hist avg = %s, std = %s" % (hist_avg, hist_std) )
 
-    if histogram_acc is not None :
+    if 0 and histogram_acc is not None :
         # accumulated histogram
         y = histogram_acc
+
+        max_y = np.max( y )
+
         x = [i for i, _ in enumerate( y ) ]
         charts["accumulated"] = ax.bar( x, y, width=0.4, color='yellow', alpha=0.3 )
     pass
 
     # histogram bar chart
-    y = histogram
-    x = [i for i, _ in enumerate( y ) ]
-    charts["count"] = ax.bar( x, y, width=0.5, color='red' )
+    if 1 :
+        y = histogram
+        x = [i for i, _ in enumerate(y)]
 
-    # histogram std chart
-    x = [ gs_avg - gs_std, gs_avg + gs_std ]
-    y = [ hist_max*0.95, hist_max*0.95 ]
-    charts["std"] = ax.fill_between( x, y, color='cyan', alpha=0.5 )
+        #charts["count"] = ax.plot( x, y, linewidth=2, color='green', alpha=0.5 )
+        charts["count"] = ax.bar(x, y, width=2, color='green', alpha=0.5)
+    pass
 
-    # histogram average chart
-    x = [ gs_avg, ]
-    y = [ hist_max, ]
-    charts["average"] = ax.bar(x, y, width=0.5, color='blue', alpha=0.5)
+    if 0 :
+        # histogram std chart
+        x = [ gs_avg - gs_std, gs_avg + gs_std ]
+        y = [ hist_max*0.95, hist_max*0.95 ]
+        charts["std"] = ax.fill_between( x, y, color='cyan', alpha=0.5 )
+    pass
 
-    if 1 : # 레전드 표출
+    if 0 :
+        # histogram average chart
+        x = [ gs_avg, ]
+        y = [ hist_max, ]
+        charts["average"] = ax.bar(x, y, width=0.5, color='blue', alpha=0.5)
+    pass
+
+    if 0 : # 레전드 표출
         t = [ ]
         l = list( charts.keys() )
         l = sorted( l )
@@ -488,21 +505,17 @@ def show_histogram( histogram , histogram_acc, title ): # 히스토 그램 표�
         ax.legend( t, l, loc=loc, shadow=True)
     pass #-- 레전드 표출
 
-    if 1 : # x 축 최대, 최소 설정
+    if 0 : # x 축 최대, 최소 설정
         max_x = gs_avg + gs_std*1.2
 
         ax.set_xlim( 0, max_x )
     pass
 
-    ax.set_xlabel( title )
-    ax.set_ylabel( 'Count', rotation=90 )
+    ax.set_xlim(0, w)
+    ax.set_ylim(0, h)
 pass #-- 히스토 그램 표출
 
-if 0 :
-    gs_row += 1
-
-    show_histogram( histogram, histogram_acc, title = "Grayscale Histogram" )
-pass
+0 and show_histogram_on_plot( ax, grayscale, histogram, histogram_acc  )
 
 #-- histogram 생성
 
@@ -839,9 +852,8 @@ pass #-- y count 표출
 
 #-- y count 표출
 
-
-
 log.info( "Plot show....." )
+
 plt.show()
 
 log.info( "Good bye!")
