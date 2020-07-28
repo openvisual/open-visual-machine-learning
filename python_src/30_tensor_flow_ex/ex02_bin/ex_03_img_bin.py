@@ -90,8 +90,8 @@ pass
 #img_path = "../data_ocr/sample_01/messi5.png"
 #img_path = "../data_ocr/sample_01/hist_work_01.png"
 #img_path = "../data_ocr/sample_01/gosu_01.png"
-#img_path = "../data_ocr/sample_01/sample_21.png"
-img_path = "../data_yegan/ex_01/_1018877.JPG"
+img_path = "../data_ocr/sample_01/sample_21.png"
+#img_path = "../data_yegan/ex_01/_1018877.JPG"
 
 #TODO     이미지 저장 함수
 img_save_cnt = 0
@@ -141,6 +141,26 @@ def change_ax_border_color( ax, color ) :
     pass
 pass #-- change_ax_border_color
 
+def plot_image( image, title = "", cmap="gray", border_color = "black" ) :
+    # 그레이 스케일 이미지 표출
+    global gs_row
+    gs_row += 1
+    gs_col = 0
+    colspan = gs_col_cnt - gs_col
+
+    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
+
+    img_show = ax.imshow( image, cmap=cmap )
+    ax.set_xlabel( title )
+    ax.set_ylabel( 'y', rotation=0 )
+
+    border_color and change_ax_border_color( ax, border_color )
+
+    fig.colorbar(img_show, ax=ax)
+
+    return ax, img_show
+pass # -- plot_image
+
 #TODO    원천 이미지 획득
 
 img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
@@ -158,7 +178,7 @@ save_img_as_file( "org", img_org )
 fig = plt.figure(figsize=(10, 10), constrained_layout=True)
 
 # org img, channel img, gray scale, median blur, histogram, bin, y_count
-gs_row_cnt = 7
+gs_row_cnt = 6
 gs_col_cnt = 1
 
 gs_row = -1
@@ -166,23 +186,9 @@ gs_col = 0
 
 gridSpec = GridSpec( gs_row_cnt, gs_col_cnt, figure=fig )
 
-if 1 : # 원본 이미지 표출
-    gs_row += 1
-    gs_col = 0
-    colspan = gs_col_cnt
-    img = img_org
-
-    title = 'Original Image: %s' % ( img_path.split("/")[-1] )
-
-    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
-    img_show = ax.imshow( img )
-    ax.set_xlabel( 'x\n %s' % title )
-    ax.set_ylabel( 'y', rotation=0 )
-
-    change_ax_border_color( ax, "green" )
-
-    fig.colorbar(img_show, ax=ax)
-pass
+title = 'Original Image: %s' % ( img_path.split("/")[-1] )
+border_color = "green"
+plot_image( img_org, title=title, cmap=None, border_color = border_color )
 
 #-- 원천 이미지 획득
 
@@ -305,24 +311,8 @@ grayscale = reverse_image( grayscale )
 
 save_img_as_file( "grayscale", grayscale )
 
-if 1 : # 그레이 스케일 이미지 표출
-    gs_row += 1
-    gs_col = 0
-    colspan = gs_col_cnt - gs_col
-    img = grayscale
-    cmap = "gray"
-    title = "Grayscale"
-
-    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
-
-    img_show = ax.imshow( img, cmap=cmap )
-    ax.set_xlabel( 'x\n%s' % title )
-    ax.set_ylabel( 'y', rotation=0 )
-
-    change_ax_border_color( ax, "green" )
-
-    fig.colorbar(img_show, ax=ax)
-pass #-- 그레이 스케일 이미지 표출
+#-- 그레이 스케일 이미지 표출
+plot_image( grayscale, title="Grayscale", cmap="gray", border_color = "green" )
 
 gs_avg = np.average( grayscale )
 gs_std = np.std( grayscale )
@@ -391,6 +381,10 @@ ksize = 3
 grayscale, algorithm = remove_noise( grayscale, ksize = ksize )
 
 save_img_as_file( "noise_removed(%s)" % algorithm, grayscale )
+
+title = "Noise removed (%s, ksize=%s)" % ( algorithm, ksize, )
+border_color = "blue"
+plot_image( grayscale, title=title, cmap="gray", border_color = border_color )
 
 #-- 잡음 제거를 위한 Median Blur Filter
 
@@ -512,25 +506,6 @@ pass
 
 #-- histogram 생성
 
-if 1 : # 잡음 제거  이미지 표출
-    gs_row += 1
-    gs_col = 0
-    colspan = gs_col_cnt - gs_col
-    img = grayscale
-    cmap = "gray"
-    title = "Noise removed (%s, ksize=%s)" % ( algorithm, ksize, )
-
-    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
-
-    img_show = ax.imshow( img, cmap=cmap )
-    ax.set_xlabel( 'x\n%s' % title )
-    ax.set_ylabel( 'y', rotation=0 )
-
-    change_ax_border_color( ax, "blue" )
-
-    fig.colorbar(img_show, ax=ax)
-pass #-- 잡음 제거  이미지 표출
-
 #TODO    히스토그램 평활화
 
 @profile
@@ -593,24 +568,9 @@ print_prof_data()
 
 save_img_as_file( "image_normalized", image_normalized )
 
-if 1 : # 평활화 이미지 표출
-    gs_row += 1
-    gs_col = 0
-    colspan = gs_col_cnt
-    title = "Normalization"
-    img = image_normalized
-    cmap = "gray"
-
-    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
-    img_show = ax.imshow( img, cmap=cmap )
-
-    ax.set_xlabel( 'x\n%s' % title )
-    ax.set_ylabel( 'y', rotation=0 )
-
-    change_ax_border_color( ax, "green" )
-
-    fig.colorbar(img_show, ax=ax)
-pass #-- 평활화 이미지 표출
+title = "Normalization"
+border_color = "green"
+plot_image( image_normalized, title=title, cmap="gray", border_color = border_color )
 
 #-- 히스토그램 평활화
 
@@ -813,24 +773,9 @@ pass
 
 save_img_as_file( "image_binarized(%s)" % thresh_algo, image_binarized )
 
-if 1 : # 이진 이미지 표출
-    gs_row += 1
-    gs_col = 0
-    colspan = gs_col_cnt
-    title = "Binarization (%s, %s)" % ( thresh_algo, threshold )
-    img = image_binarized
-    cmap = "gray"
-
-    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
-    img_show = ax.imshow( img, cmap=cmap )
-
-    ax.set_xlabel( 'x\n%s' % title )
-    ax.set_ylabel( 'y', rotation=0 )
-
-    change_ax_border_color( ax, "green" )
-
-    fig.colorbar(img_show, ax=ax)
-pass #-- 이진 이미지 표출
+title = "Binarization (%s, %s)" % ( thresh_algo, threshold )
+border_color = "blue"
+plot_image( image_binarized, title=title, cmap="gray", border_color = border_color )
 
 #-- 이진화
 
@@ -865,18 +810,10 @@ y_counts = count_y_axis_signal( image= target_image, ksize = 1 )
 y_counts.tofile( "./y_count.csv", sep=',', format='%s')
 
 if 1 : # y count 표출
-    gs_row += 1
-    gs_col = 0
-    colspan = gs_col_cnt
 
-    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
-
-    # 이진 이미지 표출
-    img = image_binarized
-    cmap = "gray"
-    img_show = ax.imshow( img, cmap=cmap )
-    fig.colorbar(img_show, ax=ax)
-    #-- 이진 이미지 표출
+    title = "y count"
+    border_color = "blue"
+    ax, img_show = plot_image(image_binarized, title=title, cmap="gray", border_color=border_color)
 
     charts = { }
 
@@ -896,14 +833,13 @@ if 1 : # y count 표출
         ax.legend( t, l, loc=loc, shadow=True)
     pass #-- 레전드 표출
 
-    title = "y count"
-    ax.set_xlabel( 'x\n%s' % title )
     ax.set_ylabel( 'Y count', rotation=90 )
-
     ax.set_xlim( 0, width )
 pass #-- y count 표출
 
 #-- y count 표출
+
+
 
 log.info( "Plot show....." )
 plt.show()
