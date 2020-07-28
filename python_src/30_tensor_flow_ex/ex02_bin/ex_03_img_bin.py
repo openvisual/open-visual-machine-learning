@@ -126,7 +126,8 @@ pass # -- img_file_name
 
 def save_img_as_file( work, img, cmap="gray"):
     fn = img_file_name( work )
-    plt.imsave( fn, img, cmap='gray' )
+
+    plt.imsave( fn, img, cmap=cmap )
 
     log.info( "Image saved as file name[%s]" % fn )
 pass # -- save_img_as_file
@@ -152,13 +153,13 @@ channel_no  = img_org.shape[2]
 print( "Image path: %s" % img_path )
 print( "Image widh: %s, height: %s, channel: %s" % (width,height,channel_no ) )
 
-save_img_as_file( "org", img_org, cmap="rgb" )
+save_img_as_file( "org", img_org )
 
 fig = plt.figure(figsize=(10, 10), constrained_layout=True)
 
 # org img, channel img, gray scale, median blur, histogram, bin, y_count
 gs_row_cnt = 7
-gs_col_cnt = 4
+gs_col_cnt = 1
 
 gs_row = -1
 gs_col = 0
@@ -282,6 +283,7 @@ def reverse_image( image , max = None ) :
     pass
 
     data = max - image
+
     '''
     data = np.empty( ( h, w ), dtype=image.dtype )
 
@@ -394,33 +396,13 @@ save_img_as_file( "noise_removed(%s)" % algorithm, grayscale )
 
 #TODO     Histogram 생성
 
-# calculate histogram count
+@profile
 def make_histogram( grayscale ) :
-    msg = "Make histogram ..."
-    log.info(msg)
-
-    # using python list is faster than numpy array
-    histogram = [0]*256
-
-    for row in grayscale :
-        for gs in row :
-            #gs = (int)( gs )
-            #0 and log.info( "gs = %d" % gs)
-            histogram[ gs ] += 1
-        pass
-    pass
-
-    log.info("Done. %s" % msg)
-
-    return histogram
-pass # -- calculate histogram
-
-def make_histogram_old( grayscale ) :
     # this code is too slow
     msg = "Make histogram ..."
     log.info( msg )
 
-    histogram = np.zeros( 256, dtype='u8' )
+    histogram = [ 0 ]*256
 
     for row in grayscale :
         for gs in row :
@@ -428,24 +410,20 @@ def make_histogram_old( grayscale ) :
             histogram[ gs ] += 1
         pass
     pass
+
+    histogram = np.array( histogram, 'u8' )
 
     log.info( "Done. %s" % msg )
     return histogram
 pass # -- calculate histogram
 
 # TODO    누적 히스토 그램
+@profile
 def accumulate_histogram( histogram ) :
     msg = "Accumulate histogram ..."
     log.info( msg )
 
-    acc = [0]*256
-
-    sum = 0
-
-    for x, v in enumerate( histogram ) :
-        sum += v
-        acc[x] = sum
-    pass
+    acc = np.add.accumulate( histogram )
 
     log.info( "Done. %s" % msg )
 
@@ -560,65 +538,44 @@ def normalize_image_by_histogram( image, histogram_acc ) :
     msg = "Normalize histogram"
     log.info( "%s ..." % msg )
 
+    # https://en.wikipedia.org/wiki/Histogram_equalization
+
     h = len( image ) # image height
     w = len( image[0] ) # image width
 
     data = np.empty( [h, w], dtype=image.dtype )
 
-    # https://en.wikipedia.org/wiki/Histogram_equalization
     MN = h*w
     L = len( histogram_acc )
 
     cdf = histogram_acc
 
     #cdf_min = cdf[ 0 ]
-    cdf_min = np.min(np.nonzero(cdf))
-
-    idx = 0
-    L_over_MN_cdf_min = L/(MN - cdf_min)
-
-    for y, row in enumerate( image ):
-        for x, gs in enumerate( row ):
-            v = (cdf[gs] - cdf_min)*L_over_MN_cdf_min
-            vv = int( round( v ) )
-            data[y][x] = vv
-
-            0 and log.info( "[%05d] gs = %d, v=%0.4f" % ( idx, gs, v ) )
-            idx += 1
+    cdf_min = cdf[ 0 ]
+    for c in cdf :
+        if cdf_min == 0 :
+            cdf_min = c
+        else :
+            break
         pass
     pass
 
-    log.info( "Done. %s" % msg )
-
-    return data
-pass #-- normalize_image_by_histogram
-
-def normalize_image_by_histogram_old( image, histogram_acc ) :
-    msg = "Normalize histogram"
-    log.info( "%s ..." % msg )
-
-    h = len( image ) # image height
-    w = len( image[0] ) # image width
-
-    data = np.empty( [h, w], dtype=image.dtype )
-
-    # https://en.wikipedia.org/wiki/Histogram_equalization
-    MN = h*w
-    L = len( histogram_acc )
-
-    cdf = histogram_acc
-
-    #cdf_min = cdf[ 0 ]
-    cdf_min = np.min(np.nonzero(cdf))
+    log.info( f"cdf_min = {cdf_min:,d}" )
 
     idx = 0
-    L_over_MN_cdf_min = L/(MN - cdf_min)
+    L_over_MN_cdf_min = L/(MN - cdf_min + 0.0)
+
+    cdf = np.array( cdf, 'float' )
+
+    cdf -= cdf_min
+    cdf *= L_over_MN_cdf_min
+    cdf += 0.5
 
     for y, row in enumerate( image ):
         for x, gs in enumerate( row ):
-            v = (cdf[gs] - cdf_min)*L_over_MN_cdf_min
-            vv = int( round( v ) )
-            data[y][x] = vv
+            #data[y][x] = int( (cdf[gs] - cdf_min)*L_over_MN_cdf_min + 0.5 )
+
+            data[y][x] = int( cdf[gs] )
 
             0 and log.info( "[%05d] gs = %d, v=%0.4f" % ( idx, gs, v ) )
             idx += 1
@@ -743,7 +700,7 @@ def threshold_adaptive_gaussian_opencv( image, bsize = 3, c = 0 ):
 
     # https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_thresholding/py_thresholding.html
 
-    reverse_required = 0
+    reverse_required = 1
 
     bsize = 2*int( bsize/2 )  + 1
 
@@ -759,7 +716,7 @@ def threshold_adaptive_gaussian_my( image, bsize = 3, c = 0 ):
 
     # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#getgaussiankernel
 
-    reverse_required = 0
+    reverse_required = 1
 
     bsize = 2*int( bsize/2 )  + 1
 
@@ -834,6 +791,8 @@ def binarize_image( image, threshold = None ):
         w = len(image[0])  # image width
         bsize = w if w > h else h
         bsize = bsize/2
+
+        bsize = 5 # for line detection
         v = threshold_adaptive_gaussian( image, bsize = bsize, c = 5 )
     elif 0 :
         bsize = 3
@@ -946,6 +905,9 @@ pass #-- y count 표출
 
 #-- y count 표출
 
+log.info( "Plot show....." )
 plt.show()
+
+log.info( "Good bye!")
 
 # end
