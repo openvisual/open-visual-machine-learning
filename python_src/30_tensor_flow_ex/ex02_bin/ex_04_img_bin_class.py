@@ -81,12 +81,11 @@ from matplotlib.gridspec import GridSpec
 print( "Done Import.".center( 80, "*") )
 
 # 현재 파일의 폴더로 실행 폴더를 이동함.
-print( "Pwd 1: %s" % os.getcwd())
-# change working dir to current file
-dirname = os.path.dirname(__file__)
+log.info( f"Pwd 1: {os.getcwd()}" )
+dirname = os.path.dirname(__file__) # change working dir to current file
 if dirname :
     os.chdir( dirname )
-    print( "Pwd 2: %s" % os.getcwd())
+    log.info(f"Pwd 2: {os.getcwd()}")
 pass
 #-- 현재 파일의 폴더로 실행 폴더를 이동함.
 
@@ -106,14 +105,14 @@ height      = img_org.shape[0]
 width       = img_org.shape[1]
 channel_no  = img_org.shape[2]
 
-print( "Image path: %s" % img_path )
-print( "Image widh: %s, height: %s, channel: %s" % (width,height,channel_no ) )
+log.info( f"Image path: {img_path}"  )
+print( f"Image widh: {width}, height: {height}, channel: {channel_no}" )
 
 fig = plt.figure(figsize=(10, 10), constrained_layout=True)
 
 # org img, channel img, gray scale, median blur, histogram, bin, y_count
 gs_row_cnt = 6
-gs_col_cnt = 1
+gs_col_cnt = 7
 
 gs_row = -1
 gs_col = 0
@@ -855,7 +854,8 @@ if 1 :
     # y count bar chart
     y = y_signal_counts
     x = [i for i, _ in enumerate( y ) ]
-    charts["y count"] = ax.bar( x, y, width=0.5, color='red', align='center', alpha=1.0)
+    charts["y count"] = ax.bar(x, y, width=.6, color='y', align='center', alpha=1.0)
+    #charts["y count"] = ax.bar( x, y, width=0.5, color='green', align='center', alpha=1.0)
 
     if 0 : # 레전드 표출
         t = [ ]
