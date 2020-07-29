@@ -133,8 +133,9 @@ class Image :
     img_save_cnt = 0
 
     def img_file_name(self, work):
-        global img_save_cnt
-        img_save_cnt += 1
+        Image.img_save_cnt += 1
+
+        img_save_cnt = Image.img_save_cnt
 
         fn = img_path
 
@@ -371,10 +372,10 @@ class Image :
     pass
 
     # TODO   영상 역전 함수
-    def reverse_image( self, image, max=None):
+    def reverse_image( self, max=None):
         log.info("Reverse image....")
 
-        img = image.img
+        img = self.img
 
         if max is None:
             max = np.max(img)
@@ -646,7 +647,7 @@ class Image :
         return v
     pass # -- threshold_adaptive_gaussian
 
-    def threshold_adaptive_gaussian_opencv(self, image, bsize=3, c=0):
+    def threshold_adaptive_gaussian_opencv(self, bsize=3, c=0):
         msg = "Apdative threshold gaussian opencv"
         log.info(msg)
         # https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_thresholding/py_thresholding.html
@@ -654,11 +655,17 @@ class Image :
         reverse_required = 1
         bsize = 2 * int(bsize / 2) + 1
 
-        image = image.astype(np.uint8)
-        data = cv2.adaptiveThreshold(image, 1, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, bsize, c)
+        img = self.img
+        img = img.astype(np.uint8)
 
-        return Image( data ), ("bsize = %s" % bsize), "adaptive gaussian thresholding opencv", reverse_required
+        data = cv2.adaptiveThreshold(img, 1, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, bsize, c)
 
+        image = Image( data )
+        image.threshold = ("bsize = %s" % bsize)
+        image.algorithm = "adaptive gaussian thresholding opencv"
+        image.reverse_required = reverse_required
+
+        return image
     pass  # -- threshold_adaptive_gaussian_opencv
 
     def threshold_adaptive_gaussian_my(self, bsize=3, c=0):
