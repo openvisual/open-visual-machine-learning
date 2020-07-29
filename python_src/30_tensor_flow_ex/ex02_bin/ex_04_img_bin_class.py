@@ -124,7 +124,7 @@ channel_no  = img_org.shape[2]
 log.info( f"Image path: {img_path}"  )
 print( f"Image widh: {width}, height: {height}, channel: {channel_no}" )
 
-fig = plt.figure(figsize=(10, 10), constrained_layout=True)
+fig = plt.figure(figsize=(12, 10), constrained_layout=True)
 plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
 
 # org img, channel img, gray scale, median blur, histogram, bin, y_count
@@ -345,6 +345,12 @@ class Image :
             pass
         pass
 
+        histo_len = len(histogram)
+        if histo_len > 10 :
+            ax.set_xticks(np.arange(0, 250, 50))
+        pass
+
+        ax.grid( 1 )
         #x.set_ylabel('count', rotation=0)
         ax.set_xlabel( "Histogram")
     pass
