@@ -911,10 +911,6 @@ bin_image.plot_histogram()
 #TODO   Y 축 데이터 히스토그램
 y_signal_counts = bin_image.count_y_axis_signal( ksize = 1 )
 
-# y count 데이터를 csv 파일로 저장
-
-y_signal_counts.tofile( "./y_count.csv", sep=',', format='%s')
-
 if 1 :
     # y count 표출
     ax, img_show = bin_image.plot_image( title="y count" , cmap="gray", border_color="blue")
@@ -943,6 +939,48 @@ if 1 :
     ax.set_xlim( 0, width )
 pass
 #-- y count 표출
+
+def explorer_open( path ) :
+    ''' open folder by an explorer'''
+    import webbrowser as wb
+    wb.open( path )
+pass # -- open_folder
+
+if 1 :
+    # TODO y count 데이터를 csv 파일로 저장
+    folder = "C:/Temp"
+    path = f"{folder}/y_counts.csv"
+    y_signal_counts.tofile( path, sep=',', format='%s')
+    log.info(f"CSV file {path} was saved.")
+
+    # TODO y count 데이터를 엑셀 파일로 저장
+    import xlsxwriter
+
+    # Create a workbook and add a worksheet.
+    path = f"{folder}/y_counts.xlsx"
+    workbook = xlsxwriter.Workbook( path )
+    worksheet = workbook.add_worksheet()
+
+    row = 0
+
+    # Iterate over the data and write it out row by row.
+    cell_data_list = [ "y_count" ]
+    cell_data_list += list( y_signal_counts )
+    for col, cell_data in enumerate( cell_data_list ):
+        worksheet.write(row, col, cell_data)
+    pass
+
+    # Write a total using a formula.
+    row += 1
+    worksheet.write(row, 0, 'Total')
+    worksheet.write(row, 1, '=SUM(A1:D1)')
+
+    workbook.close()
+
+    log.info( f"Excel file {path} was saved." )
+
+    explorer_open( folder )
+pass # --  #TODO y count 데이터를 엑셀, csv 파일로 저장
 
 log.info( "Plot show....." )
 

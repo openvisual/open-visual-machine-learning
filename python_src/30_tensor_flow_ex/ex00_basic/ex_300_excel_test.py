@@ -1,7 +1,7 @@
 import xlsxwriter
 
 # Create a workbook and add a worksheet.
-workbook = xlsxwriter.Workbook('Expenses01.xlsx')
+workbook = xlsxwriter.Workbook('C:/temp/my_doc.xlsx')
 worksheet = workbook.add_worksheet()
 
 # Some data we want to write to the worksheet.
@@ -17,10 +17,11 @@ row = 0
 col = 0
 
 # Iterate over the data and write it out row by row.
-for item, cost in (expenses):
+for item, cost in expenses :
     worksheet.write(row, col,     item)
     worksheet.write(row, col + 1, cost)
     row += 1
+pass
 
 # Write a total using a formula.
 worksheet.write(row, 0, 'Total')
