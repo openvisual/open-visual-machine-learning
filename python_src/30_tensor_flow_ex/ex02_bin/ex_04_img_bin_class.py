@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+'''
 # 변경 사항
 # 함수 모듈화
 # 히스토그램 정규화 추가
@@ -7,6 +8,7 @@
 # Adaptive Thresholding 추가
 # 클래스 화
 # 라인 추출
+'''
 
 import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
@@ -95,78 +97,6 @@ pass
 img_path = "../data_ocr/sample_01/sample_21.png"
 #img_path = "../data_yegan/ex_01/_1018877.JPG"
 
-#TODO     이미지 저장 함수
-img_save_cnt = 0
-
-def img_file_name( work ) :
-    global img_save_cnt
-    img_save_cnt += 1
-
-    fn = img_path
-
-    root = fn[ : fn.rfind( "/") ]
-
-    folder = root + "/temp"
-
-    if os.path.exists( folder ):
-        if not os.path.isdir( folder ) :
-            os.remove( folder )
-            os.mkdir( folder )
-        else :
-            # do nothing
-            pass
-        pass
-    else :
-        os.mkdir( folder )
-    pass
-
-    fn = fn.replace( root , "" )
-    k = fn.rfind( "." )
-    fn = folder + fn[ : k ] + ( "_%02d_" % img_save_cnt) + work + fn[k:]
-    return fn
-pass # -- img_file_name
-
-def save_img_as_file( work, img, cmap="gray"):
-    fn = img_file_name( work )
-
-    plt.imsave( fn, img, cmap=cmap )
-
-    log.info( "Image saved as file name[%s]" % fn )
-pass # -- save_img_as_file
-
-# -- 이미지 저장 함수
-
-# pyplot ax 의 프레임 경계 색상 변경
-def change_ax_border_color( ax, color ) :
-    for spine in ax.spines.values():
-        spine.set_edgecolor( color )
-    pass
-pass #-- change_ax_border_color
-
-def plot_image( image, title = "", cmap="gray", border_color = "black" ) :
-    # 그레이 스케일 이미지 표출
-    global gs_row
-    gs_row += 1
-    gs_col = 0
-    colspan = gs_col_cnt - gs_col
-
-    ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
-
-    h = len( image )
-    w = len( image[0] )
-
-    img_show = ax.imshow( image, cmap=cmap, extent=[0, w, 0, h] )
-
-    ax.set_xlabel( title )
-    ax.set_ylabel( 'y', rotation=0 )
-
-    border_color and change_ax_border_color( ax, border_color )
-
-    fig.colorbar(img_show, ax=ax)
-
-    return ax, img_show
-pass # -- plot_image
-
 #TODO    원천 이미지 획득
 
 img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
@@ -179,8 +109,6 @@ channel_no  = img_org.shape[2]
 print( "Image path: %s" % img_path )
 print( "Image widh: %s, height: %s, channel: %s" % (width,height,channel_no ) )
 
-save_img_as_file( "org", img_org )
-
 fig = plt.figure(figsize=(10, 10), constrained_layout=True)
 
 # org img, channel img, gray scale, median blur, histogram, bin, y_count
@@ -192,137 +120,205 @@ gs_col = 0
 
 gridSpec = GridSpec( gs_row_cnt, gs_col_cnt, figure=fig )
 
-title = 'Original Image: %s' % ( img_path.split("/")[-1] )
-border_color = "green"
-plot_image( img_org, title=title, cmap=None, border_color = border_color )
-
 #-- 원천 이미지 획득
 
-#TODO   채널 분리
-# b, g, r 채널 획득
-# cv2.imread() 는 b, g, r 순서대로 배열에서 반환한다.
-b_channel = img_org[:,:,0].copy()
-g_channel = img_org[:,:,1].copy()
-r_channel = img_org[:,:,2].copy()
+class Image :
 
-channels = [ r_channel, g_channel, b_channel ]
+    def __init__(self, img ):
+        self.img = img
+    pass
 
-if 0 :  # 채널 이미지 표출
-    gs_row += 1
-    gs_col = 0
-    colspan = 1
+    # TODO     이미지 저장 함수
+    img_save_cnt = 0
 
-    for i, channel in enumerate( channels ):
-        img_temp = np.zeros( (height, width, 3), dtype='uint8' )
-        img_temp[ :, : , i ] = channel
-        img = img_temp
+    def img_file_name(self, work):
+        global img_save_cnt
+        img_save_cnt += 1
+
+        fn = img_path
+
+        root = fn[: fn.rfind("/")]
+
+        folder = root + "/temp"
+
+        if os.path.exists(folder):
+            if not os.path.isdir(folder):
+                os.remove(folder)
+                os.mkdir(folder)
+            else:
+                # do nothing
+                pass
+            pass
+        else:
+            os.mkdir(folder)
+        pass
+
+        fn = fn.replace(root, "")
+        k = fn.rfind(".")
+        fn = folder + fn[: k] + ("_%02d_" % img_save_cnt) + work + fn[k:]
+        return fn
+
+    pass  # -- img_file_name
+
+    def save_img_as_file(self, work, cmap="gray"):
+        filename = self.img_file_name(work)
+        img = self.img
+
+        plt.imsave(filename, img, cmap=cmap)
+
+        log.info( f"Image saved as file name[ {filename} ]" )
+    pass  # -- save_img_as_file
+
+    ''' -- 이미지 저장 함수 '''
+
+    # TODO 플롯 함수
+    # pyplot ax 의 프레임 경계 색상 변경
+    def change_ax_border_color(self, ax, color):
+        for spine in ax.spines.values():
+            spine.set_edgecolor(color)
+        pass
+
+    pass  # -- change_ax_border_color
+
+    def plot_image( self, title="", cmap="gray", border_color="black"):
+        # 그레이 스케일 이미지 표출
+        global gs_row
+        gs_row += 1
+        gs_col = 0
+        colspan = gs_col_cnt - gs_col
 
         ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
-        img_show = ax.imshow( img )
-        ax.set_ylabel( 'y', rotation=0 )
 
-        title = "red channel"
-        if i == 1 :
-            title = "green channel"
-        elif i == 2 :
-            title = "blue channel"
+        img = self.img
+
+        img_show = ax.imshow(img, cmap=cmap )
+
+        ax.set_xlabel(title)
+        ax.set_ylabel('y', rotation=0)
+
+        border_color and self.change_ax_border_color(ax, border_color)
+
+        fig.colorbar(img_show, ax=ax)
+
+        return ax, img_show
+
+    pass  # -- plot_image
+    ''' -- 플롯 함수 '''
+
+    # TODO  통계 함수
+
+    def average(self):
+        return np.average( self.img )
+    pass
+
+    def std(self):
+        return np.std( self.img )
+    pass
+
+    def max(self):
+        return np.max( self.img )
+    pass
+
+    ''' 통계 함수 '''
+
+
+    # grayscale 변환 함수
+    def convert_to_grayscale( self ) :
+        log.info( "Convert to grayscale...." )
+
+        img = self.img
+
+        # TODO   채널 분리
+        # b, g, r 채널 획득
+        # cv2.imread() 는 b, g, r 순서대로 배열에서 반환한다.
+        b_channel = img[:, :, 0].copy()
+        g_channel = img[:, :, 1].copy()
+        r_channel = img[:, :, 2].copy()
+
+        # RGB -> GrayScale 변환 공식
+        # average  Y = (R + G + B / 3)
+        # weighted Y = (0.3 * R) + (0.59 * G) + (0.11 * B)
+        # Colorimetric conversion Y = 0.2126R + 0.7152G  0.0722B
+        # OpenCV CCIR Y = 0.299 R + 0.587 G + 0.114 B
+
+        grayscale = r_channel*0.299 + g_channel*0.587 + b_channel*0.114
+
+        grayscale = grayscale.astype( np.int16 )
+
+        '''
+        h = len( r_channel ) # image height
+        w = len( r_channel[0] ) # image width
+    
+        grayscale = np.empty( ( h, w ), dtype='f')
+    
+        for y in range( h ) :
+            for x in range( w ) :
+                gs = 0.299*r_channel[y][x] + 0.587*g_channel[y][x] + 0.114*b_channel[y][x]
+                grayscale[y][x] = gs
+            pass
+        pass
+        '''
+
+        return Image( grayscale )
+    pass
+    # -- grayscale 변환
+
+    def width(self):
+        # image width
+        img = self.img
+        w = len( img [0])
+
+        return w
+    pass
+
+    def height(self):
+        # image height
+        img = self.img
+        h = len( img )
+
+        return h
+    pass
+
+    # TODO   영상 역전 함수
+    def reverse_image( self, image, max=None):
+        log.info("Reverse image....")
+
+        img = image.img
+
+        if max is None:
+            max = np.max(img)
+
+            if max < 1:
+                max = 1
+            elif max > 1:
+                max = 255
+            else:
+                max = 1
+            pass
         pass
 
-        ax.set_xlabel( 'x\n%s' % title )
+        data = max - img
 
-        ( i == 2 ) and fig.colorbar(img_show, ax=ax)
+        image = Image( data )
 
-        gs_col += colspan
+        return image
     pass
+    # -- 영상 역전 함수
+
 pass
 
-#-- 채널 분리
+image_org = Image( img_org )
+image_org.save_img_as_file( "org" )
+image_org.plot_image( title = 'Original Image: %s' % ( img_path.split("/")[-1] ) , cmap=None, border_color = "green" )
 
-#TODO    Grayscale 변환
+grayscale = image_org.convert_to_grayscale()
+grayscale = grayscale.reverse_image( max = 255 )
+grayscale.save_img_as_file( "grayscale" )
+grayscale.plot_image( title="Grayscale", cmap="gray", border_color = "green" )
 
-# grayscale 변환 함수
-def convert_to_grayscale( channels ) :
-    log.info( "Convert to grayscale...." )
-
-    r_channel = channels[ 0 ]
-    g_channel = channels[ 1 ]
-    b_channel = channels[ 2 ]
-
-    data = r_channel*0.299 + g_channel*0.587 + b_channel*0.114
-
-    data = data.astype( np.int16 )
-
-    '''
-    h = len( r_channel ) # image height
-    w = len( r_channel[0] ) # image width
-
-    data = np.empty( ( h, w ), dtype='f')
-
-    for y in range( h ) :
-        for x in range( w ) :
-            # RGB -> GrayScale 변환 공식
-            # average  Y = (R + G + B / 3)
-            # weighted Y = (0.3 * R) + (0.59 * G) + (0.11 * B)
-            # Colorimetric conversion Y = 0.2126R + 0.7152G  0.0722B
-            # OpenCV CCIR Y = 0.299 R + 0.587 G + 0.114 B
-            gs = 0.299*r_channel[y][x] + 0.587*g_channel[y][x] + 0.114*b_channel[y][x]
-            data[y][x] = gs
-        pass
-    pass
-    '''
-
-    return data
-pass
-# -- grayscale 변환
-
-#TODO   영상 역전 함수
-def reverse_image( image , max = None ) :
-    log.info( "Reverse image...." )
-
-    h = len( image ) # image height
-    w = len( image[0] ) # image width
-
-    if max is None :
-        max = np.max( image )
-
-        if max < 1 :
-            max = 1
-        elif max > 1 :
-            max = 255
-        else :
-            max = 1
-        pass
-    pass
-
-    data = max - image
-
-    '''
-    data = np.empty( ( h, w ), dtype=image.dtype )
-
-    for y, row in enumerate( image ) :
-        for x, v in enumerate( row ) :
-            data[y][x] = max - v
-        pass
-    pass
-    '''
-
-    return data
-pass
-# -- 영상 역전 함수
-
-# grayscale 변환
-grayscale = convert_to_grayscale( channels )
-# 영상 역전
-grayscale = reverse_image( grayscale )
-
-save_img_as_file( "grayscale", grayscale )
-
-#-- 그레이 스케일 이미지 표출
-plot_image( grayscale, title="Grayscale", cmap="gray", border_color = "green" )
-
-gs_avg = np.average( grayscale )
-gs_std = np.std( grayscale )
-sg_max = np.max( grayscale )
+gs_avg = grayscale.average( )
+gs_std = grayscale.std( )
+sg_max = grayscale.max( )
 
 log.info( "grayscale avg = %s, std = %s" % (gs_avg, gs_std))
 #-- grayscale 변환
