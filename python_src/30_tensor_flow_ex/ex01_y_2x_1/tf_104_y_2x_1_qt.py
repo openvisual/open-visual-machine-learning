@@ -10,7 +10,7 @@ log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(l
 
 from PyQt5 import QtWidgets, uic, QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QPushButton, QLineEdit
 from PyQt5.Qt import *
 
 import tensorflow as tf

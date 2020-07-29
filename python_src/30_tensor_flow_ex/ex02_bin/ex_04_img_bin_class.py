@@ -5,6 +5,8 @@
 # 히스토그램 정규화 추가
 # 결과 이미지 저장
 # Adaptive Thresholding 추가
+# 클래스 화
+# 라인 추출
 
 import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
