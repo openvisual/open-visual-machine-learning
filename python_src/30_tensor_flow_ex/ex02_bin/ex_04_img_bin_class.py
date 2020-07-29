@@ -219,7 +219,7 @@ class Image :
         w, h = self.dimension()
 
         global gs_row
-        gs_col = 1
+        gs_col = 0
         colspan = 1
 
         ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
@@ -229,7 +229,7 @@ class Image :
         pass
 
         histogram = self.histogram
-        histggram_acc = self.histogram_acc
+        histogram_acc = self.histogram_acc
 
         charts = {}
 
@@ -243,23 +243,23 @@ class Image :
         gs_max = self.max()
         gs_std = self.std()
 
-        if 0 and histogram_acc is not None:
-            # accumulated histogram
-            y = histogram_acc
-            x = [i for i, _ in enumerate(y)]
-
-            charts["accumulated"] = ax.bar(x, y, width=0.4, color='yellow', alpha=0.3)
-        pass
-
         if 1:
             # histogram bar chart
             y = histogram
             x = [i for i, _ in enumerate(y)]
 
-            charts["count"] = ax.bar(x, y, width=2, color='green', alpha=0.5)
+            charts["count"] = ax.bar(x, y, width=4, color='g', alpha=1.0)
         pass
 
-        if 0:
+        if 1:
+            # accumulated histogram
+            y = histogram_acc
+            x = [i for i, _ in enumerate(y)]
+
+            charts["accumulated"] = ax.plot(x, y, color='r', alpha=1.0)
+        pass
+
+        if 0 :
             # histogram std chart
             x = [gs_avg - gs_std, gs_avg + gs_std]
             y = [hist_max * 0.95, hist_max * 0.95]
@@ -267,7 +267,7 @@ class Image :
             charts["std"] = ax.fill_between(x, y, color='cyan', alpha=0.5)
         pass
 
-        if 0:
+        if 1:
             # histogram average chart
             x = [ gs_avg ]
             y = [ hist_max ]
@@ -301,11 +301,14 @@ class Image :
             max_x = gs_avg + gs_std * 1.2
 
             ax.set_xlim(0, max_x)
+        else :
+            ax.set_xlim(0, 255)
+            ax.set_ylim(0, np.max( histogram)/12.0 )
         pass
 
-        ax.set_xlim(0, w)
-        ax.set_ylim(0, h)
-
+        #ax.set_yscale('log')
+        ax.set_ylabel('count', rotation=0)
+        ax.set_xlabel( "Histogram")
     pass
     # -- plot_histogram
 
@@ -818,6 +821,7 @@ grayscale = image_org.convert_to_grayscale()
 grayscale.reverse_image( max = 255 )
 grayscale.save_img_as_file( "grayscale" )
 grayscale.plot_image( title="Grayscale", cmap="gray", border_color = "green" )
+grayscale.plot_histogram()
 
 gs_avg = grayscale.average( )
 gs_std = grayscale.std( )
@@ -829,11 +833,11 @@ log.info( "grayscale avg = %s, std = %s" % (gs_avg, gs_std))
 # 잡음 제거
 ksize = 3
 grayscale = grayscale.remove_noise( ksize = ksize )
-algorithm = grayscale.algorithm
-grayscale.save_img_as_file( "noise_removed(%s)" % algorithm )
+grayscale.save_img_as_file( "noise_removed(%s)" % grayscale.algorithm )
 
-title = "Noise removed (%s, ksize=%s)" % ( algorithm, ksize, )
-ax, show_img = grayscale.plot_image( title=title, cmap="gray", border_color = "blue" )
+title = "Noise removed (%s, ksize=%s)" % ( grayscale.algorithm , ksize, )
+grayscale.plot_image( title=title, cmap="gray", border_color = "blue" )
+grayscale.plot_histogram()
 
 # 평활화
 image_normalized = grayscale.normalize_image_by_histogram( )
@@ -842,6 +846,7 @@ print_prof_data()
 
 image_normalized.save_img_as_file( "image_normalized" )
 image_normalized.plot_image( title = "Normalization", cmap="gray", border_color = "green" )
+image_normalized.plot_histogram()
 
 #TODO 이진화
 bin_image = image_normalized.binarize_image()
@@ -854,7 +859,7 @@ bin_image.save_img_as_file( "image_binarized(%s)" % bin_image.algorithm )
 
 title = "Binarization (%s, %s)" % ( bin_image.algorithm, bin_image.threshold )
 bin_image.plot_image( title=title, cmap="gray", border_color = "blue" )
-
+bin_image.plot_histogram()
 #-- 이진화
 
 #TODO   Y 축 데이터 히스토그램
@@ -867,6 +872,7 @@ y_signal_counts.tofile( "./y_count.csv", sep=',', format='%s')
 if 1 :
     # y count 표출
     ax, img_show = bin_image.plot_image( title="y count" , cmap="gray", border_color="blue")
+    bin_image.plot_histogram()
 
     charts = { }
 
