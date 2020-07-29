@@ -35,6 +35,7 @@ import time
 from functools import wraps
 
 PROF_DATA = {}
+PROF_LAST = None
 
 def profile(fn):
     @wraps(fn)
@@ -49,6 +50,9 @@ def profile(fn):
             PROF_DATA[fn.__name__] = [0, []]
         pass
 
+        global PROF_LAST
+        PROF_LAST = fn.__name__
+
         PROF_DATA[fn.__name__][0] += 1
         PROF_DATA[fn.__name__][1].append(elapsed_time)
 
@@ -57,15 +61,23 @@ def profile(fn):
     return with_profiling
 pass # -- profile(fn)
 
-def print_prof_data():
-    for fname, data in PROF_DATA.items() :
-        max_time = max(data[1])
-        avg_time = sum(data[1]) / len(data[1])
-        fmt = "Function[ %s ] called %d times. Exe. time max: %.3f, average: %.3f"
-        log.info( fmt % (fname, data[0], max_time, avg_time) )
-    pass
+def print_prof_name(fn_name):
+    data = PROF_DATA[ fn_name ]
 
-    PROF_DATA.clear()
+    max_time = max(data[1])
+    avg_time = sum(data[1]) / len(data[1])
+    msg = f"*** The function[{fn_name}] was called {data[0]} times. Exe. time max: {max_time:.3f}, average: {avg_time:.3f}"
+    log.info( msg )
+pass # -- print_prof_name()
+
+def print_prof_last( ) :
+    PROF_LAST and print_prof_name( PROF_LAST )
+pass
+
+def print_prof_data():
+    for fn_name in PROF_DATA :
+        print_prof_name( fn_name )
+    pass
 pass # -- print_prof_data()
 
 def clear_prof_data():
@@ -862,7 +874,7 @@ grayscale.plot_histogram()
 # 평활화
 image_normalized = grayscale.normalize_image_by_histogram( )
 
-print_prof_data()
+print_prof_last()
 
 image_normalized.save_img_as_file( "image_normalized" )
 image_normalized.plot_image( title = "Normalization", cmap="gray", border_color = "green" )
