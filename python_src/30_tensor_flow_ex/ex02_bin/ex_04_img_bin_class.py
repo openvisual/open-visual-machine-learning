@@ -7,6 +7,9 @@
 # 결과 이미지 저장
 # Adaptive Thresholding 추가
 # 클래스 화
+# histogram modal count 계산
+# OTSU thresholding
+# ROSIN thresholding
 # 라인 추출
 '''
 
@@ -95,6 +98,7 @@ pass
 #img_path = "../data_ocr/sample_01/gosu_01.png"
 img_path = "../data_ocr/sample_01/sample_21.png"
 #img_path = "../data_yegan/ex_01/_1018877.JPG"
+#img_path = "../data_yegan/ex_01/1-56.JPG"
 
 #TODO    원천 이미지 획득
 
@@ -109,6 +113,7 @@ log.info( f"Image path: {img_path}"  )
 print( f"Image widh: {width}, height: {height}, channel: {channel_no}" )
 
 fig = plt.figure(figsize=(10, 10), constrained_layout=True)
+plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
 
 # org img, channel img, gray scale, median blur, histogram, bin, y_count
 gs_row_cnt = 6
@@ -132,6 +137,8 @@ class Image :
     img_save_cnt = 0
 
     def img_file_name(self, work):
+        # C:/temp 폴더에 결과 파일을 저정합니다.
+
         Image.img_save_cnt += 1
 
         img_save_cnt = Image.img_save_cnt
@@ -140,7 +147,7 @@ class Image :
 
         root = fn[: fn.rfind("/")]
 
-        folder = root + "/temp"
+        folder = "C:/temp"
 
         if os.path.exists(folder):
             if not os.path.isdir(folder):
@@ -185,7 +192,7 @@ class Image :
         # 그레이 스케일 이미지 표출
         global gs_row
         gs_row += 1
-        gs_col = 0
+        gs_col = 1
         colspan = gs_col_cnt - gs_col
 
         ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
@@ -206,16 +213,23 @@ class Image :
     pass  # -- plot_image
     ''' -- 플롯 함수 '''
 
-    def show_histogram_on_plot(self, ax, image, histogram, histogram_acc):  # 히스토 그램 표출
-        # global gs_row
+    def plot_histogram(self):  # 히스토 그램 표출
 
-        if 0:
-            x = range(300)
-            ax.plot(x, x, '--', linewidth=2, color='firebrick')
+        img = self.img
+        w, h = self.dimension()
+
+        global gs_row
+        gs_col = 1
+        colspan = 1
+
+        ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
+
+        if not hasattr(self, "histogram") or self.histogram is None :
+            self.get_histogram()
         pass
 
-        h = len(image)
-        w = len(image[0])
+        histogram = self.histogram
+        histggram_acc = self.histogram_acc
 
         charts = {}
 
@@ -223,24 +237,25 @@ class Image :
         hist_std = np.std(histogram)
         hist_max = np.max(histogram)
 
-        log.info("hist avg = %s, std = %s" % (hist_avg, hist_std))
+        log.info( "hist avg = {hist_avg}, std = {hist_std}" )
+
+        gs_avg = self.average()
+        gs_max = self.max()
+        gs_std = self.std()
 
         if 0 and histogram_acc is not None:
             # accumulated histogram
             y = histogram_acc
-
-            max_y = np.max(y)
-
             x = [i for i, _ in enumerate(y)]
+
             charts["accumulated"] = ax.bar(x, y, width=0.4, color='yellow', alpha=0.3)
         pass
 
-        # histogram bar chart
         if 1:
+            # histogram bar chart
             y = histogram
             x = [i for i, _ in enumerate(y)]
 
-            # charts["count"] = ax.plot( x, y, linewidth=2, color='green', alpha=0.5 )
             charts["count"] = ax.bar(x, y, width=2, color='green', alpha=0.5)
         pass
 
@@ -248,13 +263,14 @@ class Image :
             # histogram std chart
             x = [gs_avg - gs_std, gs_avg + gs_std]
             y = [hist_max * 0.95, hist_max * 0.95]
+
             charts["std"] = ax.fill_between(x, y, color='cyan', alpha=0.5)
         pass
 
         if 0:
             # histogram average chart
-            x = [gs_avg, ]
-            y = [hist_max, ]
+            x = [ gs_avg ]
+            y = [ hist_max ]
             charts["average"] = ax.bar(x, y, width=0.5, color='blue', alpha=0.5)
         pass
 
@@ -291,7 +307,7 @@ class Image :
         ax.set_ylim(0, h)
 
     pass
-    # -- show_histogram_on_plot
+    # -- plot_histogram
 
     # TODO  통계 함수
 
@@ -474,9 +490,10 @@ class Image :
 
         log.info("Done. %s" % msg)
 
-        acculumated = self.accumulate_histogram( histogram )
+        histogram_acc = self.accumulate_histogram( histogram )
 
-        return histogram, acculumated
+        self.histogram = histogram
+        return histogram, histogram_acc
 
     pass  # -- get_histogram
 
@@ -486,11 +503,13 @@ class Image :
         msg = "Accumulate histogram ..."
         log.info(msg)
 
-        acculumated = np.add.accumulate(histogram)
+        histogram_acc = np.add.accumulate(histogram)
+
+        self.histogram_acc = histogram_acc
 
         log.info("Done. %s" % msg)
 
-        return acculumated
+        return histogram_acc
     pass  # 누적 히스트 그램
 
     # TODO    히스토그램 평활화
