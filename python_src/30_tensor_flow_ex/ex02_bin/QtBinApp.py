@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import os, sys
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, QtCore, QtGui, uic
+
+from rsc import my_qt
 
 class MyQtApp(QtWidgets.QMainWindow):
     def __init__(self):
         super(MyQtApp, self).__init__() # Call the inherited classes __init__ method
-        
-        uic.loadUi( './QtBinApp.ui', self) # Load the .ui file 
+
+        uic.loadUi('./QtBinApp.ui', self)
 
         self.show() # Show the GUI
     pass

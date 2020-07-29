@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>831</width>
-    <height>560</height>
+    <width>581</width>
+    <height>550</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -49,6 +49,10 @@
         <property name="text">
          <string>Open</string>
         </property>
+        <property name="icon">
+         <iconset resource="rsc/my_qt.qrc">
+          <normaloff>:/file/file open.png</normaloff>:/file/file open.png</iconset>
+        </property>
        </widget>
       </item>
       <item>
@@ -80,7 +84,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>831</width>
+     <width>581</width>
      <height>21</height>
     </rect>
    </property>
@@ -124,6 +128,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="rsc/my_qt.qrc"/>
+ </resources>
  <connections/>
 </ui>
