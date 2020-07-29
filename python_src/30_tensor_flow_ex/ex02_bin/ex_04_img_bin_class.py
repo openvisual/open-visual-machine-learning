@@ -124,8 +124,9 @@ gridSpec = GridSpec( gs_row_cnt, gs_col_cnt, figure=fig )
 
 class Image :
 
-    def __init__(self, img ):
+    def __init__(self, img, algorithm="" ):
         self.img = img
+        self.algorithm = algorithm
     pass
 
     # TODO     이미지 저장 함수
@@ -221,7 +222,6 @@ class Image :
 
     ''' 통계 함수 '''
 
-
     # grayscale 변환 함수
     def convert_to_grayscale( self ) :
         log.info( "Convert to grayscale...." )
@@ -305,6 +305,64 @@ class Image :
     pass
     # -- 영상 역전 함수
 
+    # TODO   잡음 제거     # Median Blur Filter 적용
+
+    # 잡음 제거 함수
+    def remove_noise(self, ksize=3):
+        msg = "Remove noise"
+        log.info("%s ..." % msg)
+
+        img = self.img
+
+        algorithm = "cv.bilateralFilter"
+
+        if "cv.bilateralFilter" == algorithm:
+            log.info("cv.bilateralFilter(img,ksize,75,75)")
+
+            img = img.astype(np.uint8)
+
+            data = cv2.bilateralFilter(img, ksize, 75, 75)
+        elif "cv2.medianBlur" == algorithm:
+            log.info("cv2.medianBlur( image, ksize )")
+            data = cv2.medianBlur(img, ksize)
+        else:
+            h = len(img)  # image height
+            w = len(img[0])  # image width
+
+            b = int(ksize / 2)
+
+            data = np.empty([h, w], dtype=img.dtype)
+
+            idx = 0
+            for y in range(height):
+                for x in range(width):
+                    y0 = y - b
+                    x0 = x - b
+
+                    if y0 < 0:
+                        y0 = 0
+                    pass
+
+                    if x0 < 0:
+                        x0 = 0
+                    pass
+
+                    window = img[y0: y + b + 1, x0: x + b + 1]
+                    median = np.median(window)
+                    data[y][x] = median
+
+                    0 and log.info("[%05d] data[%d][%d] = %.4f" % (idx, y, x, median))
+                    idx += 1
+                pass
+            pass
+        pass
+
+        log.info("Done. %s" % msg)
+
+        return Image( img=data, algorithm=algorithm)
+
+    pass  # -- 잡음 제거 함수
+
 pass
 
 image_org = Image( img_org )
@@ -323,72 +381,14 @@ sg_max = grayscale.max( )
 log.info( "grayscale avg = %s, std = %s" % (gs_avg, gs_std))
 #-- grayscale 변환
 
-#TODO   잡음 제거
-#Median Blur Filter 적용
-
-# 잡음 제거 함수
-def remove_noise( image, ksize = 3 ) :
-    msg = "Remove noise"
-    log.info( "%s ..." % msg )
-
-    algorithm = "cv.bilateralFilter"
-
-    if "cv.bilateralFilter" == algorithm :
-        log.info( "cv.bilateralFilter(img,ksize,75,75)" )
-
-        image = image.astype(np.uint8)
-
-        data = cv2.bilateralFilter( image,ksize,75,75)
-    elif "cv2.medianBlur" == algorithm:
-        log.info( "cv2.medianBlur( image, ksize )" )
-        data = cv2.medianBlur( image, ksize )
-    else :
-        h = len( image ) # image height
-        w = len( image[0] ) # image width
-
-        b = int( ksize/2 )
-
-        data = np.empty( [h, w], dtype=image.dtype )
-
-        idx = 0
-        for y in range( height ) :
-            for x in range( width ) :
-                y0 = y - b
-                x0 = x - b
-
-                if y0 < 0 :
-                    y0 = 0
-                pass
-
-                if x0 < 0 :
-                    x0 = 0
-                pass
-
-                window = image[ y0 : y + b + 1, x0 : x + b + 1 ]
-                median = np.median( window )
-                data[y][x] = median
-
-                0 and log.info( "[%05d] data[%d][%d] = %.4f" % (idx, y, x, median) )
-                idx += 1
-            pass
-        pass
-    pass
-
-    log.info( "Done. %s" % msg )
-
-    return data , algorithm
-pass #-- 잡음 제거 함수
-
+# 잡음 제거
 ksize = 3
-grayscale, algorithm = remove_noise( grayscale, ksize = ksize )
-
-save_img_as_file( "noise_removed(%s)" % algorithm, grayscale )
+grayscale = grayscale.remove_noise( ksize = ksize )
+algorithm = grayscale.algorithm
+grayscale.save_img_as_file( "noise_removed(%s)" % algorithm )
 
 title = "Noise removed (%s, ksize=%s)" % ( algorithm, ksize, )
-border_color = "blue"
-ax, show_img = plot_image( grayscale, title=title, cmap="gray", border_color = border_color )
-
-#-- 잡음 제거를 위한 Median Blur Filter
+ax, show_img = grayscale.plot_image( title=title, cmap="gray", border_color = "blue" )
 
 #TODO     Histogram 생성
 
