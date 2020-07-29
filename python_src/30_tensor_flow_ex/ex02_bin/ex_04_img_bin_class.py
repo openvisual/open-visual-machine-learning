@@ -143,6 +143,8 @@ class Image :
     def __init__(self, img, algorithm="" ):
         self.img = img
         self.algorithm = algorithm
+        self.histogram = None
+        self.histogram_acc = None
     pass
 
     # TODO     이미지 저장 함수
@@ -237,20 +239,21 @@ class Image :
         ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
 
         if not hasattr(self, "histogram") or self.histogram is None :
-            self.get_histogram()
+            self.make_histogram()
         pass
 
         histogram = self.histogram
         histogram_acc = self.histogram_acc
 
-        sum = histogram_acc[ - 1 ]
-
-        f_10_sum = np.sum( histogram[ 0 : 10 ] )
-
         max_y = 0
 
-        if f_10_sum > sum*0.8 :
-            max_y = np.max( histogram[ 10 : ] )
+        if len( histogram ) > 10 :
+            sum = histogram_acc[ - 1 ]
+            f_10_sum = np.sum( histogram[ 0 : 10 ] )
+
+            if f_10_sum > sum*0.8 :
+                max_y = np.max( histogram[ 10 : ] )
+            pass
         pass
 
         hist_avg = np.average(histogram)
@@ -271,7 +274,9 @@ class Image :
             y = histogram
             x = [ i for i, _ in enumerate(y)]
 
-            charts["count"] = ax.bar(x, y, width=6, color='g', alpha=1.0)
+            width = 1 if len( histogram ) < 10 else 5
+
+            charts["count"] = ax.bar(x, y, width=width, color='g', alpha=1.0)
         pass
 
         if 1:
@@ -290,11 +295,11 @@ class Image :
             charts["std"] = ax.fill_between(x, y, color='cyan', alpha=0.5)
         pass
 
-        if 1:
+        if 0:
             # histogram average chart
             x = [ gs_avg ]
             y = [ hist_max ]
-            charts["average"] = ax.bar(x, y, width=0.5, color='blue', alpha=0.5)
+            charts["average"] = ax.bar(x, y, width=0.5, color='b', alpha=0.5)
         pass
 
         if 0:  # 레전드 표출
@@ -327,9 +332,10 @@ class Image :
         pass
 
         if 1 :
-            ax.set_xlim(0, 255)
+            ax.set_xlim(0, len( histogram ) - 1 )
+
             if not max_y :
-                max_y = np.max( histogram)
+                max_y = np.max( histogram )
             pass
 
             if max_y > 1_000 :
@@ -506,14 +512,16 @@ class Image :
     # TODO     Histogram 생성
 
     @profile
-    def get_histogram(self):
+    def make_histogram(self):
         # this code is too slow
         msg = "Make histogram ..."
         log.info(msg)
 
-        histogram = [0] * 256
-
         img = self.img
+
+        size = 256 if np.max( img ) > 1 else 2
+
+        histogram = [0] * size
 
         for row in img:
             for gs in row:
@@ -562,7 +570,7 @@ class Image :
         data = np.empty([h, w], dtype=img.dtype)
 
         # -histogram 생성
-        _, histogram_acc = self.get_histogram()
+        _, histogram_acc = self.make_histogram()
 
         MN = h * w
         L = len(histogram_acc)
