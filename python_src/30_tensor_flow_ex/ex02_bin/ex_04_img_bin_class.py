@@ -231,24 +231,35 @@ class Image :
         histogram = self.histogram
         histogram_acc = self.histogram_acc
 
-        charts = {}
+        sum = histogram_acc[ - 1 ]
+
+        f_10_sum = np.sum( histogram[ 0 : 10 ] )
+
+        max_y = 0
+
+        if f_10_sum > sum*0.8 :
+            max_y = np.max( histogram[ 10 : ] )
+        pass
 
         hist_avg = np.average(histogram)
         hist_std = np.std(histogram)
         hist_max = np.max(histogram)
+        hist_med = np.median(histogram)
 
-        log.info( "hist avg = {hist_avg}, std = {hist_std}" )
+        log.info( f"hist avg = {hist_avg}, std = {hist_std}, med={hist_med}" )
 
         gs_avg = self.average()
         gs_max = self.max()
         gs_std = self.std()
 
+        charts = {}
+
         if 1:
             # histogram bar chart
             y = histogram
-            x = [i for i, _ in enumerate(y)]
+            x = [ i for i, _ in enumerate(y)]
 
-            charts["count"] = ax.bar(x, y, width=4, color='g', alpha=1.0)
+            charts["count"] = ax.bar(x, y, width=6, color='g', alpha=1.0)
         pass
 
         if 1:
@@ -301,13 +312,22 @@ class Image :
             max_x = gs_avg + gs_std * 1.2
 
             ax.set_xlim(0, max_x)
-        else :
-            ax.set_xlim(0, 255)
-            ax.set_ylim(0, np.max( histogram)/12.0 )
         pass
 
-        #ax.set_yscale('log')
-        ax.set_ylabel('count', rotation=0)
+        if 1 :
+            ax.set_xlim(0, 255)
+            if not max_y :
+                max_y = np.max( histogram)
+            pass
+
+            if max_y > 1_000 :
+                ax.set_yscale('log')
+            else :
+                ax.set_ylim(0, max_y )
+            pass
+        pass
+
+        #x.set_ylabel('count', rotation=0)
         ax.set_xlabel( "Histogram")
     pass
     # -- plot_histogram
