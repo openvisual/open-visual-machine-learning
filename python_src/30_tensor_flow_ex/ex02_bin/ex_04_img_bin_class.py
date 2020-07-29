@@ -206,6 +206,93 @@ class Image :
     pass  # -- plot_image
     ''' -- 플롯 함수 '''
 
+    def show_histogram_on_plot(self, ax, image, histogram, histogram_acc):  # 히스토 그램 표출
+        # global gs_row
+
+        if 0:
+            x = range(300)
+            ax.plot(x, x, '--', linewidth=2, color='firebrick')
+        pass
+
+        h = len(image)
+        w = len(image[0])
+
+        charts = {}
+
+        hist_avg = np.average(histogram)
+        hist_std = np.std(histogram)
+        hist_max = np.max(histogram)
+
+        log.info("hist avg = %s, std = %s" % (hist_avg, hist_std))
+
+        if 0 and histogram_acc is not None:
+            # accumulated histogram
+            y = histogram_acc
+
+            max_y = np.max(y)
+
+            x = [i for i, _ in enumerate(y)]
+            charts["accumulated"] = ax.bar(x, y, width=0.4, color='yellow', alpha=0.3)
+        pass
+
+        # histogram bar chart
+        if 1:
+            y = histogram
+            x = [i for i, _ in enumerate(y)]
+
+            # charts["count"] = ax.plot( x, y, linewidth=2, color='green', alpha=0.5 )
+            charts["count"] = ax.bar(x, y, width=2, color='green', alpha=0.5)
+        pass
+
+        if 0:
+            # histogram std chart
+            x = [gs_avg - gs_std, gs_avg + gs_std]
+            y = [hist_max * 0.95, hist_max * 0.95]
+            charts["std"] = ax.fill_between(x, y, color='cyan', alpha=0.5)
+        pass
+
+        if 0:
+            # histogram average chart
+            x = [gs_avg, ]
+            y = [hist_max, ]
+            charts["average"] = ax.bar(x, y, width=0.5, color='blue', alpha=0.5)
+        pass
+
+        if 0:  # 레전드 표출
+            t = []
+            l = list(charts.keys())
+            l = sorted(l)
+            for k in l:
+                t.append(charts[k])
+            pass
+
+            for i, s in enumerate(l):
+                import re
+                s = s[0] + re.sub(r'[aeiou]', '', s[1:])
+                l[i] = s[:4]
+            pass
+
+            loc = "upper right"
+
+            if gs_avg > 122:
+                loc = "upper left"
+            pass
+
+            ax.legend(t, l, loc=loc, shadow=True)
+        pass  # -- 레전드 표출
+
+        if 0:  # x 축 최대, 최소 설정
+            max_x = gs_avg + gs_std * 1.2
+
+            ax.set_xlim(0, max_x)
+        pass
+
+        ax.set_xlim(0, w)
+        ax.set_ylim(0, h)
+
+    pass
+    # -- show_histogram_on_plot
+
     # TODO  통계 함수
 
     def average(self):
@@ -279,6 +366,10 @@ class Image :
         return h
     pass
 
+    def dimension(self):
+        return self.width(), self.height()
+    pass
+
     # TODO   영상 역전 함수
     def reverse_image( self, image, max=None):
         log.info("Reverse image....")
@@ -297,11 +388,9 @@ class Image :
             pass
         pass
 
-        data = max - img
+        self.img = max - img
 
-        image = Image( data )
-
-        return image
+        return self
     pass
     # -- 영상 역전 함수
 
@@ -363,14 +452,345 @@ class Image :
 
     pass  # -- 잡음 제거 함수
 
+    # TODO     Histogram 생성
+
+    @profile
+    def get_histogram(self):
+        # this code is too slow
+        msg = "Make histogram ..."
+        log.info(msg)
+
+        histogram = [0] * 256
+
+        img = self.img
+
+        for row in img:
+            for gs in row:
+                histogram[gs] += 1
+            pass
+        pass
+
+        histogram = np.array(histogram, 'u8')
+
+        log.info("Done. %s" % msg)
+
+        acculumated = self.accumulate_histogram( histogram )
+
+        return histogram, acculumated
+
+    pass  # -- get_histogram
+
+    # TODO    누적 히스토 그램
+    @profile
+    def accumulate_histogram(self, histogram):
+        msg = "Accumulate histogram ..."
+        log.info(msg)
+
+        acculumated = np.add.accumulate(histogram)
+
+        log.info("Done. %s" % msg)
+
+        return acculumated
+    pass  # 누적 히스트 그램
+
+    # TODO    히스토그램 평활화
+    @profile
+    def normalize_image_by_histogram(self):
+        msg = "Normalize histogram"
+        log.info("%s ..." % msg)
+
+        # https://en.wikipedia.org/wiki/Histogram_equalization
+
+        img = self.img
+
+        w, h = self.dimension()
+
+        data = np.empty([h, w], dtype=img.dtype)
+
+        # -histogram 생성
+        _, histogram_acc = self.get_histogram()
+
+        MN = h * w
+        L = len(histogram_acc)
+
+        cdf = histogram_acc
+
+        # cdf_min = cdf[ 0 ]
+        cdf_min = cdf[0]
+        for c in cdf:
+            if cdf_min == 0:
+                cdf_min = c
+            else:
+                break
+            pass
+        pass
+
+        log.info(f"cdf_min = {cdf_min:,d}")
+
+        idx = 0
+        L_over_MN_cdf_min = L/(MN - cdf_min + 0.0)
+
+        cdf = np.array(cdf, 'float')
+
+        cdf -= cdf_min
+        cdf *= L_over_MN_cdf_min
+        cdf += 0.5
+
+        for y, row in enumerate(img):
+            for x, gs in enumerate(row):
+                # data[y][x] = int( (cdf[gs] - cdf_min)*L_over_MN_cdf_min + 0.5 )
+
+                data[y][x] = int(cdf[gs])
+
+                0 and log.info("[%05d] gs = %d, v=%0.4f" % (idx, gs, data[y][x]))
+                idx += 1
+            pass
+        pass
+
+        log.info("Done. %s" % msg)
+
+        image = Image( data )
+
+        return image
+    pass
+    # -- normalize_image_by_histogram
+
+    ''' 이진화 '''
+    # TODO     전역 임계치 처리
+    def threshold_golobal(self, threshold=None):
+        log.info("Global Threshold")
+
+        reverse_required = 0
+
+        img = self.img
+
+        if not threshold:
+            threshold = np.average(img)
+        pass
+
+        log.info("Threshold = %s" % threshold)
+
+        w, h = self.dimension()
+
+        data = np.empty((h, w), dtype='B')
+
+        for y, row in enumerate(img):
+            for x, gs in enumerate(row):
+                gs = round(gs)  # 반올림.
+                data[y][x] = [0, 1][gs >= threshold]
+            pass
+        pass
+
+        image = Image( data )
+        image.threshold = threshold
+        image.algorithm = "global thresholding"
+        image.reverse_required = reverse_required
+
+        return image
+    pass  # -- 전역 임계치 처리
+
+    # TODO     지역 평균 적응 임계치 처리
+    def threshold_adaptive_mean(self, bsize=3, c=0):
+        log.info("Apdative threshold mean")
+
+        reverse_required = 1
+
+        img = self.img
+
+        w, h = self.dimension()
+
+        data = np.empty((h, w), dtype='B')
+
+        b = int(bsize / 2)
+        if b < 1:
+            b = 1
+        pass
+
+        for y, row in enumerate(img):
+            for x, gs in enumerate(row):
+                y0 = y - b
+                x0 = x - b
+
+                if y0 < 0:
+                    y0 = 0
+                pass
+
+                if x0 < 0:
+                    x0 = 0
+                pass
+
+                window = img[y0: y + b + 1, x0: x + b + 1]
+                window_avg = np.average(window)
+                threshold = window_avg - c
+
+                data[y][x] = [0, 1][gs >= threshold]
+            pass
+        pass
+
+        image = Image( data )
+        image.threshold = -1
+        image.algorithm = "adaptive mean thresholding"
+        image.reverse_required = reverse_required
+
+        return image
+    pass  # -- 지역 평균 적응 임계치 처리
+
+    # TODO     지역 가우시안 적응 임계치 처리
+    def threshold_adaptive_gaussian(self, bsize=3, c=0):
+        if 1:
+            v = self.threshold_adaptive_gaussian_opencv(bsize=bsize, c=c)
+        else:
+            v = self.threshold_adaptive_gaussian_my(bsize=bsize, c=c)
+        pass
+
+        return v
+    pass # -- threshold_adaptive_gaussian
+
+    def threshold_adaptive_gaussian_opencv(self, image, bsize=3, c=0):
+        msg = "Apdative threshold gaussian opencv"
+        log.info(msg)
+        # https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_thresholding/py_thresholding.html
+
+        reverse_required = 1
+        bsize = 2 * int(bsize / 2) + 1
+
+        image = image.astype(np.uint8)
+        data = cv2.adaptiveThreshold(image, 1, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, bsize, c)
+
+        return Image( data ), ("bsize = %s" % bsize), "adaptive gaussian thresholding opencv", reverse_required
+
+    pass  # -- threshold_adaptive_gaussian_opencv
+
+    def threshold_adaptive_gaussian_my(self, bsize=3, c=0):
+        log.info("Apdative threshold gaussian my")
+
+        # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#getgaussiankernel
+
+        reverse_required = 1
+
+        bsize = 2 * int(bsize / 2) + 1
+
+        w, h = self.dimension()
+
+        data = np.empty((h, w), dtype='B')
+
+        b = int(bsize / 2)
+        if b < 1:
+            b = 1
+        pass
+
+        # the threshold value T(x,y) is a weighted sum (cross-correlation with a Gaussian window)
+        # of the blockSize×blockSize neighborhood of (x,y) minus C
+
+        img = self.img
+
+        image_pad = np.pad(img, b, 'constant', constant_values=(0))
+
+        def gaussian(x, y, bsize):
+            #  The default sigma is used for the specified blockSize
+            sigma = bsize
+            # ksize	Aperture size. It should be odd ( ksizemod2=1 ) and positive.
+            # sigma = 0.3 * ((ksize - 1) * 0.5 - 1) + 0.8
+            ss = sigma * sigma
+            pi_2_ss = 2 * math.pi * ss
+
+            b = int(bsize / 2)
+
+            x = x - b
+            y = y - b
+
+            v = math.exp(-(x * x + y * y) / ss) / pi_2_ss
+            # g(x,y) = exp( -(x^2 + y^2)/s^2 )/(2pi*s^2)
+
+            return v
+
+        pass  # -- gaussian
+
+        def gaussian_sum(window, bsize):
+            gs_sum = 0
+
+            # L = len( window )*len( window[0] )
+            for y, row in enumerate(window):
+                for x, v in enumerate(row):
+                    gs_sum += v * gaussian(y, x, bsize)
+                pass
+            pass
+
+            return gs_sum
+
+        pass  # -- gaussian_sum
+
+        for y, row in enumerate(image_pad):
+            for x, gs in enumerate(row):
+                if (b <= y < len(image_pad) - b) and (b <= x < len(row) - b):
+                    window = image_pad[y - b: y + b + 1, x - b: x + b + 1]
+
+                    threshold = gaussian_sum(window, bsize) - c
+
+                    data[y - b][x - b] = [0, 1][gs >= threshold]
+                pass
+            pass
+        pass
+
+        return Image( data ), ("bsize = %s" % bsize), "adaptive gaussian thresholding my", reverse_required
+
+    pass  # -- 지역 가우시안 적응 임계치 처리
+
+    # TODO 이진화 계산
+    def binarize_image(self, threshold=None):
+        v = None
+
+        if 1:
+            w, h = self.dimension()
+            bsize = w if w > h else h
+            bsize = bsize / 2
+
+            bsize = 5  # for line detection
+            v = self.threshold_adaptive_gaussian(bsize=bsize, c=5)
+        elif 0:
+            bsize = 3
+            v = self.threshold_adaptive_mean(bsize=bsize, c=0)
+        else:
+            threshold = np.average( self.img ) * 1.1
+            v = self.threshold_golobal( threshold=threshold )
+        pass
+
+        return v
+    pass # -- binarize_image
+    ''' 이진화 계산 '''
+
+    def count_y_axis_signal(self, ksize):
+        msg = "y axis signal count"
+        log.info(msg)
+
+        img = self.img
+
+        w, h = self.dimension()
+
+        y_signal_counts = np.zeros( w, dtype='B')
+        ksize = 1
+
+        for x in range(w):
+            window = img[0: h, x: x + ksize]
+            signal_count = np.count_nonzero(window == 1)  # 검정 바탕 흰색 카운트
+            # signal_count = np.count_nonzero( window == 0 ) # 흰 바탕 검정 카운트
+            y_signal_counts[x] = signal_count
+        pass
+
+        log.info("Done. %s" % msg)
+
+        return y_signal_counts
+    pass  # -- count_y_axis_signal
+
 pass
+# -- class Image
 
 image_org = Image( img_org )
 image_org.save_img_as_file( "org" )
 image_org.plot_image( title = 'Original Image: %s' % ( img_path.split("/")[-1] ) , cmap=None, border_color = "green" )
 
 grayscale = image_org.convert_to_grayscale()
-grayscale = grayscale.reverse_image( max = 255 )
+grayscale.reverse_image( max = 255 )
 grayscale.save_img_as_file( "grayscale" )
 grayscale.plot_image( title="Grayscale", cmap="gray", border_color = "green" )
 
@@ -390,446 +810,43 @@ grayscale.save_img_as_file( "noise_removed(%s)" % algorithm )
 title = "Noise removed (%s, ksize=%s)" % ( algorithm, ksize, )
 ax, show_img = grayscale.plot_image( title=title, cmap="gray", border_color = "blue" )
 
-#TODO     Histogram 생성
-
-@profile
-def make_histogram( grayscale ) :
-    # this code is too slow
-    msg = "Make histogram ..."
-    log.info( msg )
-
-    histogram = [ 0 ]*256
-
-    for row in grayscale :
-        for gs in row :
-            histogram[ gs ] += 1
-        pass
-    pass
-
-    histogram = np.array( histogram, 'u8' )
-
-    log.info( "Done. %s" % msg )
-    return histogram
-pass # -- calculate histogram
-
-# TODO    누적 히스토 그램
-@profile
-def accumulate_histogram( histogram ) :
-    msg = "Accumulate histogram ..."
-    log.info( msg )
-
-    acc = np.add.accumulate( histogram )
-
-    log.info( "Done. %s" % msg )
-
-    return acc
-pass # 누적 히스트 그램
-
-histogram = make_histogram( grayscale )
-histogram_acc = accumulate_histogram( histogram )
-
-def show_histogram_on_plot( ax, image, histogram , histogram_acc ): # 히스토 그램 표출
-    #global gs_row
-
-    if 0 :
-        x = range(300)
-        ax.plot(x, x, '--', linewidth=2, color='firebrick')
-    pass
-
-    h = len( image )
-    w = len( image[0] )
-
-    charts = { }
-
-    hist_avg = np.average( histogram )
-    hist_std = np.std( histogram )
-    hist_max = np.max( histogram )
-
-    log.info( "hist avg = %s, std = %s" % (hist_avg, hist_std) )
-
-    if 0 and histogram_acc is not None :
-        # accumulated histogram
-        y = histogram_acc
-
-        max_y = np.max( y )
-
-        x = [i for i, _ in enumerate( y ) ]
-        charts["accumulated"] = ax.bar( x, y, width=0.4, color='yellow', alpha=0.3 )
-    pass
-
-    # histogram bar chart
-    if 1 :
-        y = histogram
-        x = [i for i, _ in enumerate(y)]
-
-        #charts["count"] = ax.plot( x, y, linewidth=2, color='green', alpha=0.5 )
-        charts["count"] = ax.bar(x, y, width=2, color='green', alpha=0.5)
-    pass
-
-    if 0 :
-        # histogram std chart
-        x = [ gs_avg - gs_std, gs_avg + gs_std ]
-        y = [ hist_max*0.95, hist_max*0.95 ]
-        charts["std"] = ax.fill_between( x, y, color='cyan', alpha=0.5 )
-    pass
-
-    if 0 :
-        # histogram average chart
-        x = [ gs_avg, ]
-        y = [ hist_max, ]
-        charts["average"] = ax.bar(x, y, width=0.5, color='blue', alpha=0.5)
-    pass
-
-    if 0 : # 레전드 표출
-        t = [ ]
-        l = list( charts.keys() )
-        l = sorted( l )
-        for k in l :
-            t.append( charts[ k ] )
-        pass
-
-        for i, s in enumerate( l ) :
-            import re
-            s = s[0] + re.sub(r'[aeiou]', '', s[1:])
-            l[i] = s[:4]
-        pass
-
-        loc = "upper right"
-
-        if gs_avg > 122 :
-            loc = "upper left"
-        pass
-
-        ax.legend( t, l, loc=loc, shadow=True)
-    pass #-- 레전드 표출
-
-    if 0 : # x 축 최대, 최소 설정
-        max_x = gs_avg + gs_std*1.2
-
-        ax.set_xlim( 0, max_x )
-    pass
-
-    ax.set_xlim(0, w)
-    ax.set_ylim(0, h)
-pass #-- 히스토 그램 표출
-
-0 and show_histogram_on_plot( ax, grayscale, histogram, histogram_acc  )
-
-#-- histogram 생성
-
-#TODO    히스토그램 평활화
-
-@profile
-def normalize_image_by_histogram( image, histogram_acc ) :
-    msg = "Normalize histogram"
-    log.info( "%s ..." % msg )
-
-    # https://en.wikipedia.org/wiki/Histogram_equalization
-
-    h = len( image ) # image height
-    w = len( image[0] ) # image width
-
-    data = np.empty( [h, w], dtype=image.dtype )
-
-    MN = h*w
-    L = len( histogram_acc )
-
-    cdf = histogram_acc
-
-    #cdf_min = cdf[ 0 ]
-    cdf_min = cdf[ 0 ]
-    for c in cdf :
-        if cdf_min == 0 :
-            cdf_min = c
-        else :
-            break
-        pass
-    pass
-
-    log.info( f"cdf_min = {cdf_min:,d}" )
-
-    idx = 0
-    L_over_MN_cdf_min = L/(MN - cdf_min + 0.0)
-
-    cdf = np.array( cdf, 'float' )
-
-    cdf -= cdf_min
-    cdf *= L_over_MN_cdf_min
-    cdf += 0.5
-
-    for y, row in enumerate( image ):
-        for x, gs in enumerate( row ):
-            #data[y][x] = int( (cdf[gs] - cdf_min)*L_over_MN_cdf_min + 0.5 )
-
-            data[y][x] = int( cdf[gs] )
-
-            0 and log.info( "[%05d] gs = %d, v=%0.4f" % ( idx, gs, v ) )
-            idx += 1
-        pass
-    pass
-
-    log.info( "Done. %s" % msg )
-
-    return data
-pass #-- normalize_image_by_histogram old
-
-image_normalized = normalize_image_by_histogram( grayscale, histogram_acc )
+# 평활화
+image_normalized = grayscale.normalize_image_by_histogram( )
 
 print_prof_data()
 
-save_img_as_file( "image_normalized", image_normalized )
+image_normalized.save_img_as_file( "image_normalized" )
+image_normalized.plot_image( title = "Normalization", cmap="gray", border_color = "green" )
 
-title = "Normalization"
-border_color = "green"
-plot_image( image_normalized, title=title, cmap="gray", border_color = border_color )
+#TODO 이진화
+bin_image = image_normalized.binarize_image()
 
-#-- 히스토그램 평활화
-
-#TODO    이진화
-
-#TODO     전역 임계치 처리
-def threshold_golobal( image, threshold = None ):
-    log.info( "Global Threshold" )
-
-    reverse_required = 0
-
-    if not threshold :
-        threshold= np.average( image )
-    pass
-
-    log.info( "Threshold = %s" % threshold )
-
-    h = len( image ) # image height
-    w = len( image[0] ) # image width
-
-    data = np.empty( ( h, w ), dtype='B')
-
-    for y, row in enumerate( image ) :
-        for x, gs in enumerate( row ) :
-            gs = round( gs ) # 반올림.
-            data[y][x] = [0, 1][ gs >= threshold ]
-        pass
-    pass
-
-    return data, threshold, "global thresholding", reverse_required
-pass # -- 전역 임계치 처리
-
-#TODO     지역 평균 적응 임계치 처리
-def threshold_adaptive_mean( image, bsize = 3, c = 0 ):
-    log.info( "Apdative threshold mean" )
-
-    reverse_required = 1
-
-    h = len( image ) # image height
-    w = len( image[0] ) # image width
-
-    data = np.empty( ( h, w ), dtype='B')
-
-    b = int( bsize/2 )
-    if b < 1 :
-        b = 1
-    pass
-
-    for y, row in enumerate( image ) :
-        for x, gs in enumerate( row ) :
-            y0 = y - b
-            x0 = x - b
-
-            if y0 < 0 :
-                y0 = 0
-            pass
-
-            if x0 < 0 :
-                x0 = 0
-            pass
-
-            window = image[ y0 : y + b + 1, x0 : x + b + 1 ]
-            window_avg = np.average( window )
-            threshold = window_avg - c
-
-            data[y][x] = [0, 1][ gs >= threshold ]
-        pass
-    pass
-
-    return data, -1, "adaptive mean thresholding", reverse_required
-pass # -- 지역 평균 적응 임계치 처리
-
-#TODO     지역 가우시안 적응 임계치 처리
-def threshold_adaptive_gaussian( image, bsize = 3, c = 0 ):
-    if 1 :
-        v = threshold_adaptive_gaussian_opencv( image, bsize = bsize, c = c )
-    else :
-        v = threshold_adaptive_gaussian_my( image, bsize = bsize, c = c )
-    pass
-
-    return v
+if bin_image.reverse_required :
+    bin_image = bin_image.reverse_image()
 pass
 
-def threshold_adaptive_gaussian_opencv( image, bsize = 3, c = 0 ):
-    msg = "Apdative threshold gaussian opencv"
-    log.info( msg )
+bin_image.save_img_as_file( "image_binarized(%s)" % bin_image.algorithm )
 
-    # https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_thresholding/py_thresholding.html
-
-    reverse_required = 1
-
-    bsize = 2*int( bsize/2 )  + 1
-
-    image = image.astype(np.uint8)
-
-    data = cv2.adaptiveThreshold(image, 1, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, bsize, c)
-
-    return data, ("bsize = %s" % bsize), "adaptive gaussian thresholding opencv", reverse_required
-pass # -- 지역 가우시안 적응 임계치 처리
-
-def threshold_adaptive_gaussian_my( image, bsize = 3, c = 0 ):
-    log.info( "Apdative threshold gaussian my" )
-
-    # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#getgaussiankernel
-
-    reverse_required = 1
-
-    bsize = 2*int( bsize/2 )  + 1
-
-    h = len( image ) # image height
-    w = len( image[0] ) # image width
-
-    data = np.empty( ( h, w ), dtype='B')
-
-    b = int( bsize/2 )
-    if b < 1 :
-        b = 1
-    pass
-
-    # the threshold value T(x,y) is a weighted sum (cross-correlation with a Gaussian window)
-    # of the blockSize×blockSize neighborhood of (x,y) minus C
-
-    image_pad= np.pad(image, b,'constant', constant_values=(0))
-
-    def gaussian(x, y, bsize) :
-        #  The default sigma is used for the specified blockSize
-        sigma = bsize
-        # ksize	Aperture size. It should be odd ( ksizemod2=1 ) and positive.
-        # sigma = 0.3 * ((ksize - 1) * 0.5 - 1) + 0.8
-        ss = sigma*sigma
-        pi_2_ss = 2*math.pi*ss
-
-        b = int( bsize/2 )
-
-        x = x - b
-        y = y - b
-
-        v = math.exp( -(x*x + y*y)/ss )/pi_2_ss
-        # g(x,y) = exp( -(x^2 + y^2)/s^2 )/(2pi*s^2)
-
-        return v
-    pass #-- gaussian
-
-    def gaussian_sum( window, bsize ) :
-        gs_sum = 0
-
-        # L = len( window )*len( window[0] )
-        for y, row in enumerate( window ) :
-            for x, v in enumerate( row ) :
-                gs_sum += v*gaussian( y, x, bsize )
-            pass
-        pass
-
-        return gs_sum
-    pass #-- gaussian_sum
-
-    for y, row in enumerate( image_pad ) :
-        for x, gs in enumerate( row ) :
-            if ( b <= y < len(image_pad) - b ) and ( b<= x < len(row) - b ):
-                window = image_pad[ y - b : y + b + 1 , x - b : x + b + 1 ]
-
-                threshold = gaussian_sum( window, bsize ) - c
-
-                data[y - b][x - b] = [0, 1][ gs >= threshold ]
-            pass
-        pass
-    pass
-
-    return data, ("bsize = %s" % bsize), "adaptive gaussian thresholding my", reverse_required
-pass # -- 지역 가우시안 적응 임계치 처리
-
-#TODO      이진화 계산
-def binarize_image( image, threshold = None ):
-    v = None
-
-    if 1 :
-        h = len(image)  # image height
-        w = len(image[0])  # image width
-        bsize = w if w > h else h
-        bsize = bsize/2
-
-        bsize = 5 # for line detection
-        v = threshold_adaptive_gaussian( image, bsize = bsize, c = 5 )
-    elif 0 :
-        bsize = 3
-        v = threshold_adaptive_mean( image, bsize = bsize, c = 0 )
-    else :
-        threshold = np.average( image )*1.1
-        v = threshold_golobal( image, threshold = threshold )
-    pass
-
-    return v
-pass #-- 이진화 계산
-
-image_binarized, threshold, thresh_algo, reverse_required = binarize_image( image = grayscale )
-
-if reverse_required :
-    image_binarized = reverse_image( image_binarized )
-pass
-
-save_img_as_file( "image_binarized(%s)" % thresh_algo, image_binarized )
-
-title = "Binarization (%s, %s)" % ( thresh_algo, threshold )
-border_color = "blue"
-plot_image( image_binarized, title=title, cmap="gray", border_color = border_color )
+title = "Binarization (%s, %s)" % ( bin_image.algorithm, bin_image.threshold )
+bin_image.plot_image( title=title, cmap="gray", border_color = "blue" )
 
 #-- 이진화
 
 #TODO   Y 축 데이터 히스토그램
-
-def count_y_axis_signal( image, ksize ) :
-    msg = "y axis signal count"
-    log.info( msg )
-
-    h = len( image ) # image height
-    w = len( image[0] ) # image width
-
-    data = np.zeros( w, dtype='B')
-    ksize = 1
-
-    for x in range( w ) :
-        window = image[ 0 : h , x : x + ksize ]
-        signal_count = np.count_nonzero( window == 1 ) # 검정 바탕 흰색 카운트
-        # signal_count = np.count_nonzero( window == 0 ) # 흰 바탕 검정 카운트
-        data[x] = signal_count
-    pass
-
-    log.info( "Done. %s" % msg )
-    return data
-pass #-- count_y_axis_signal
-
-target_image = image_binarized
-y_counts = count_y_axis_signal( image= target_image, ksize = 1 )
+y_signal_counts = bin_image.count_y_axis_signal( ksize = 1 )
 
 # y count 데이터를 csv 파일로 저장
 
-y_counts.tofile( "./y_count.csv", sep=',', format='%s')
+y_signal_counts.tofile( "./y_count.csv", sep=',', format='%s')
 
-if 1 : # y count 표출
-
-    title = "y count"
-    border_color = "blue"
-    ax, img_show = plot_image(image_binarized, title=title, cmap="gray", border_color=border_color)
+if 1 :
+    # y count 표출
+    ax, img_show = bin_image.plot_image( title="y count" , cmap="gray", border_color="blue")
 
     charts = { }
 
     # y count bar chart
-    y = y_counts
+    y = y_signal_counts
     x = [i for i, _ in enumerate( y ) ]
     charts["y count"] = ax.bar( x, y, width=0.5, color='red', align='center', alpha=1.0)
 
@@ -846,8 +863,7 @@ if 1 : # y count 표출
 
     ax.set_ylabel( 'Y count', rotation=90 )
     ax.set_xlim( 0, width )
-pass #-- y count 표출
-
+pass
 #-- y count 표출
 
 log.info( "Plot show....." )
