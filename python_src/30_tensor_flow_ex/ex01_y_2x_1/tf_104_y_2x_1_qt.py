@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os, sys, datetime, time
+import os, sys, datetime, time, numpy as np , matplotlib
 
 import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
@@ -21,6 +21,12 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Lambda
 from tensorflow.python.keras import backend as K
+
+matplotlib.use('QT5Agg')
+
+import matplotlib.pylab as pylab
+from matplotlib.backends.backend_qt5agg import FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
 class QuestAns :
     def __init__(self, quest, answer) :
@@ -314,7 +320,12 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     def __init__(self):
         super(MyQtApp, self).__init__() # Call the inherited classes __init__ method
 
+        self.epochs = 30
+
         uic.loadUi( './tf_104_y_2x_1_qt.ui', self) # Load the .ui file
+
+        # central widget layout margin
+        self.centralWidget().layout().setContentsMargins( 9, 9, 9, 9 )
 
         progressBar = self.progressBar
 
@@ -342,6 +353,42 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
             tableView.setModel( tableModel )
 
             tableModel.adjustColumnWidth()
+        pass
+
+        if 1 :
+            # plot test data
+            fig, ax = pylab.subplots()
+
+            lines = []
+            epochs = self.epochs
+
+            lines += ax.plot( [ 0, epochs ], [ 0, 0 ] , '-')
+            lines += ax.plot( [0, epochs], [0, 0], '-')
+
+            ax.set_xlim(0, epochs )
+            ax.set_ylim(0, 1 )
+
+            ax.set_autoscaley_on(True)
+
+            if 0 :
+                ax.clear()
+                data = np.array([0.7, 0.7, 0.7, 0.8, 0.9, 0.9, 1.5, 1.5, 1.5, 1.5])
+                bins = np.arange(0.6, 1.62, 0.02)
+                n1, bins1, patches1 = ax.hist(data, bins, alpha=0.6, density=False, cumulative=False)
+            pass
+
+            # plot
+            self.fig = fig
+            self.ax = ax
+            self.lines = lines
+            self.figureCanvas = FigureCanvas(fig)
+            lay = QtWidgets.QVBoxLayout(self.plot_content)
+            lay.setContentsMargins(0, 0, 0, 0)
+
+            lay.addWidget(self.figureCanvas)
+
+            # add toolbar
+            0 and self.addToolBar(QtCore.Qt.BottomToolBarArea, NavigationToolbar(self.figureCanvas, self))
         pass
 
         # connect signals to slots
@@ -492,6 +539,29 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         tableModel = tableView.model()
         tableModel.remove_all_rows()
 
+        if 1 : # init lines
+            lines = self.lines
+            epochs = self.epochs
+            ax = self.ax
+            fig = self.fig
+
+            self.acc_list = []
+            self.loss_list = []
+
+            ax.clear()
+
+            lines += ax.plot([0, epochs], [0, 0], '-')
+            lines += ax.plot([0, epochs], [0, 0], '-')
+
+            ax.set_xlim(0, epochs)
+            ax.set_ylim(0, 1)
+
+            ax.set_autoscaley_on(True)
+
+            fig.canvas.draw()
+            fig.canvas.flush_events()
+        pass # -- init lines
+
         self.statusbar.showMessage( "학습을 시작합니다." )
     pass # -- on_train_begin
 
@@ -555,11 +625,50 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         tableView = self.learnTableView
         tableModel = tableView.model()
         row = epoch
-        row_data = tableModel.dataList[ row ]
+        dataList = tableModel.dataList
+        row_data = dataList[ row ]
 
         self.update_row_data_from_logs( row_data, logs)
 
         tableModel.layoutChanged.emit()
+
+        if 0 :  # init lines
+            lines = self.lines
+            epochs = self.epochs
+            ax = self.ax
+            fig = self.fig
+
+            acc_list = self.acc_list
+            loss_list = self.loss_list
+
+            acc_list += logs[ "acc" ]
+            loss_list += logs["loss"]
+
+            log.info( "making x data" )
+            x_data = [i for i, _ in enumerate(acc_list)]
+            log.info("Done. making x data")
+
+            ax.clear()
+
+            ax.plot(x_data, acc_list, '-')
+            ax.plot(x_data, loss_list, '-')
+
+            max_acc = np.max( acc_list )
+            max_loss = np.max( loss_list )
+
+            #ax.set_autoscaley_on(False)
+
+            ax.set_xlim( np.max( x_data ) )
+            ax.set_ylim( max_acc if max_acc > max_loss else max_loss )
+
+            #ax.relim()
+            #ax.autoscale_view()
+
+            fig.canvas.draw()
+            fig.canvas.flush_events()
+
+            log.info("Done. Line plotting")
+        pass  # -- init lines
 
         epochs = self.epochs
         value = (100*epoch)/epochs
@@ -632,12 +741,10 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
         model = self.model
 
-        self.epochs = 30
-
         epochs = self.epochs
 
         callbacks = [ self ]
-        model.fit( questions, answers, epochs=epochs, batch_size=7, callbacks=callbacks )
+        self.hist = model.fit( questions, answers, epochs=epochs, batch_size=7, callbacks=callbacks )
 
     pass #-- when_start_clicked
 
