@@ -595,7 +595,7 @@ class Image :
             pass
         pass
 
-        log.info(f"cdf_min = {cdf_min:,d}")
+        log.info( f"cdf_min = {cdf_min:,d}" )
 
         idx = 0
         L_over_MN_cdf_min = L/(MN - cdf_min + 0.0)

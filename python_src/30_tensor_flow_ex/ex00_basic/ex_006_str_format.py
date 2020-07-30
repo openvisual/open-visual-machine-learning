@@ -10,6 +10,7 @@ import logging as log
 log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
     datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
+
 log.info( "Hello" )
 log.info( "Good bye!" )
 
