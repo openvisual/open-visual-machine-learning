@@ -1,10 +1,15 @@
 import xlsxwriter
 
-# Create a workbook and add a worksheet.
-workbook = xlsxwriter.Workbook('C:/temp/my_doc.xlsx')
+# 엑셀 파일을 만드는 예제입니다.
+
+print( "\nHello.... Good morning!\n" )
+
+# 엑셀 파일(workbook)을 만들고, 엑셀 시트를 하나 추가함.
+path = 'C:/temp/my_doc.xlsx'
+workbook = xlsxwriter.Workbook( path )
 worksheet = workbook.add_worksheet()
 
-# Some data we want to write to the worksheet.
+# 엑셀 시트에 추가할 데이터
 expenses = (
     ['Rent', 1000],
     ['Gas',   100],
@@ -28,3 +33,9 @@ worksheet.write(row, 0, 'Total')
 worksheet.write(row, 1, '=SUM(B1:B4)')
 
 workbook.close()
+
+print( "Excel file(%s) was saved." % path )
+
+print( "\nGood bye!" )
+
+# -- 엑셀 파일을 만드는 예제입니다.
