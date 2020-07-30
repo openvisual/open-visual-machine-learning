@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os, sys, datetime
+import os, sys, datetime, time
 
 import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
@@ -253,7 +253,7 @@ class LearnTableModel( MyTableModel ):
     pass
 
     def table_header(self):
-        table_header = [ "No.", "Loss" , "Acc", "Elapsed", "ETA" ]
+        table_header = [ "No.", "Loss" , "Acc", "Count", "Elapsed", "ETA" ]
         return table_header
     pass
 
@@ -284,7 +284,9 @@ class LearnTableModel( MyTableModel ):
 
             table_header = self.table_header
 
-            if col < len( table_header ) :
+            table_header_len = len( table_header )
+
+            if col < table_header_len :
                 key = table_header[ col ]
                 key = key.strip().lower()
 
@@ -296,7 +298,7 @@ class LearnTableModel( MyTableModel ):
                     value = "__"
                 pass 
             else :
-                value = "__"
+                value = ""
             pass
         pass
 
@@ -464,6 +466,9 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
             idx += 1
         pass
 
+        # 경과 시간 계산
+        row_data["elapsed"] = time.time() - row_data["elapsed_then"]
+
     pass  # -- update_row_data_from_logs
 
     # callbacks
@@ -533,24 +538,28 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         tableView = self.learnTableView
         tableModel = tableView.model()
 
-        tableModel.appendData( logs.copy() )
+        row_data = logs.copy()
+        row_data[ "count" ] = 0
+
+        row_data[ "elapsed_then" ] = time.time()
+        row_data[ "elapsed" ] = 0
+
+        tableModel.appendData( row_data )
 
     pass # -- on_epoch_begin
 
     def on_epoch_end(self, epoch, logs=None):
         log.info("on_epoch_end {} of training; got log keys: {}".format(epoch, list(logs.keys())))
 
-        if 1 :
-            # update learn table
-            tableView = self.learnTableView
-            tableModel = tableView.model()
-            row = epoch
-            row_data = tableModel.dataList[ row ]
+        # update learn table
+        tableView = self.learnTableView
+        tableModel = tableView.model()
+        row = epoch
+        row_data = tableModel.dataList[ row ]
 
-            self.update_row_data_from_logs( row_data, logs)
+        self.update_row_data_from_logs( row_data, logs)
 
-            tableModel.layoutChanged.emit()
-        pass
+        tableModel.layoutChanged.emit()
 
         epochs = self.epochs
         value = (100*epoch)/epochs
@@ -569,7 +578,9 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
             row = self.epoch
             row_data = tableModel.dataList[ row ]
 
-            self.update_row_data_from_logs( row_data, logs)
+            row_data["count"] += 1
+
+            self.update_row_data_from_logs( row_data, logs )
 
             col_count = tableModel.col_count
 
@@ -577,7 +588,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
             y = row
 
             #tableModel.dataChanged.emit(tableModel.index(0, y), tableModel.index( x, y))
-            tableModel.adjustColumnWidth()
+            #tableModel.adjustColumnWidth()
             tableModel.layoutChanged.emit()
         pass
     pass # -- on_train_batch_begin
