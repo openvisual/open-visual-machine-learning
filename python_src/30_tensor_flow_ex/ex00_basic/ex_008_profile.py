@@ -8,7 +8,7 @@ log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(l
 
 # 함수의 실행 시간 출력
 
-# -- usage
+# -- 사용법
 # @profile
 # def your_function(...):
 #       ....

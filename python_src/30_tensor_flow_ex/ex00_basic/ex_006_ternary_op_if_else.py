@@ -18,9 +18,9 @@ else :
     a = w
 pass
 
-b = [ w, h ][ w < h ]
+b = [ w, h ] [ w < h ]
 
-c = ( w, h )[ w < h ]
+c = ( w, h ) [ w < h ]
 
 d = h if w < h else w
 

@@ -108,9 +108,9 @@ pass
 #img_path = "../data_ocr/sample_01/messi5.png"
 #img_path = "../data_ocr/sample_01/hist_work_01.png"
 #img_path = "../data_ocr/sample_01/gosu_01.png"
-img_path = "../data_ocr/sample_01/sample_21.png"
+#img_path = "../data_ocr/sample_01/sample_21.png"
 #img_path = "../data_yegan/ex_01/_1018877.JPG"
-#img_path = "../data_yegan/ex_01/1-56.JPG"
+img_path = "../data_yegan/ex_01/1-56.JPG"
 
 #TODO    원천 이미지 획득
 
@@ -141,6 +141,7 @@ gridSpec = GridSpec( gs_row_cnt, gs_col_cnt, figure=fig )
 class Image :
 
     def __init__(self, img, algorithm="" ):
+        # 2차원 배열 데이터
         self.img = img
         self.algorithm = algorithm
         self.histogram = None
@@ -311,6 +312,7 @@ class Image :
             pass
 
             for i, s in enumerate(l):
+                # 첫 글자를 제외한 나머지 모음을 삭제한다.
                 import re
                 s = s[0] + re.sub(r'[aeiou]', '', s[1:])
                 l[i] = s[:4]
@@ -979,6 +981,7 @@ if 1 :
 
     log.info( f"Excel file {path} was saved." )
 
+    # 탐색기 창을 뛰움.
     explorer_open( folder )
 pass # --  #TODO y count 데이터를 엑셀, csv 파일로 저장
 
