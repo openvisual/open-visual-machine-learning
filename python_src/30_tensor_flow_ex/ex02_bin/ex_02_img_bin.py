@@ -19,7 +19,7 @@ pass
 
 # 원천 이미지 획득
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
-#img_path = '../data_opencv_sample/messi5.jpg'
+#img_path = '../data_opencv/messi5.jpg'
 img_path = "../data_ocr/sample_01/sample_11.png"
 
 img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order

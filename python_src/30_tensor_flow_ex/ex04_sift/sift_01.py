@@ -13,7 +13,7 @@ dirname = os.path.dirname(__file__)
 dirname and os.chdir( dirname )
 dirname and print( "Pwd 2: %s" % os.getcwd())
 
-img = cv.imread('../data_opencv_sample/home.jpg' )
+img = cv.imread('../data_opencv/home.jpg')
 
 gray= cv.cvtColor(img,cv.COLOR_BGR2GRAY)
 sift = cv.xfeatures2d.SIFT_create()

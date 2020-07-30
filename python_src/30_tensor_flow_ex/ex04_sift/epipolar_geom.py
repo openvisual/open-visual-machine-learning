@@ -17,8 +17,8 @@ print( "Pwd 2: %s" % os.getcwd())
 So first we need to find as many possible matches between two images to find the fundamental matrix. For this, we use SIFT descriptors with FLANN based matcher and ratio test.
 '''
 
-img1 = cv2.imread('../data_opencv_sample/left.jpg',0)  #queryimage # left image
-img2 = cv2.imread('../data_opencv_sample/right.jpg',0) #trainimage # right image
+img1 = cv2.imread('../data_opencv/left.jpg', 0)  #queryimage # left image
+img2 = cv2.imread('../data_opencv/right.jpg', 0) #trainimage # right image
 
 sift = cv2.xfeatures2d.SIFT_create()
 
