@@ -7,14 +7,14 @@ import os, cv2, numpy as np, sys
 
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
-print( "Done Import.".center( 80, "*") )
+log.info( "Done Import.".center( 80, "*") )
 
-print( "Pwd 1: %s" % os.getcwd())
+log.info( "Pwd 1: %s" % os.getcwd())
 # change working dir to current file
 dirname = os.path.dirname(__file__)
 if dirname : 
     os.chdir( dirname )
-    print( "Pwd 2: %s" % os.getcwd())
+    log.info( "Pwd 2: %s" % os.getcwd())
 pass
 
 # 원천 이미지 획득

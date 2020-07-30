@@ -93,7 +93,7 @@ from math import pi
 
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
-print( "Done Import.".center( 80, "*") )
+log.info( "Done Import.".center( 80, "*") )
 
 # 현재 파일의 폴더로 실행 폴더를 이동함.
 log.info( f"Pwd 1: {os.getcwd()}" )
@@ -108,9 +108,9 @@ pass
 #img_path = "../data_ocr/sample_01/messi5.png"
 #img_path = "../data_ocr/sample_01/hist_work_01.png"
 #img_path = "../data_ocr/sample_01/gosu_01.png"
-#img_path = "../data_ocr/sample_01/sample_21.png"
+img_path = "../data_ocr/sample_01/sample_21.png"
 #img_path = "../data_yegan/ex_01/_1018877.JPG"
-img_path = "../data_yegan/ex_01/1-56.JPG"
+#img_path = "../data_yegan/ex_01/1-56.JPG"
 
 #TODO    원천 이미지 획득
 

@@ -11,6 +11,8 @@ import sys
 import tensorflow as tf
 from tensorflow import keras
 
+# 시스템 버전을 나타내는 예제 입니다.
+
 print( "" )
 print( "" )
 print( " Hello .... ".center( 80, "*" ) )

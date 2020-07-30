@@ -74,7 +74,7 @@ from math import pi
 
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
-print( "Done Import.".center( 80, "*") )
+log.info( "Done Import.".center( 80, "*") )
 
 # 현재 파일의 폴더로 실행 폴더를 이동함.
 print( "Pwd 1: %s" % os.getcwd())
