@@ -949,13 +949,16 @@ def explorer_open( path ) :
 pass # -- open_folder
 
 if 1 :
-    # TODO y count 데이터를 csv 파일로 저장
     folder = "C:/Temp"
-    path = f"{folder}/y_counts.csv"
-    y_signal_counts.tofile( path, sep=',', format='%s')
-    log.info(f"CSV file {path} was saved.")
 
-    # TODO y count 데이터를 엑셀 파일로 저장
+    if 0 :
+        # TODO     y count 데이터를 csv 파일로 저장
+        path = f"{folder}/y_counts.csv"
+        y_signal_counts.tofile( path, sep=',', format='%s')
+        log.info(f"CSV file {path} was saved.")
+    pass
+
+    # TODO     y count 데이터를 엑셀 파일로 저장
     import xlsxwriter
 
     # Create a workbook and add a worksheet.
