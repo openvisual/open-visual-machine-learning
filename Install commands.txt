@@ -33,15 +33,25 @@ conda env remove -n my_env
 
 pip install opencv-contrib-python
 
-open-visual-machine-learning
+* 파이슨 환경에서 TensorFlow 설치
 
-경진대회에서 사용한 환경 TensorFlow 설치
-pip install numpy, matplotlib, PyQt5
-pip install tensorflow
-pip install torch, torchvision
-pip install opencv-contrib-python
-pip install orange3
+    pip install numpy, matplotlib, PyQt5, pyqt5-tools
+    pip install tensorflow
+    pip install torch, torchvision
+    pip install opencv-contrib-python
+    * 오렌지 설치
+    pip install orange3
+    $ orang3-canvas
 
-$ orang3-canvas
+* To upgrade all local packages; you could use pip-review:
+
+    $ pip install pip-review
+    $ pip-review --local --interactive
+
+* qt resource
+
+    pyrcc5 xz.qrc -o xz_rc.py
+    Then import this into your .py app
+    import xz.rc
 
 # end
