@@ -1,4 +1,4 @@
-# coding: utf-8
+# coding=utf-8
 
 import logging
 logging.basicConfig( format='%(levelname)-8s %(asctime)s %(filename)s %(lineno)d %(message)s', level=logging.DEBUG )

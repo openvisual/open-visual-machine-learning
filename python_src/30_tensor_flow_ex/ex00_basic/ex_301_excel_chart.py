@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import xlsxwriter
 
 # 엑셀 파일을 만드는 예제입니다.
@@ -21,7 +23,7 @@ expenses = (
 row = 0
 col = 0
 
-# Iterate over the data and write it out row by row.
+# 엑셀 시트에 열과 행에 데이터를 추가한다.
 for item, cost, ratio in expenses :
     worksheet.write(row, 0,     item)
     worksheet.write(row, 1, cost)
@@ -29,7 +31,7 @@ for item, cost, ratio in expenses :
     row += 1
 pass
 
-# Write a total using a formula.
+# 함계를 엑셀 함수를 이용하여 구한다.
 worksheet.write(row, 0, 'Total')
 worksheet.write(row, 1, '=SUM(B1:B4)')
 

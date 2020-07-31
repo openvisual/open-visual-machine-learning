@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import xlsxwriter
 
 # 엑셀 파일을 만드는 예제입니다.
