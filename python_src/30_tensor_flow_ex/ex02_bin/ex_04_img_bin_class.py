@@ -948,7 +948,7 @@ def explorer_open( path ) :
     wb.open( path )
 pass # -- open_folder
 
-if 1 :
+if 1 : # 엑셀 파일 저장
     folder = "C:/Temp"
 
     if 0 :
@@ -979,6 +979,24 @@ if 1 :
     row += 1
     worksheet.write(row, 0, 'Total')
     worksheet.write(row, 1, '=SUM(A1:D1)')
+
+    row += 1
+
+    if 1:  # 챠트 추가
+        chart = workbook.add_chart({'type': 'line'})
+
+        # Add a series to the chart.
+        chart.add_series({
+            'categories': '=Sheet1!A1:A4',
+            'values': '=Sheet1!B1:B4'
+        })
+
+        # Add a series to the chart.
+        chart.add_series({'values': '=Sheet1!C1:c4'})
+
+        # Insert the chart into the worksheet.
+        worksheet.insert_chart('B7', chart)
+    pass
 
     workbook.close()
 
