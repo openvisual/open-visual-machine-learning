@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os, sys, datetime, time, numpy as np , matplotlib
+from time import sleep
 
 import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
@@ -8,6 +9,7 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 import logging as log
 log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
+import pyqtgraph as pg
 from PyQt5 import QtWidgets, uic, QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QPushButton, QLineEdit
@@ -355,41 +357,20 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
             tableModel.adjustColumnWidth()
         pass
 
-        if 1 :
-            # plot test data
-            fig, ax = pylab.subplots()
+        if 1 :  # plot graph
+            self.plotWidget = pg.PlotWidget( title="Loss/Accuracy")
+            self.lines = []
 
-            lines = []
-            epochs = self.epochs
+            plotWidget = self.plotWidget
+            lines = self.lines
 
-            lines += ax.plot( [ 0, epochs ], [ 0, 0 ] , '-')
-            lines += ax.plot( [0, epochs], [0, 0], '-')
+            lines.append(plotWidget.plot(pen='b'))
+            lines.append(plotWidget.plot(pen='g'))
 
-            ax.set_xlim(0, epochs )
-            ax.set_ylim(0, 1 )
-
-            ax.set_autoscaley_on(True)
-
-            if 0 :
-                ax.clear()
-                data = np.array([0.7, 0.7, 0.7, 0.8, 0.9, 0.9, 1.5, 1.5, 1.5, 1.5])
-                bins = np.arange(0.6, 1.62, 0.02)
-                n1, bins1, patches1 = ax.hist(data, bins, alpha=0.6, density=False, cumulative=False)
-            pass
-
-            # plot
-            self.fig = fig
-            self.ax = ax
-            self.lines = lines
-            self.figureCanvas = FigureCanvas(fig)
-            lay = QtWidgets.QVBoxLayout(self.plot_content)
-            lay.setContentsMargins(0, 0, 0, 0)
-
-            lay.addWidget(self.figureCanvas)
-
-            # add toolbar
-            0 and self.addToolBar(QtCore.Qt.BottomToolBarArea, NavigationToolbar(self.figureCanvas, self))
-        pass
+            layout = QtWidgets.QVBoxLayout(self.plot_content)
+            layout.setContentsMargins(0, 0, 9, 0)
+            layout.addWidget(plotWidget)
+        pass # -- plot graph
 
         # connect signals to slots
         self.x.valueChanged.connect( self.when_x_valueChanged )
@@ -540,26 +521,16 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         tableModel.remove_all_rows()
 
         if 1 : # init lines
+            plotWidget = self.plotWidget
             lines = self.lines
-            epochs = self.epochs
-            ax = self.ax
-            fig = self.fig
 
             self.acc_list = []
             self.loss_list = []
 
-            ax.clear()
+            lines[0].setData(x=[0, 1], y=[0, 1])
+            lines[1].setData(x=[0, 1], y=[0, 1])
 
-            lines += ax.plot([0, epochs], [0, 0], '-')
-            lines += ax.plot([0, epochs], [0, 0], '-')
-
-            ax.set_xlim(0, epochs)
-            ax.set_ylim(0, 1)
-
-            ax.set_autoscaley_on(True)
-
-            fig.canvas.draw()
-            fig.canvas.flush_events()
+            plotWidget.update()
         pass # -- init lines
 
         self.statusbar.showMessage( "학습을 시작합니다." )
@@ -632,43 +603,31 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
         tableModel.layoutChanged.emit()
 
-        if 0 :  # init lines
+        if 1 :  # plot chart
+            plotWidget = self.plotWidget
             lines = self.lines
             epochs = self.epochs
-            ax = self.ax
-            fig = self.fig
 
             acc_list = self.acc_list
             loss_list = self.loss_list
 
-            acc_list += logs[ "acc" ]
-            loss_list += logs["loss"]
+            acc = logs[ "acc" ]
+            loss = logs[ "loss" ]
 
-            log.info( "making x data" )
+            0 and log.info( f"acc = {acc}, loss = {loss}")
+
+            acc_list.append( ( 0.0 + float( acc ) ) )
+            loss_list.append( ( 0.0 + float( loss ) ) )
+
             x_data = [i for i, _ in enumerate(acc_list)]
-            log.info("Done. making x data")
 
-            ax.clear()
+            lines[0].setData(x=x_data, y=acc_list)
+            lines[1].setData(x=x_data, y=loss_list)
 
-            ax.plot(x_data, acc_list, '-')
-            ax.plot(x_data, loss_list, '-')
-
-            max_acc = np.max( acc_list )
-            max_loss = np.max( loss_list )
-
-            #ax.set_autoscaley_on(False)
-
-            ax.set_xlim( np.max( x_data ) )
-            ax.set_ylim( max_acc if max_acc > max_loss else max_loss )
-
-            #ax.relim()
-            #ax.autoscale_view()
-
-            fig.canvas.draw()
-            fig.canvas.flush_events()
+            plotWidget.update()
 
             log.info("Done. Line plotting")
-        pass  # -- init lines
+        pass  # -- plot chart
 
         epochs = self.epochs
         value = (100*epoch)/epochs
