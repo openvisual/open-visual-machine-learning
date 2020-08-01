@@ -33,7 +33,12 @@ def sum_between_two_number( x, y ) :
     pass
 
     worksheet.write(row, 0, "sum" )
-    worksheet.write(row, 1, sum ) 
+    worksheet.write(row, 1, sum )
+
+    row += 1
+
+    worksheet.write(row, 0, "sum by fun")
+    worksheet.write(row, 1, f'=SUM(A2:A{row -1})')
 
     # Create a new chart object.
     chart = workbook.add_chart({'type': 'line'})

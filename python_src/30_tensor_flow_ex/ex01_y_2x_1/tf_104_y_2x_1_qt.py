@@ -557,10 +557,6 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
             tableView = self.learnTableView
             tableModel = tableView.model()
             dataList = tableModel.dataList
-
-            if 1 :
-                a = 2
-            pass
         pass
     pass # -- on_train_end
 

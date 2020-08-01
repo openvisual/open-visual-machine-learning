@@ -397,20 +397,6 @@ class Image :
 
         grayscale = grayscale.astype( np.int16 )
 
-        '''
-        h = len( r_channel ) # image height
-        w = len( r_channel[0] ) # image width
-    
-        grayscale = np.empty( ( h, w ), dtype='f')
-    
-        for y in range( h ) :
-            for x in range( w ) :
-                gs = 0.299*r_channel[y][x] + 0.587*g_channel[y][x] + 0.114*b_channel[y][x]
-                grayscale[y][x] = gs
-            pass
-        pass
-        '''
-
         return Image( grayscale )
     pass
     # -- grayscale 변환
@@ -962,8 +948,8 @@ if 1 : # 엑셀 파일 저장
     import xlsxwriter
 
     # Create a workbook and add a worksheet.
-    path = f"{folder}/y_counts.xlsx"
-    workbook = xlsxwriter.Workbook( path )
+    excel_file_name = f"{folder}/y_counts.xlsx"
+    workbook = xlsxwriter.Workbook( excel_file_name )
     worksheet = workbook.add_worksheet()
 
     row = 0
@@ -975,35 +961,43 @@ if 1 : # 엑셀 파일 저장
         worksheet.write(row, col, cell_data)
     pass
 
-    # Write a total using a formula.
-    row += 1
-    worksheet.write(row, 0, 'Total')
-    worksheet.write(row, 1, '=SUM(A1:D1)')
-
     row += 1
 
     if 1:  # 챠트 추가
         chart = workbook.add_chart({'type': 'line'})
 
         # Add a series to the chart.
-        chart.add_series({
-            'categories': '=Sheet1!A1:A4',
-            'values': '=Sheet1!B1:B4'
-        })
+        chart.add_series({ 'categories' : '=Sheet1!A1:A1' , })
 
         # Add a series to the chart.
-        chart.add_series({'values': '=Sheet1!C1:c4'})
+        series_col = len( y_signal_counts )
+        AZ = ord( 'Z' ) - ord( 'A' ) + 1
+        mod = series_col % AZ
+
+        last_cell = chr( ord( 'A' ) + mod )
+        AZ_cnt = int(series_col / AZ)
+        #while AZ_cnt
+        if AZ_cnt :
+            last_cell = chr( ord('A') + AZ_cnt ) + last_cell
+        pass
+
+        series_values = f"=Sheet1!B1:{last_cell:}1"
+
+        chart.add_series( { 'values' : series_values , } )
 
         # Insert the chart into the worksheet.
-        worksheet.insert_chart('B7', chart)
+        worksheet.insert_chart('A2', chart)
     pass
 
     workbook.close()
 
-    log.info( f"Excel file {path} was saved." )
+    log.info( f"Excel file {excel_file_name} was saved." )
 
     # 탐색기 창을 뛰움.
-    explorer_open( folder )
+    # 결과창 폴더 열기
+    explorer_open(folder)
+    # 결과창 엑셀 파일 열기
+    explorer_open(excel_file_name)
 pass # --  #TODO y count 데이터를 엑셀, csv 파일로 저장
 
 log.info( "Plot show....." )
