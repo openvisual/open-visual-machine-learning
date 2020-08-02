@@ -87,6 +87,12 @@ pass # -- clear_prof_data
 
 ''' --- profile functions '''
 
+def explorer_open( path ) :
+    ''' open folder by an explorer'''
+    import webbrowser as wb
+    wb.open( path )
+pass # -- open_folder
+
 import os, cv2, numpy as np, sys, time
 import math
 from math import pi
@@ -844,6 +850,127 @@ class Image :
         return y_signal_counts
     pass  # -- count_y_axis_signal
 
+    def plot_y_counts(self, y_signal_counts):
+        # y count 표출
+        ax, img_show = self.plot_image( title="y count" , cmap="gray", border_color="blue")
+        self.plot_histogram()
+
+        charts = { }
+
+        # y count bar chart
+        y = y_signal_counts
+        x = [i for i, _ in enumerate( y ) ]
+        charts["y count"] = ax.bar(x, y, width=.6, color='y', align='center', alpha=1.0)
+        #charts["y count"] = ax.bar( x, y, width=0.5, color='green', align='center', alpha=1.0)
+
+        if 0 : # 레전드 표출
+            t = [ ]
+            l = list( charts.keys() )
+            l = sorted( l )
+            for k in l :
+                t.append( charts[ k ] )
+            pass
+            loc = "upper right"
+            ax.legend( t, l, loc=loc, shadow=True)
+        pass #-- 레전드 표출
+
+        ax.set_ylabel( 'Y count', rotation=90 )
+        ax.set_xlim( 0, width )
+    pass
+    #-- y count 표출
+
+    def save_excel_file(self, y_signal_counts):
+        # 엑셀 파일 저장
+        folder = "C:/Temp"
+
+        if 0 :
+            # TODO     y count 데이터를 csv 파일로 저장
+            path = f"{folder}/y_counts.csv"
+            y_signal_counts.tofile( path, sep=',', format='%s')
+            log.info(f"CSV file {path} was saved.")
+        pass
+
+        # TODO     y count 데이터를 엑셀 파일로 저장
+        import xlsxwriter
+
+        # Create a workbook and add a worksheet.
+        excel_file_name = f"{folder}/y_counts.xlsx"
+        workbook = xlsxwriter.Workbook( excel_file_name )
+        worksheet = workbook.add_worksheet()
+
+        row = 0
+
+        # Iterate over the data and write it out row by row.
+        cell_data_list = [ "y_count" ]
+        cell_data_list += list( y_signal_counts )
+        for col, cell_data in enumerate( cell_data_list ):
+            worksheet.write(row, col, cell_data)
+        pass
+
+        row += 1
+
+        if 1:  # 챠트 추가
+            chart = workbook.add_chart({'type': 'line'})
+
+            # Add a series to the chart.
+            chart.add_series({ 'categories' : '=Sheet1!A1:A1' , })
+
+            # Add a series to the chart.
+            series_col = len( y_signal_counts )
+            AZ = ord( 'Z' ) - ord( 'A' ) + 1
+            mod = series_col % AZ
+
+            last_cell = chr( ord( 'A' ) + mod )
+            AZ_cnt = int(series_col / AZ)
+            #while AZ_cnt
+            if AZ_cnt :
+                last_cell = chr( ord('A') + AZ_cnt ) + last_cell
+            pass
+
+            series_values = f"=Sheet1!B1:{last_cell:}1"
+
+            chart.add_series( { 'values' : series_values , } )
+
+            # Insert the chart into the worksheet.
+            worksheet.insert_chart('A2', chart)
+        pass
+
+        workbook.close()
+
+        log.info( f"Excel file {excel_file_name} was saved." )
+
+        # 탐색기 창을 뛰움.
+        # 결과창 폴더 열기
+        explorer_open(folder)
+        # 결과창 엑셀 파일 열기
+        explorer_open(excel_file_name)
+    pass # --  #TODO y count 데이터를 엑셀, csv 파일로 저장
+
+    def segment_words(self, y_signal_counts, answer):
+        # 단어 짜르기
+        # 정답에서 스페이스(" ")가 몇 개 들어가 있는 확인함.
+        words_len = answer.count( " " )
+        w, h = self.dimension()
+
+        img = self.img
+
+        # 단어 갯수 만큼 무식하게 일단 짜름.
+        image_words = []
+
+        dw = w/words_len
+        x_0 = 0
+        x_1 = x_0 + dw
+        while x_1 < w :
+            img_word = img[ 0 : h, x_0 : x_1 ]
+            image_words.append( Image( img_word ) )
+            x_0 = x_1
+            x_1 += x_0 + dw
+        pass
+
+        return image_words
+
+    pass # -- 단어 짜르기
+
 pass
 # -- class Image
 
@@ -899,106 +1026,12 @@ bin_image.plot_histogram()
 #TODO   Y 축 데이터 히스토그램
 y_signal_counts = bin_image.count_y_axis_signal( ksize = 1 )
 
-if 1 :
-    # y count 표출
-    ax, img_show = bin_image.plot_image( title="y count" , cmap="gray", border_color="blue")
-    bin_image.plot_histogram()
+bin_image.plot_y_counts( y_signal_counts )
 
-    charts = { }
+bin_image.save_excel_file( y_signal_counts )
 
-    # y count bar chart
-    y = y_signal_counts
-    x = [i for i, _ in enumerate( y ) ]
-    charts["y count"] = ax.bar(x, y, width=.6, color='y', align='center', alpha=1.0)
-    #charts["y count"] = ax.bar( x, y, width=0.5, color='green', align='center', alpha=1.0)
-
-    if 0 : # 레전드 표출
-        t = [ ]
-        l = list( charts.keys() )
-        l = sorted( l )
-        for k in l :
-            t.append( charts[ k ] )
-        pass
-        loc = "upper right"
-        ax.legend( t, l, loc=loc, shadow=True)
-    pass #-- 레전드 표출
-
-    ax.set_ylabel( 'Y count', rotation=90 )
-    ax.set_xlim( 0, width )
-pass
-#-- y count 표출
-
-def explorer_open( path ) :
-    ''' open folder by an explorer'''
-    import webbrowser as wb
-    wb.open( path )
-pass # -- open_folder
-
-if 1 : # 엑셀 파일 저장
-    folder = "C:/Temp"
-
-    if 0 :
-        # TODO     y count 데이터를 csv 파일로 저장
-        path = f"{folder}/y_counts.csv"
-        y_signal_counts.tofile( path, sep=',', format='%s')
-        log.info(f"CSV file {path} was saved.")
-    pass
-
-    # TODO     y count 데이터를 엑셀 파일로 저장
-    import xlsxwriter
-
-    # Create a workbook and add a worksheet.
-    excel_file_name = f"{folder}/y_counts.xlsx"
-    workbook = xlsxwriter.Workbook( excel_file_name )
-    worksheet = workbook.add_worksheet()
-
-    row = 0
-
-    # Iterate over the data and write it out row by row.
-    cell_data_list = [ "y_count" ]
-    cell_data_list += list( y_signal_counts )
-    for col, cell_data in enumerate( cell_data_list ):
-        worksheet.write(row, col, cell_data)
-    pass
-
-    row += 1
-
-    if 1:  # 챠트 추가
-        chart = workbook.add_chart({'type': 'line'})
-
-        # Add a series to the chart.
-        chart.add_series({ 'categories' : '=Sheet1!A1:A1' , })
-
-        # Add a series to the chart.
-        series_col = len( y_signal_counts )
-        AZ = ord( 'Z' ) - ord( 'A' ) + 1
-        mod = series_col % AZ
-
-        last_cell = chr( ord( 'A' ) + mod )
-        AZ_cnt = int(series_col / AZ)
-        #while AZ_cnt
-        if AZ_cnt :
-            last_cell = chr( ord('A') + AZ_cnt ) + last_cell
-        pass
-
-        series_values = f"=Sheet1!B1:{last_cell:}1"
-
-        chart.add_series( { 'values' : series_values , } )
-
-        # Insert the chart into the worksheet.
-        worksheet.insert_chart('A2', chart)
-    pass
-
-    workbook.close()
-
-    log.info( f"Excel file {excel_file_name} was saved." )
-
-    # 탐색기 창을 뛰움.
-    # 결과창 폴더 열기
-    explorer_open(folder)
-    # 결과창 엑셀 파일 열기
-    explorer_open(excel_file_name)
-pass # --  #TODO y count 데이터를 엑셀, csv 파일로 저장
+answer = "오늘 비교적 온화한 날시가"
+word_segments = bin_image.segment_words( y_signal_counts, answer )
 
 log.info( "Plot show....." )
 
