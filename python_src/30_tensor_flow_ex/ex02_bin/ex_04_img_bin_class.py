@@ -841,7 +841,7 @@ class Image :
 
         w, h = self.dimension()
 
-        y_signal_counts = np.zeros( w, dtype='B')
+        y_signal_counts = np.zeros( w, dtype='int')
         ksize = 1
 
         for x in range(w):
@@ -889,9 +889,15 @@ class Image :
         # 엑셀 파일 저장
         folder = "C:/Temp"
 
+        global img_path
+        head, file_name = os.path.split( img_path )
+
+        dot_idx = file_name.rfind( "." )
+        file_name = file_name[ : dot_idx ]
+
         if 0 :
             # TODO     y count 데이터를 csv 파일로 저장
-            path = f"{folder}/y_counts.csv"
+            path = f"{folder}/{file_name}_y_counts.csv"
             y_signal_counts.tofile( path, sep=',', format='%s')
             log.info(f"CSV file {path} was saved.")
         pass
@@ -900,20 +906,32 @@ class Image :
         import xlsxwriter
 
         # Create a workbook and add a worksheet.
-        excel_file_name = f"{folder}/y_counts.xlsx"
+        excel_file_name = f"{folder}/{file_name}_y_counts.xlsx"
         workbook = xlsxwriter.Workbook( excel_file_name )
         worksheet = workbook.add_worksheet()
 
         row = 0
 
-        # Iterate over the data and write it out row by row.
-        cell_data_list = [ "y_count" ]
-        cell_data_list += list( y_signal_counts )
-        for col, cell_data in enumerate( cell_data_list ):
-            worksheet.write(row, col, cell_data)
-        pass
 
-        row += 1
+        # Iterate over the data and write it out row by row.
+        velocity = np.diff( y_signal_counts )
+        acceleration = np.diff( velocity )
+
+        cell_data_list = {}
+        cell_data_list["y_count"] = y_signal_counts
+        cell_data_list["velocity"] = velocity
+        cell_data_list["acceleration"] = acceleration
+
+        for key in [ "y_count", "velocity", "acceleration" ]:
+            col = 0
+            worksheet.write( row, col, key )
+            for cell_value in list( cell_data_list[ key ] ) :
+                col += 1
+                worksheet.write(row, col, cell_value)
+            pass
+
+            row += 1
+        pass
 
         if 1:  # 챠트 추가
             # https://xlsxwriter.readthedocs.io/chart.html
@@ -949,23 +967,28 @@ class Image :
             # excel_letter = xlsxwriter.utility.xl_col_to_name( col_number )
             excel_letter = to_excel_letter( col_number )
 
-            series_values = f"=Sheet1!B1:{excel_letter:}1"
-
-            log.info( f"seires_values = {series_values}")
-
             # Add a series to the chart.
-            chart.add_series( {'categories': '=Sheet1!A1:A1', })
-            chart.add_series( { 'values' : series_values , } )
+            cell_data_list_len = len( cell_data_list )
+            chart.add_series({'categories': f'=Sheet1!A1:A{cell_data_list_len}', })
+
+            for i in range( cell_data_list_len ):
+                excel_row = i + 1
+                series_values = f"=Sheet1!B{excel_row}:{excel_letter:}{excel_row}"
+
+                log.info(f"seires_values = {series_values}")
+
+                chart.add_series({'values': series_values, })
+            pass
 
             #chart.set_size({'width': 720, 'height': 576})
             # Same as:
             # The default chart width x height is 480 x 288 pixels.
-            chart.set_size({'x_scale':3.5, 'y_scale': 2.5})
+            chart.set_size({'x_scale':3.5, 'y_scale': 2.4})
 
             chart.set_title({'name': 'Y signal count'})
 
             # Insert the chart into the worksheet.
-            worksheet.insert_chart( 'B4', chart)
+            worksheet.insert_chart( f'B{row + 2}', chart)
         pass
 
         workbook.close()
