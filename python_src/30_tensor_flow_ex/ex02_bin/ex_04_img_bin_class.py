@@ -919,26 +919,45 @@ class Image :
             chart = workbook.add_chart({'type': 'line'})
 
             # Add a series to the chart.
-            chart.add_series({ 'categories' : '=Sheet1!A1:A1' , })
+            col_number = 1 # for y_count category
+            col_number += len(y_signal_counts)
+
+            def to_excel_letter( col ) :
+                excel_column = ""
+
+                AZ_len = ord( 'Z' ) - ord( 'A' ) + 1
+
+                def to_alhapet( num ) :
+                    c = chr( ord( 'A' ) + int( num ) )
+                    return c
+                pass # -- to_alhapet
+
+                while col > 0 :
+                    col, remainder = divmod( col - 1, AZ_len )
+
+                    excel_column = to_alhapet( remainder ) + excel_column
+                pass
+
+                if not excel_column :
+                    excel_column = "A"
+                pass
+
+                return excel_column
+            pass # -- to_excel_letter
+
+            # excel_letter = xlsxwriter.utility.xl_col_to_name( col_number )
+            excel_letter = to_excel_letter( col_number )
+
+            series_values = f"=Sheet1!B1:{excel_letter:}1"
+
+            log.info( f"seires_values = {series_values}")
 
             # Add a series to the chart.
-            series_col = len( y_signal_counts )
-            AZ = ord( 'Z' ) - ord( 'A' ) + 1
-            mod = series_col % AZ
-
-            last_cell = chr( ord( 'A' ) + mod )
-            AZ_cnt = int(series_col / AZ)
-            #while AZ_cnt
-            if AZ_cnt :
-                last_cell = chr( ord('A') + AZ_cnt ) + last_cell
-            pass
-
-            series_values = f"=Sheet1!B1:{last_cell:}1"
-
+            chart.add_series( {'categories': '=Sheet1!A1:A1', })
             chart.add_series( { 'values' : series_values , } )
 
             # Insert the chart into the worksheet.
-            worksheet.insert_chart( 'B5', chart)
+            worksheet.insert_chart( 'B4', chart)
         pass
 
         workbook.close()
