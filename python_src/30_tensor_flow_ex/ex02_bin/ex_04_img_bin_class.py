@@ -383,7 +383,12 @@ class Image :
         pass
 
         if 1 :
-            ax.set_xlim(0, len( histogram ) - 1 )
+            xlim_fr = 0
+            xlim_to = len( histogram ) - 1
+            xlim_to = xlim_to if xlim_to > 1 else 2.5 # data visualization
+            xlim_fr = xlim_fr if xlim_to > 1 else -0.5  # data visualization
+
+            ax.set_xlim( xlim_fr, xlim_to  )
 
             if not max_y :
                 max_y = np.max( histogram )
@@ -950,17 +955,15 @@ class Image :
         # Iterate over the data and write it out row by row.
         velocity = np.diff( y_signal_counts )
         accel = np.diff( velocity )
-        bccel = np.diff( accel )
-        #accel = accel/3.0 # data visualization
+        accel = accel/3.0 # data visualization
 
 
         cell_data_list = {}
         cell_data_list["y_count"]  = { "data" : y_signal_counts, 'type': 'column' , 'line': {'color': '#FF9900'}, }
         cell_data_list["velocity"] = { "data" : velocity       , 'type': 'line', 'line': {'color': 'blue'} }
         cell_data_list["accel"]    = { "data" : accel   , 'type': 'line', 'line': {'color': 'green'} }
-        cell_data_list["bccel"]     = {"data": bccel, 'type': 'line', 'line': {'color': 'red'}}
 
-        cell_data_key_list = [ "y_count", "velocity", "accel", "bccel" ]
+        cell_data_key_list = [ "y_count", "velocity", "accel" ]
 
         for key in cell_data_key_list :
             col = 0
