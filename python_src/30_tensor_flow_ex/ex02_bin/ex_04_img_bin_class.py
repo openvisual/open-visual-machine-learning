@@ -93,6 +93,51 @@ def explorer_open( path ) :
     wb.open( path )
 pass # -- open_folder
 
+def file_name_except_path_ext(path):
+    # 확장자와 파일 패스를 제외한 파일 이름 구하기.
+    head, file_name = os.path.split(path)
+
+    dot_idx = file_name.rfind(".")
+    file_name = file_name[: dot_idx]
+
+    return file_name
+pass # file_name_except_path_ext
+
+
+def to_excel_letter(col):
+    excel_column = ""
+
+    AZ_len = ord('Z') - ord('A') + 1
+
+    def to_alhapet(num):
+        c = chr(ord('A') + int(num))
+        return c
+
+    pass  # -- to_alhapet
+
+    while col > 0:
+        col, remainder = divmod(col - 1, AZ_len)
+
+        excel_column = to_alhapet(remainder) + excel_column
+    pass
+
+    if not excel_column:
+        excel_column = "A"
+    pass
+
+    return excel_column
+pass  # -- to_excel_letter
+
+
+def remove_space_except_first(s):
+    # 첫 글자를 제외한 나머지 모음을 삭제한다.
+    import re
+    reg_exp = r'[aeiou]'
+    s = s[0] + re.reg_str(reg_exp, '', s[1:])
+
+    return s
+pass # -- remove_space_except_first
+
 import os, cv2, numpy as np, sys, time
 import math
 from math import pi
@@ -315,14 +360,6 @@ class Image :
             l = sorted(l)
             for k in l:
                 t.append(charts[k])
-            pass
-
-            def remove_space_except_first( s ) :
-                # 첫 글자를 제외한 나머지 모음을 삭제한다.
-                import re
-                reg_exp = r'[aeiou]'
-                s = s[0] + re.reg_str( reg_exp, '', s[1:] )
-                return s
             pass
 
             for i, s in enumerate(l):
@@ -890,10 +927,8 @@ class Image :
         folder = "C:/Temp"
 
         global img_path
-        head, file_name = os.path.split( img_path )
 
-        dot_idx = file_name.rfind( "." )
-        file_name = file_name[ : dot_idx ]
+        file_name = file_name_except_path_ext( img_path )
 
         if 0 :
             # TODO     y count 데이터를 csv 파일로 저장
@@ -912,20 +947,27 @@ class Image :
 
         row = 0
 
-
         # Iterate over the data and write it out row by row.
         velocity = np.diff( y_signal_counts )
-        acceleration = np.diff( velocity )
+        accel = np.diff( velocity )
+        bccel = np.diff( accel )
+        #accel = accel/3.0 # data visualization
+
 
         cell_data_list = {}
-        cell_data_list["y_count"] = y_signal_counts
-        cell_data_list["velocity"] = velocity
-        cell_data_list["acceleration"] = acceleration
+        cell_data_list["y_count"]  = { "data" : y_signal_counts, 'type': 'column' , 'line': {'color': '#FF9900'}, }
+        cell_data_list["velocity"] = { "data" : velocity       , 'type': 'line', 'line': {'color': 'blue'} }
+        cell_data_list["accel"]    = { "data" : accel   , 'type': 'line', 'line': {'color': 'green'} }
+        cell_data_list["bccel"]     = {"data": bccel, 'type': 'line', 'line': {'color': 'red'}}
 
-        for key in [ "y_count", "velocity", "acceleration" ]:
+        cell_data_key_list = [ "y_count", "velocity", "accel", "bccel" ]
+
+        for key in cell_data_key_list :
             col = 0
             worksheet.write( row, col, key )
-            for cell_value in list( cell_data_list[ key ] ) :
+            cell_data = cell_data_list[ key ]
+
+            for cell_value in list( cell_data["data"] ) :
                 col += 1
                 worksheet.write(row, col, cell_value)
             pass
@@ -935,61 +977,52 @@ class Image :
 
         if 1:  # 챠트 추가
             # https://xlsxwriter.readthedocs.io/chart.html
-            chart = workbook.add_chart({'type': 'line'})
 
-            # Add a series to the chart.
-            col_number = 1 # for y_count category
-            col_number += len(y_signal_counts)
+            chart = workbook.add_chart({'type': "line"})
 
-            def to_excel_letter( col ) :
-                excel_column = ""
-
-                AZ_len = ord( 'Z' ) - ord( 'A' ) + 1
-
-                def to_alhapet( num ) :
-                    c = chr( ord( 'A' ) + int( num ) )
-                    return c
-                pass # -- to_alhapet
-
-                while col > 0 :
-                    col, remainder = divmod( col - 1, AZ_len )
-
-                    excel_column = to_alhapet( remainder ) + excel_column
-                pass
-
-                if not excel_column :
-                    excel_column = "A"
-                pass
-
-                return excel_column
-            pass # -- to_excel_letter
-
-            # excel_letter = xlsxwriter.utility.xl_col_to_name( col_number )
-            excel_letter = to_excel_letter( col_number )
-
-            # Add a series to the chart.
-            cell_data_list_len = len( cell_data_list )
-            chart.add_series({'categories': f'=Sheet1!A1:A{cell_data_list_len}', })
-
-            for i in range( cell_data_list_len ):
+            for i, key in enumerate( cell_data_key_list ):
                 excel_row = i + 1
+
+                cell_data = cell_data_list[key].copy()
+                data = cell_data.pop( "data" )
+                type = cell_data.pop( "type" )
+
+                # Add a series to the chart.
+                data_len = 1 + len( data )
+
+                excel_letter = xlsxwriter.utility.xl_col_to_name( data_len )
+                # excel_letter = to_excel_letter( col_number )
+
+                # Add a series to the chart.
+                cell_data_list_len = len(cell_data_list)
+                chart.add_series({'categories': f'=Sheet1!A{excel_row}:A{excel_row}'})
+
                 series_values = f"=Sheet1!B{excel_row}:{excel_letter:}{excel_row}"
 
                 log.info(f"seires_values = {series_values}")
 
-                chart.add_series({'values': series_values, })
+                series = { 'values': series_values, "name" : key }
+
+                series.update( cell_data )
+
+                chart.add_series( series )
             pass
 
-            #chart.set_size({'width': 720, 'height': 576})
+            # chart.set_size({'width': 720, 'height': 576})
             # Same as:
             # The default chart width x height is 480 x 288 pixels.
-            chart.set_size({'x_scale':3.5, 'y_scale': 2.4})
+            chart.set_size({'x_scale': 3.5, 'y_scale': 2.4})
 
             chart.set_title({'name': 'Y signal count'})
+            chart.set_x_axis({
+                'name': 'x',
+                'name_font': {'size': 14, 'bold': True},
+                'num_font': {'italic': True},
+            })
 
             # Insert the chart into the worksheet.
-            worksheet.insert_chart( f'B{row + 2}', chart)
-        pass
+            worksheet.insert_chart(f'B{ len(cell_data_key_list) + 2}', chart)
+        pass # 챠트 추가
 
         workbook.close()
 
