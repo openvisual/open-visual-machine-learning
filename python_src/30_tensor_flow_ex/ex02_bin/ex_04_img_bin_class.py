@@ -317,10 +317,16 @@ class Image :
                 t.append(charts[k])
             pass
 
-            for i, s in enumerate(l):
+            def remove_space_except_first( s ) :
                 # 첫 글자를 제외한 나머지 모음을 삭제한다.
                 import re
-                s = s[0] + re.sub(r'[aeiou]', '', s[1:])
+                reg_exp = r'[aeiou]'
+                s = s[0] + re.reg_str( reg_exp, '', s[1:] )
+                return s
+            pass
+
+            for i, s in enumerate(l):
+                s = remove_space_except_first( s )
                 l[i] = s[:4]
             pass
 
@@ -932,7 +938,7 @@ class Image :
             chart.add_series( { 'values' : series_values , } )
 
             # Insert the chart into the worksheet.
-            worksheet.insert_chart('A2', chart)
+            worksheet.insert_chart( 'B5', chart)
         pass
 
         workbook.close()
@@ -957,7 +963,7 @@ class Image :
         # 단어 갯수 만큼 무식하게 일단 짜름.
         image_words = []
 
-        dw = w/words_len
+        dw = int( w/words_len )
         x_0 = 0
         x_1 = x_0 + dw
         while x_1 < w :
