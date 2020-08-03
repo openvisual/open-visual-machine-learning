@@ -916,6 +916,7 @@ class Image :
         row += 1
 
         if 1:  # 챠트 추가
+            # https://xlsxwriter.readthedocs.io/chart.html
             chart = workbook.add_chart({'type': 'line'})
 
             # Add a series to the chart.
@@ -955,6 +956,13 @@ class Image :
             # Add a series to the chart.
             chart.add_series( {'categories': '=Sheet1!A1:A1', })
             chart.add_series( { 'values' : series_values , } )
+
+            #chart.set_size({'width': 720, 'height': 576})
+            # Same as:
+            # The default chart width x height is 480 x 288 pixels.
+            chart.set_size({'x_scale':3.5, 'y_scale': 2.5})
+
+            chart.set_title({'name': 'Y signal count'})
 
             # Insert the chart into the worksheet.
             worksheet.insert_chart( 'B4', chart)
@@ -1055,7 +1063,7 @@ bin_image.plot_y_counts( y_signal_counts )
 
 bin_image.save_excel_file( y_signal_counts )
 
-answer = "오늘 비교적 온화한 날시가"
+answer = "오늘 비교적 온화한 날씨가"
 word_segments = bin_image.segment_words( y_signal_counts, answer )
 
 log.info( "Plot show....." )
