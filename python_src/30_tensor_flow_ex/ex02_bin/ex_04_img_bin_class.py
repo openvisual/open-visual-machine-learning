@@ -1156,31 +1156,47 @@ class Image :
             gaps.append( Gap( [prev_x, x] ))
         pass
 
-        def compare_gap( one, two ) :
+        for idx, gap in enumerate( gaps ) :
+            gap.idx = idx
+        pass
+
+        def compare_gap_dist( one, two ) :
             return two.distance() - one.distance()
         pass
 
         from functools import cmp_to_key
-        gaps = sorted( gaps, key=cmp_to_key(compare_gap) )
+        gaps = sorted( gaps, key=cmp_to_key(compare_gap_dist) )
 
         # 정답에서 스페이스(" ")가 몇 개 들어가 있는 확인함.
         words_len = sentence.count(" ") + 1
 
         gaps = gaps[ 0 : words_len ]
 
+        def compare_gap_idx( one, two ) :
+            return one.idx - two.idx
+        pass
+
+        from functools import cmp_to_key
+        gaps = sorted( gaps, key=cmp_to_key(compare_gap_idx) )
+
         seginfos = []
         prev_gap = None
 
         for curr_gap in gaps :
-            if prev_gap is None :
-                prev_gap = curr_gap
-            else :
+            if prev_gap :
                 coord = [ prev_gap.coord[1] , curr_gap.coord[0] ]
                 seginfos.append( SegInfo( coord ) )
             pass
+
+            prev_gap = curr_gap
         pass
 
-        return gaps
+        if prev_gap and prev_gap.coord[1] < w - 1 :
+            coord = [ prev_gap.coord[1], w - 1 ]
+            seginfos.append( SegInfo( coord ) )
+        pass
+
+        return seginfos
     pass # -- word_seginfos
 
     def word_segements(self, y_signal_counts, sentence ):
@@ -1271,7 +1287,7 @@ bin_image.save_excel_file( y_signal_counts )
 
 word_segments = bin_image.word_segements( y_signal_counts, sentence )
 
-save = 0
+save = 1
 if save :
     # 세그먼테이션 파일 저장
     for idx, word_segment in enumerate( word_segments ) :
