@@ -191,6 +191,19 @@ gridSpec = GridSpec( gs_row_cnt, gs_col_cnt, figure=fig )
 
 #-- 원천 이미지 획득
 
+class SegInfo :
+    def __init__(self, coord):
+        self.coord = coord
+    pass
+
+    def distance(self):
+        coord = self.coord
+
+        diff = coord[1] - coord[0]
+        return diff
+    pass
+pass # -- Segment
+
 class Image :
 
     def __init__(self, img, algorithm="" ):
@@ -918,10 +931,11 @@ class Image :
 
         if 1 :
             # word segments coordinate
-            coords = self.coords_of_word_segments( y_signal_counts, sentence )
-            for x in coords :
+            seginfos = self.word_seginfo( y_signal_counts, sentence )
+            for seginfo in seginfos :
+                x = seginfo.coord
                 y = [ h ] * len( x )
-                charts["word"] = ax.bar(x, y, width=1, color='r', align='center', alpha=1.0)
+                charts["word"] = ax.fill_between(x, y, color='r', alpha=0.5)
             pass
         pass
 
@@ -1084,18 +1098,14 @@ class Image :
 
     pass
 
-    def coords_of_word_segments(self, y_signal_counts, sentence ):
-        # 단어 짜르기
-        # 정답에서 스페이스(" ")가 몇 개 들어가 있는 확인함.
-        words_len = sentence.count(" ") + 1
+    def word_seginfo(self, y_signal_counts, sentence ):
 
         img = self.img
 
         h = len(img)
         w = len(img[0])
 
-        # 단어 갯수 만큼 무식하게 일단 짜름.
-        coords = []
+        seginfos = []
 
         ref_y = np.average( y_signal_counts )
         ref_y = ref_y/5.0
@@ -1119,7 +1129,7 @@ class Image :
             elif not under_running :
                 if is_under :
                     if prev_x is not None :
-                        coords.append( [prev_x, x] )
+                        seginfos.append( SegInfo( [prev_x, x] ) )
                         prev_x = None
                     pass
                 pass
@@ -1130,11 +1140,23 @@ class Image :
 
         if not under_running and prev_x and prev_x < w - 1:
             x = w - 1
-            coords.append([prev_x, x])
+            seginfos.append( SegInfo( [prev_x, x] ))
         pass
 
-        return coords
-    pass # -- coords_of_word_segments
+        def compare_seginfo( one, two ) :
+            return two.distance() - one.distance()
+        pass
+
+        from functools import cmp_to_key
+        seginfos = sorted( seginfos, key=cmp_to_key(compare_seginfo) )
+
+        # 정답에서 스페이스(" ")가 몇 개 들어가 있는 확인함.
+        words_len = sentence.count(" ") + 1
+
+        seginfos = seginfos[ 0 : words_len ]
+
+        return seginfos
+    pass # -- word_seginfo
 
     def segment_words(self, y_signal_counts, sentence ):
         # 단어 짜르기
@@ -1146,9 +1168,10 @@ class Image :
         # 단어 갯수 만큼 무식하게 일단 짜름.
         image_words = []
 
-        coords = self.coords_of_word_segments( y_signal_counts, sentence )
+        seginfos = self.word_seginfo( y_signal_counts, sentence )
 
-        for coord in coords :
+        for seginfo in seginfos :
+            coord = seginfo.coord
             img_word = img[ 0 : h, coord[0] : coord[1] ]
             image_words.append( Image( img_word ) )
         pass
