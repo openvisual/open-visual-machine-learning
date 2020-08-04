@@ -358,7 +358,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         pass
 
         if 1 :  # plot graph
-            self.plotWidget = pg.PlotWidget( title="Loss/Accuracy")
+            self.plotWidget = pg.PlotWidget( title="Loss/Accuracy" )
             self.lines = []
 
             plotWidget = self.plotWidget
