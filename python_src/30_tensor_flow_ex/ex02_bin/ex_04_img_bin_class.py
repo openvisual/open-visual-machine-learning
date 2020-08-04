@@ -900,18 +900,30 @@ class Image :
         return y_signal_counts
     pass  # -- count_y_axis_signal
 
-    def plot_y_counts(self, y_signal_counts):
+    def plot_y_counts(self, y_signal_counts, sentence ):
         # y count 표출
         ax, img_show = self.plot_image( title="y count" , cmap="gray", border_color="blue")
         self.plot_histogram()
 
+        w, h = self.dimension()
+
         charts = { }
 
-        # y count bar chart
-        y = y_signal_counts
-        x = [i for i, _ in enumerate( y ) ]
-        charts["y count"] = ax.bar(x, y, width=.6, color='y', align='center', alpha=1.0)
-        #charts["y count"] = ax.bar( x, y, width=0.5, color='green', align='center', alpha=1.0)
+        if 1 :
+            # y count bar chart
+            y = y_signal_counts
+            x = [i for i, _ in enumerate( y ) ]
+            charts["y count"] = ax.bar(x, y, width=.6, color='y', align='center', alpha=1.0)
+        pass
+
+        if 1 :
+            # word segments coordinate
+            coords = self.coords_of_word_segments( y_signal_counts, sentence )
+            for x in coords :
+                y = [ h ] * len( x )
+                charts["word"] = ax.bar(x, y, width=1, color='r', align='center', alpha=1.0)
+            pass
+        pass
 
         if 0 : # 레전드 표출
             t = [ ]
@@ -1042,7 +1054,7 @@ class Image :
         show_excel_file and explorer_open(excel_file_name)
     pass # --  #TODO y count 데이터를 엑셀, csv 파일로 저장
 
-    def coords_of_word_segments(self, sentence, y_signal_counts ):
+    def coords_of_word_segments_absolute(self, sentence, y_signal_counts):
         # 단어 짜르기
         # 정답에서 스페이스(" ")가 몇 개 들어가 있는 확인함.
         words_len = sentence.count(" ") + 1
@@ -1055,20 +1067,76 @@ class Image :
         # 단어 갯수 만큼 무식하게 일단 짜름.
         coords = []
 
+        ref_y = np.average(y_signal_counts)
+        ref_y = 1 / 5
+
         dw = int(w / words_len)
         x_0 = 0
 
-        while x_0 < w :
-            coords.append( x_0 )
+        while x_0 < w:
+            coords.append(x_0)
             x_0 += dw
         pass
 
-        coords.append( w )
+        coords.append(w)
 
         return coords
+
     pass
 
-    def segment_words(self, sentence, y_signal_counts):
+    def coords_of_word_segments(self, y_signal_counts, sentence ):
+        # 단어 짜르기
+        # 정답에서 스페이스(" ")가 몇 개 들어가 있는 확인함.
+        words_len = sentence.count(" ") + 1
+
+        img = self.img
+
+        h = len(img)
+        w = len(img[0])
+
+        # 단어 갯수 만큼 무식하게 일단 짜름.
+        coords = []
+
+        ref_y = np.average( y_signal_counts )
+        ref_y = ref_y/5.0
+
+        prev_x = 0
+        under_running = False
+
+        for x, y in enumerate( y_signal_counts ):
+            is_under = y < ref_y
+
+            if x == 0 :
+                if is_under :
+                    prev_x = None
+                elif not is_under :
+                    prev_x = 0
+                pass
+            elif under_running :
+                if not is_under :
+                    prev_x = x
+                pass
+            elif not under_running :
+                if is_under :
+                    if prev_x is not None :
+                        coords.append( [prev_x, x] )
+                        prev_x = None
+                    pass
+                pass
+            pass
+
+            under_running = is_under
+        pass
+
+        if not under_running and prev_x and prev_x < w - 1:
+            x = w - 1
+            coords.append([prev_x, x])
+        pass
+
+        return coords
+    pass # -- coords_of_word_segments
+
+    def segment_words(self, y_signal_counts, sentence ):
         # 단어 짜르기
 
         img = self.img
@@ -1078,16 +1146,16 @@ class Image :
         # 단어 갯수 만큼 무식하게 일단 짜름.
         image_words = []
 
-        coords = self.coords_of_word_segments( sentence, y_signal_counts )
+        coords = self.coords_of_word_segments( y_signal_counts, sentence )
 
-        for i in range( 0, len( coords ) - 1 ) :
-            img_word = img[ 0 : h, coords[i] : coords[i + 1] ]
+        for coord in coords :
+            img_word = img[ 0 : h, coord[0] : coord[1] ]
             image_words.append( Image( img_word ) )
         pass
 
         return image_words
 
-    pass # -- 단어 짜르기
+    pass # -- segment_words
 
 pass
 # -- class Image
@@ -1144,18 +1212,23 @@ bin_image.plot_histogram()
 #-- 이진화
 
 #TODO   Y 축 데이터 히스토그램
+
+sentence = "오늘 비교적 온화한 날씨가"
+
 y_signal_counts = bin_image.count_y_axis_signal( ksize = 1 )
 
-bin_image.plot_y_counts( y_signal_counts )
+bin_image.plot_y_counts( y_signal_counts, sentence )
 
 bin_image.save_excel_file( y_signal_counts )
 
-sentence = "오늘 비교적 온화한 날씨가"
-word_segments = bin_image.segment_words( sentence, y_signal_counts )
+word_segments = bin_image.segment_words( y_signal_counts, sentence )
 
-# 세그먼테이션 파일 저장
-for idx, word_segment in enumerate( word_segments ) :
-    word_segment.save_img_as_file( f"word_{idx:02d}" )
+save = 0
+if save :
+    # 세그먼테이션 파일 저장
+    for idx, word_segment in enumerate( word_segments ) :
+        word_segment.save_img_as_file( f"word_{idx:02d}" )
+    pass
 pass
 
 log.info( "Plot show....." )
