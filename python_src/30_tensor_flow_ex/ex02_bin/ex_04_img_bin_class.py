@@ -1151,7 +1151,7 @@ class Image :
             under_ref_running = is_under_ref
         pass
 
-        if under_ref_running and prev_x and prev_x < w - 1:
+        if prev_x and prev_x < w - 1:
             x = w - 1
             gaps.append( Gap( [prev_x, x] ))
         pass
@@ -1180,7 +1180,7 @@ class Image :
             pass
         pass
 
-        return seginfos
+        return gaps
     pass # -- word_seginfos
 
     def word_segements(self, y_signal_counts, sentence ):
