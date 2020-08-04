@@ -1036,29 +1036,53 @@ class Image :
         # 탐색기 창을 뛰움.
         # 결과창 폴더 열기
         explorer_open(folder)
+
         # 결과창 엑셀 파일 열기
-        explorer_open(excel_file_name)
+        show_excel_file = 0
+        show_excel_file and explorer_open(excel_file_name)
     pass # --  #TODO y count 데이터를 엑셀, csv 파일로 저장
 
-    def segment_words(self, y_signal_counts, answer):
+    def coords_of_word_segments(self, sentence, y_signal_counts ):
         # 단어 짜르기
         # 정답에서 스페이스(" ")가 몇 개 들어가 있는 확인함.
-        words_len = answer.count( " " )
-        w, h = self.dimension()
+        words_len = sentence.count(" ") + 1
 
         img = self.img
+
+        h = len(img)
+        w = len(img[0])
+
+        # 단어 갯수 만큼 무식하게 일단 짜름.
+        coords = []
+
+        dw = int(w / words_len)
+        x_0 = 0
+
+        while x_0 < w :
+            coords.append( x_0 )
+            x_0 += dw
+        pass
+
+        coords.append( w )
+
+        return coords
+    pass
+
+    def segment_words(self, sentence, y_signal_counts):
+        # 단어 짜르기
+
+        img = self.img
+
+        h = len( img )
 
         # 단어 갯수 만큼 무식하게 일단 짜름.
         image_words = []
 
-        dw = int( w/words_len )
-        x_0 = 0
-        x_1 = x_0 + dw
-        while x_1 < w :
-            img_word = img[ 0 : h, x_0 : x_1 ]
+        coords = self.coords_of_word_segments( sentence, y_signal_counts )
+
+        for i in range( 0, len( coords ) - 1 ) :
+            img_word = img[ 0 : h, coords[i] : coords[i + 1] ]
             image_words.append( Image( img_word ) )
-            x_0 = x_1
-            x_1 += x_0 + dw
         pass
 
         return image_words
@@ -1126,8 +1150,13 @@ bin_image.plot_y_counts( y_signal_counts )
 
 bin_image.save_excel_file( y_signal_counts )
 
-answer = "오늘 비교적 온화한 날씨가"
-word_segments = bin_image.segment_words( y_signal_counts, answer )
+sentence = "오늘 비교적 온화한 날씨가"
+word_segments = bin_image.segment_words( sentence, y_signal_counts )
+
+# 세그먼테이션 파일 저장
+for idx, word_segment in enumerate( word_segments ) :
+    word_segment.save_img_as_file( f"word_{idx:02d}" )
+pass
 
 log.info( "Plot show....." )
 
