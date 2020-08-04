@@ -177,11 +177,11 @@ channel_no  = img_org.shape[2]
 log.info( f"Image path: {img_path}"  )
 print( f"Image widh: {width}, height: {height}, channel: {channel_no}" )
 
-fig = plt.figure(figsize=(12, 10), constrained_layout=True)
+fig = plt.figure(figsize=(13, 10), constrained_layout=True)
 plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
 
 # org img, channel img, gray scale, median blur, histogram, bin, y_count
-gs_row_cnt = 6
+gs_row_cnt = 5
 gs_col_cnt = 7
 
 gs_row = -1
@@ -191,7 +191,22 @@ gridSpec = GridSpec( gs_row_cnt, gs_col_cnt, figure=fig )
 
 #-- 원천 이미지 획득
 
+class Gap :
+    # a gap between segments
+    def __init__(self, coord):
+        self.coord = coord
+    pass
+
+    def distance(self):
+        coord = self.coord
+
+        diff = coord[1] - coord[0]
+        return abs( diff )
+    pass
+pass # -- Gap
+
 class SegInfo :
+    # segmentation info
     def __init__(self, coord):
         self.coord = coord
     pass
@@ -931,7 +946,7 @@ class Image :
 
         if 1 :
             # word segments coordinate
-            seginfos = self.word_seginfo( y_signal_counts, sentence )
+            seginfos = self.word_seginfos( y_signal_counts, sentence )
             for seginfo in seginfos :
                 x = seginfo.coord
                 y = [ h ] * len( x )
@@ -1095,70 +1110,80 @@ class Image :
         coords.append(w)
 
         return coords
+    pass # coords_of_word_segments_absolute
 
-    pass
-
-    def word_seginfo(self, y_signal_counts, sentence ):
-
+    def word_seginfos(self, y_signal_counts, sentence ):
         img = self.img
 
         h = len(img)
         w = len(img[0])
 
-        seginfos = []
+        # 단어들 사이의 갭을 구한다.
+
+        gaps = []
 
         ref_y = np.average( y_signal_counts )
-        ref_y = ref_y/5.0
+        ref_y = ref_y/5.0 # gap 기준 높이
 
         prev_x = 0
-        under_running = False
+        under_ref_running = False
 
         for x, y in enumerate( y_signal_counts ):
-            is_under = y < ref_y
+            is_under_ref = y < ref_y
 
             if x == 0 :
-                if is_under :
-                    prev_x = None
-                elif not is_under :
+                if is_under_ref :
                     prev_x = 0
                 pass
-            elif under_running :
-                if not is_under :
-                    prev_x = x
-                pass
-            elif not under_running :
-                if is_under :
+            elif under_ref_running :
+                if not is_under_ref :
                     if prev_x is not None :
-                        seginfos.append( SegInfo( [prev_x, x] ) )
+                        gaps.append( Gap( [prev_x, x] ) )
                         prev_x = None
                     pass
                 pass
+            elif not under_ref_running :
+                if is_under_ref :
+                    prev_x = x
+                pass
             pass
 
-            under_running = is_under
+            under_ref_running = is_under_ref
         pass
 
-        if not under_running and prev_x and prev_x < w - 1:
+        if under_ref_running and prev_x and prev_x < w - 1:
             x = w - 1
-            seginfos.append( SegInfo( [prev_x, x] ))
+            gaps.append( Gap( [prev_x, x] ))
         pass
 
-        def compare_seginfo( one, two ) :
+        def compare_gap( one, two ) :
             return two.distance() - one.distance()
         pass
 
         from functools import cmp_to_key
-        seginfos = sorted( seginfos, key=cmp_to_key(compare_seginfo) )
+        gaps = sorted( gaps, key=cmp_to_key(compare_gap) )
 
         # 정답에서 스페이스(" ")가 몇 개 들어가 있는 확인함.
         words_len = sentence.count(" ") + 1
 
-        seginfos = seginfos[ 0 : words_len ]
+        gaps = gaps[ 0 : words_len ]
+
+        seginfos = []
+        prev_gap = None
+
+        for curr_gap in gaps :
+            if prev_gap is None :
+                prev_gap = curr_gap
+            else :
+                coord = [ prev_gap.coord[1] , curr_gap.coord[0] ]
+                seginfos.append( SegInfo( coord ) )
+            pass
+        pass
 
         return seginfos
-    pass # -- word_seginfo
+    pass # -- word_seginfos
 
-    def segment_words(self, y_signal_counts, sentence ):
+    def word_segements(self, y_signal_counts, sentence ):
         # 단어 짜르기
 
         img = self.img
@@ -1168,7 +1193,7 @@ class Image :
         # 단어 갯수 만큼 무식하게 일단 짜름.
         image_words = []
 
-        seginfos = self.word_seginfo( y_signal_counts, sentence )
+        seginfos = self.word_seginfos( y_signal_counts, sentence )
 
         for seginfo in seginfos :
             coord = seginfo.coord
@@ -1178,7 +1203,7 @@ class Image :
 
         return image_words
 
-    pass # -- segment_words
+    pass # -- word_segements
 
 pass
 # -- class Image
@@ -1244,7 +1269,7 @@ bin_image.plot_y_counts( y_signal_counts, sentence )
 
 bin_image.save_excel_file( y_signal_counts )
 
-word_segments = bin_image.segment_words( y_signal_counts, sentence )
+word_segments = bin_image.word_segements( y_signal_counts, sentence )
 
 save = 0
 if save :
