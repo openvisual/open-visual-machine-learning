@@ -2,14 +2,16 @@
 
 '''
 # 변경 사항
-# 함수 모듈화
-# 히스토그램 정규화 추가
-# 결과 이미지 저장
-# Adaptive Thresholding 추가
-# 클래스 화
+# -- 함수 모듈화
+# -- 히스토그램 정규화 추가
+# -- 결과 이미지 저장
+# -- Adaptive Thresholding 추가
+# -- 클래스 화
+# 축소/팽창
 # histogram modal count 계산
 # OTSU thresholding
 # ROSIN thresholding
+#
 # 라인 추출
 '''
 
@@ -545,13 +547,13 @@ class Image :
                     median = np.median(window)
                     data[y][x] = median
 
-                    0 and log.info("[%05d] data[%d][%d] = %.4f" % (idx, y, x, median))
+                    0 and log.info( f"[{idx:05d}] data[{y}][{x}] = {median:.4f}" )
                     idx += 1
                 pass
             pass
         pass
 
-        log.info("Done. %s" % msg)
+        log.info( f"Done. {msg}" )
 
         return Image( img=data, algorithm=algorithm)
 
@@ -579,7 +581,7 @@ class Image :
 
         histogram = np.array(histogram, 'u8')
 
-        log.info("Done. %s" % msg)
+        log.info( f"Done. {msg}" )
 
         histogram_acc = self.accumulate_histogram( histogram )
 
@@ -598,7 +600,7 @@ class Image :
 
         self.histogram_acc = histogram_acc
 
-        log.info("Done. %s" % msg)
+        log.info( f"Done. {msg}" )
 
         return histogram_acc
     pass  # 누적 히스트 그램
@@ -607,7 +609,7 @@ class Image :
     @profile
     def normalize_image_by_histogram(self):
         msg = "Normalize histogram"
-        log.info("%s ..." % msg)
+        log.info( f"{msg} ..." )
 
         # https://en.wikipedia.org/wiki/Histogram_equalization
 
@@ -635,7 +637,7 @@ class Image :
             pass
         pass
 
-        log.info( f"cdf_min = {cdf_min:,d}" )
+        log.info( f"cdf_min = {cdf_min}" )
 
         idx = 0
         L_over_MN_cdf_min = L/(MN - cdf_min + 0.0)
@@ -652,12 +654,12 @@ class Image :
 
                 data[y][x] = int(cdf[gs])
 
-                0 and log.info("[%05d] gs = %d, v=%0.4f" % (idx, gs, data[y][x]))
+                0 and log.info( f"[{idx:05d}] gs = {gs}, v={data[y][x]:0.4f}" )
                 idx += 1
             pass
         pass
 
-        log.info("Done. %s" % msg)
+        log.info( f"Done. {msg}" )
 
         image = Image( data )
 
@@ -678,7 +680,7 @@ class Image :
             threshold = np.average(img)
         pass
 
-        log.info("Threshold = %s" % threshold)
+        log.info( f"Threshold = {threshold}" )
 
         w, h = self.dimension()
 
@@ -770,7 +772,7 @@ class Image :
         data = cv2.adaptiveThreshold(img, 1, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, bsize, c)
 
         image = Image( data )
-        image.threshold = ("bsize = %s" % bsize)
+        image.threshold = f"bsize = {bsize}"
         image.algorithm = "adaptive gaussian thresholding opencv"
         image.reverse_required = reverse_required
 
@@ -893,7 +895,7 @@ class Image :
             y_signal_counts[x] = signal_count
         pass
 
-        log.info("Done. %s" % msg)
+        log.info( f"Done. {msg}" )
 
         return y_signal_counts
     pass  # -- count_y_axis_signal
@@ -1002,7 +1004,7 @@ class Image :
 
                 series_values = f"=Sheet1!B{excel_row}:{excel_letter:}{excel_row}"
 
-                log.info(f"seires_values = {series_values}")
+                log.info( f"seires_values = {series_values}" )
 
                 series = { 'values': series_values, "name" : key }
 
@@ -1068,7 +1070,8 @@ pass
 
 image_org = Image( img_org )
 image_org.save_img_as_file( "org" )
-image_org.plot_image( title = 'Original Image: %s' % ( img_path.split("/")[-1] ) , cmap=None, border_color = "green" )
+title = f'Original Image: { img_path.split("/")[-1] }'
+0 and image_org.plot_image( title = title , cmap=None, border_color = "green" )
 
 grayscale = image_org.convert_to_grayscale()
 grayscale.reverse_image( max = 255 )
@@ -1080,20 +1083,21 @@ gs_avg = grayscale.average( )
 gs_std = grayscale.std( )
 sg_max = grayscale.max( )
 
-log.info( "grayscale avg = %s, std = %s" % (gs_avg, gs_std))
+log.info( f"grayscale avg = {gs_avg}, std = {gs_std}" )
 #-- grayscale 변환
 
 # 잡음 제거
 ksize = 3
-grayscale = grayscale.remove_noise( ksize = ksize )
-grayscale.save_img_as_file( "noise_removed(%s)" % grayscale.algorithm )
+noise_removed = grayscale.remove_noise( ksize = ksize )
+curr_image = noise_removed
+noise_removed.save_img_as_file( f"noise_removed({curr_image.algorithm})" )
 
-title = "Noise removed (%s, ksize=%s)" % ( grayscale.algorithm , ksize, )
-grayscale.plot_image( title=title, cmap="gray", border_color = "blue" )
-grayscale.plot_histogram()
+title = f"Noise removed ({curr_image.algorithm}, ksize={ksize})"
+noise_removed.plot_image( title=title, cmap="gray", border_color = "blue" )
+noise_removed.plot_histogram()
 
 # 평활화
-image_normalized = grayscale.normalize_image_by_histogram( )
+image_normalized = noise_removed.normalize_image_by_histogram()
 
 print_prof_last()
 
@@ -1103,14 +1107,14 @@ image_normalized.plot_histogram()
 
 #TODO 이진화
 bin_image = image_normalized.binarize_image()
-
+curr_image = bin_image
 if bin_image.reverse_required :
     bin_image = bin_image.reverse_image()
 pass
 
-bin_image.save_img_as_file( "image_binarized(%s)" % bin_image.algorithm )
+bin_image.save_img_as_file( f"image_binarized({curr_image.algorithm})" )
 
-title = "Binarization (%s, %s)" % ( bin_image.algorithm, bin_image.threshold )
+title = f"Binarization ({curr_image.algorithm}, {curr_image.threshold})"
 bin_image.plot_image( title=title, cmap="gray", border_color = "blue" )
 bin_image.plot_histogram()
 #-- 이진화
