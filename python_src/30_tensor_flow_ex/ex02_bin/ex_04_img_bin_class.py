@@ -946,11 +946,18 @@ class Image :
 
         if 1 :
             # word segments coordinate
-            seginfos = self.word_seginfos( y_signal_counts, sentence )
+            seginfos, gaps = self.word_seginfos( y_signal_counts, sentence )
+
+            for gap in gaps :
+                x = gap.coord
+                y = [h] * len(x)
+                charts["gaps"] = ax.fill_between(x, y, color='b', alpha=0.7)
+            pass
+
             for seginfo in seginfos :
                 x = seginfo.coord
                 y = [ h ] * len( x )
-                charts["word"] = ax.fill_between(x, y, color='r', alpha=0.5)
+                charts["segments"] = ax.fill_between(x, y, color='r', alpha=0.4)
             pass
         pass
 
@@ -1126,7 +1133,7 @@ class Image :
         ref_y = ref_y/5.0 # gap 기준 높이
 
         prev_x = 0
-        under_ref_running = False
+        running_under_ref = False
 
         for x, y in enumerate( y_signal_counts ):
             is_under_ref = y < ref_y
@@ -1135,20 +1142,20 @@ class Image :
                 if is_under_ref :
                     prev_x = 0
                 pass
-            elif under_ref_running :
+            elif running_under_ref :
                 if not is_under_ref :
                     if prev_x is not None :
                         gaps.append( Gap( [prev_x, x] ) )
                         prev_x = None
                     pass
                 pass
-            elif not under_ref_running :
+            elif not running_under_ref :
                 if is_under_ref :
                     prev_x = x
                 pass
             pass
 
-            under_ref_running = is_under_ref
+            running_under_ref = is_under_ref
         pass
 
         if prev_x and prev_x < w - 1:
@@ -1159,6 +1166,8 @@ class Image :
         for idx, gap in enumerate( gaps ) :
             gap.idx = idx
         pass
+
+        gap_last = gaps[ -1 ]
 
         def compare_gap_dist( one, two ) :
             return two.distance() - one.distance()
@@ -1179,6 +1188,10 @@ class Image :
         from functools import cmp_to_key
         gaps = sorted( gaps, key=cmp_to_key(compare_gap_idx) )
 
+        if gaps[ -1 ].idx < gap_last.idx :
+            gaps.append( gap_last )
+        pass
+
         seginfos = []
         prev_gap = None
 
@@ -1191,12 +1204,9 @@ class Image :
             prev_gap = curr_gap
         pass
 
-        if prev_gap and prev_gap.coord[1] < w - 1 :
-            coord = [ prev_gap.coord[1], w - 1 ]
-            seginfos.append( SegInfo( coord ) )
-        pass
+        log.info( f"gap count = {len(gaps)}, seg count = {len(seginfos)}")
 
-        return seginfos
+        return seginfos, gaps
     pass # -- word_seginfos
 
     def word_segements(self, y_signal_counts, sentence ):
@@ -1209,7 +1219,7 @@ class Image :
         # 단어 갯수 만큼 무식하게 일단 짜름.
         image_words = []
 
-        seginfos = self.word_seginfos( y_signal_counts, sentence )
+        seginfos, _ = self.word_seginfos( y_signal_counts, sentence )
 
         for seginfo in seginfos :
             coord = seginfo.coord
