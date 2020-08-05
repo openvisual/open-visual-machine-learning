@@ -356,37 +356,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
             tableModel.adjustColumnWidth()
         pass
 
-        if 1 :  # plot graph
-            #self.plotWidget = pg.PlotWidget( title="Loss/Accuracy" )
-            fig, ax = pylab.subplots()
-
-            self.fig = fig
-            self.ax = ax
-
-            epochs = self.epochs
-            if 1 :
-                x = [ 0, epochs ]
-                y = [ 0, 0 ]
-                ax.plot( x, y , label="acc")
-            pass
-
-            if 1 :
-                x = [ 0 ]
-                y = [ 1 ]
-                ax.plot( x, y, label="loss" )
-            pass
-
-            ax.legend( loc="upper right" )
-
-            self.figureCanvas = FigureCanvas( fig )
-            self.lines = []
-
-            figureCanvas = self.figureCanvas
-
-            layout = QtWidgets.QVBoxLayout(self.plot_content)
-            layout.setContentsMargins(0, 0, 0, 0)
-            layout.addWidget(figureCanvas)
-        pass # -- plot graph
+        self.init_plot_content()
 
         # connect signals to slots
         self.x.valueChanged.connect( self.when_x_valueChanged )
@@ -423,6 +393,40 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
         sys.stdout = Stream(newText=self.onUpdateText)
     pass # MyQtApp __init__
+
+    def init_plot_content(self):
+        # TODO init plot content
+        # plot graph
+        # self.plotWidget = pg.PlotWidget( title="Loss/Accuracy" )
+        fig, ax = pylab.subplots()
+
+        self.fig = fig
+        self.ax = ax
+
+        epochs = self.epochs
+        if 1:
+            x = [0, epochs]
+            y = [0, 0]
+            ax.plot(x, y, label="acc")
+        pass
+
+        if 1:
+            x = [0]
+            y = [1]
+            ax.plot(x, y, label="loss", linewidth=1)
+        pass
+
+        ax.legend(loc="upper right")
+
+        self.figureCanvas = FigureCanvas(fig)
+        self.lines = []
+
+        figureCanvas = self.figureCanvas
+
+        layout = QtWidgets.QVBoxLayout(self.plot_content)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(figureCanvas)
+    pass  # -- init_plot_content
 
     def close_app( self ):
         log.info( "close app" )
