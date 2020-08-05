@@ -181,7 +181,7 @@ fig = plt.figure(figsize=(13, 10), constrained_layout=True)
 plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
 
 # org img, channel img, gray scale, median blur, histogram, bin, y_count
-gs_row_cnt = 5
+gs_row_cnt = 6
 gs_col_cnt = 7
 
 gs_row = -1
@@ -917,6 +917,35 @@ class Image :
     pass # -- binarize_image
     ''' 이진화 계산 '''
 
+    def morphology_closing(self, bsize, iterations ):
+        msg = "morphology_closing"
+        log.info(msg)
+
+        bsize = 2*int( bsize/2 ) + 1
+
+        img = self.img
+        img = img.astype(np.uint8)
+
+        data = img
+
+        if iterations < 1 :
+            iterations = 1
+        pass
+
+        for _ in range ( iterations ) :
+            kernel = np.ones([bsize, bsize], np.uint8)
+            data = cv2.dilate( data, kernel, iterations = 1)
+
+            kernel = np.ones([bsize, bsize], np.uint8)
+            data = cv2.erode( data, kernel, iterations = 1)
+        pass
+
+        image = Image(data)
+        image.algorithm = f"morphology closing, bsize={bsize}, iterations={iterations}"
+
+        return image
+    pass  # -- morphology_closing
+
     def count_y_axis_signal(self, ksize):
         msg = "y axis signal count"
         log.info(msg)
@@ -1106,7 +1135,7 @@ class Image :
         # 결과창 엑셀 파일 열기
         show_excel_file = 0
         show_excel_file and explorer_open(excel_file_name)
-    pass # --  #TODO y count 데이터를 엑셀, csv 파일로 저장
+    pass # -- y count 데이터를 엑셀, csv 파일로 저장
 
     def coords_of_word_segments_absolute(self, sentence, y_signal_counts):
         # 단어 짜르기
@@ -1290,15 +1319,23 @@ image_normalized.save_img_as_file( "image_normalized" )
 image_normalized.plot_image( title = "Normalization", cmap="gray", border_color = "green" )
 image_normalized.plot_histogram()
 
+# TODO morphology
+
+morphology = image_normalized.morphology_closing( bsize = 3, iterations = 3 )
+morphology.save_img_as_file( morphology.algorithm )
+morphology.plot_image( title="Morphology Closing", cmap="gray", border_color = "blue" )
+morphology.plot_histogram()
+
+# -- morphology
+
 #TODO 이진화
-bin_image = image_normalized.binarize_image()
+bin_image = morphology.binarize_image()
 curr_image = bin_image
 if bin_image.reverse_required :
     bin_image = bin_image.reverse_image()
 pass
 
 bin_image.save_img_as_file( f"image_binarized({curr_image.algorithm})" )
-
 title = f"Binarization ({curr_image.algorithm}, {curr_image.threshold})"
 bin_image.plot_image( title=title, cmap="gray", border_color = "blue" )
 bin_image.plot_histogram()
