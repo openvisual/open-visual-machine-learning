@@ -368,14 +368,16 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
             if 1 :
                 x = [ 0, epochs ]
                 y = [ 0, 0 ]
-                ax.plot( x, y )
+                ax.plot( x, y , label="acc")
             pass
 
             if 1 :
                 x = [ 0 ]
                 y = [ 1 ]
-                ax.plot( x, y )
+                ax.plot( x, y, label="loss" )
             pass
+
+            ax.legend( loc="upper right" )
 
             self.figureCanvas = FigureCanvas( fig )
             self.lines = []
@@ -559,8 +561,10 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
             loss_list = self.loss_list
             lines = self.lines
 
-            lines.append( ax.plot( x, acc_list ) )
-            lines.append( ax.plot( x, loss_list ) )
+            lines.append( ax.plot( x, acc_list , label="acc") )
+            lines.append( ax.plot( x, loss_list, label="loss" ) )
+
+            ax.legend( loc="upper right" )
 
             fig.canvas.draw()
             #fig.canvas.flush_events()
