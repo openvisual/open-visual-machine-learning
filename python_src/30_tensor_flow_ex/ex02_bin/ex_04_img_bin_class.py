@@ -1206,7 +1206,6 @@ class Image :
 
         h = len( img )
 
-        # 단어 갯수 만큼 무식하게 일단 짜름.
         image_words = []
 
         seginfos = self.word_seginfos( y_signal_counts, sentence )
