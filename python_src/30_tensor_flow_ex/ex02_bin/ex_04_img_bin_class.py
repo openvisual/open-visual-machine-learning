@@ -940,8 +940,8 @@ class Image :
     pass # -- binarize_image
     ''' 이진화 계산 '''
 
-    def morphology(self, bsize, iterations ):
-        msg = "morphology_closing"
+    def morphology(self, is_open,  bsize, iterations ):
+        msg = "morphology"
         log.info(msg)
 
         bsize = 2*int( bsize/2 ) + 1
@@ -956,17 +956,26 @@ class Image :
         pass
 
         for _ in range ( iterations ) :
-            # 축소
-            kernel = np.ones([bsize, bsize], np.uint8)
-            data = cv2.erode( data, kernel, iterations = 1)
 
-            # 확장
             kernel = np.ones([bsize, bsize], np.uint8)
-            data = cv2.dilate(data, kernel, iterations=1) 
+            if is_open :
+                data = cv2.erode( data, kernel, iterations = 1)
+            else :
+                data = cv2.dilate(data, kernel, iterations=1)
+            pass
+
+            kernel = np.ones([bsize, bsize], np.uint8)
+            if is_open :
+                data = cv2.dilate( data, kernel, iterations = 1)
+            else :
+                data = cv2.erode(data, kernel, iterations=1)
+            pass
         pass
 
+        op_close = "open" if is_open else "close"
+
         image = Image(data)
-        image.algorithm = f"morphology closing, bsize={bsize}, iterations={iterations}"
+        image.algorithm = f"morphology, {op_close}, bsize={bsize}, iterations={iterations}"
 
         return image
     pass  # -- morphology_closing
@@ -1202,7 +1211,9 @@ class Image :
         gaps = []
 
         ref_y = np.average( y_signal_counts )
-        ref_y = ref_y/4.0 # gap 기준 높이
+        ref_y = ref_y / 3.0  # gap 기준 높이
+        ref_y = ref_y / 3.5  # gap 기준 높이
+        #ref_y = ref_y / 4.0  # gap 기준 높이
 
         prev_x = 0
         running_under_ref = False
@@ -1273,6 +1284,11 @@ class Image :
 
         for curr_gap in gaps :
             if prev_gap :
+                if len( seginfos ) == 0 and prev_gap.coord[0] != 0 :
+                    coord = [ 0 , prev_gap.coord[0]]
+                    seginfos.append(SegInfo(coord))
+                pass
+
                 coord = [ prev_gap.coord[1] , curr_gap.coord[0] ]
                 seginfos.append( SegInfo( coord ) )
             pass
@@ -1359,9 +1375,9 @@ bin_image.plot_histogram()
 
 # TODO morphology
 
-morphology = bin_image.morphology( bsize = 5, iterations = 3 )
+morphology = bin_image.morphology( is_open = 0, bsize = 3, iterations = 3 )
 morphology.save_img_as_file( morphology.algorithm )
-morphology.plot_image( title="Morphology Closing", cmap="gray", border_color = "blue" )
+morphology.plot_image( title=morphology.algorithm, cmap="gray", border_color = "blue" )
 morphology.plot_histogram()
 
 bin_image = morphology
