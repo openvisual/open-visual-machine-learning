@@ -505,6 +505,10 @@ class Image :
         return self.width(), self.height()
     pass
 
+    def dimension_ratio(self):
+        return self.width()/self.height()
+    pass
+
     # TODO   영상 역전 함수
     def reverse_image( self, max=None):
         log.info("Reverse image....")
@@ -723,7 +727,7 @@ class Image :
 
         image = Image( data )
         image.threshold = threshold
-        image.algorithm = "global thresholding"
+        image.algorithm = f"global thresholding ({threshold:d})"
         image.reverse_required = reverse_required
 
         return image
@@ -898,8 +902,13 @@ class Image :
 
         algorithm = 0
 
+        w, h = self.dimension()
+
+        if w > h*3 :
+            algorithm = 2
+        pass
+
         if algorithm == 0 :
-            w, h = self.dimension()
             bsize = w if w > h else h
             bsize = bsize / 2
 
@@ -908,8 +917,22 @@ class Image :
         elif algorithm == 1 :
             bsize = 3
             v = self.threshold_adaptive_mean(bsize=bsize, c=0)
-        else:
-            threshold = np.average( self.img ) * 1.1
+        elif algorithm == 2 :
+            #threshold = np.average( self.img )
+
+            histogram, _ = self.make_histogram()
+            threshold = 0
+            max_y = 0
+            histogram_len = len( histogram )
+            for x, y in enumerate( histogram ) :
+                if x < histogram_len/3 :
+                    threshold = x
+                elif y > max_y :
+                    max_y = y
+                    threshold = x
+                pass
+            pass
+
             v = self.threshold_golobal( threshold=threshold )
         pass
 
@@ -917,7 +940,7 @@ class Image :
     pass # -- binarize_image
     ''' 이진화 계산 '''
 
-    def morphology_closing(self, bsize, iterations ):
+    def morphology(self, bsize, iterations ):
         msg = "morphology_closing"
         log.info(msg)
 
@@ -933,11 +956,13 @@ class Image :
         pass
 
         for _ in range ( iterations ) :
-            kernel = np.ones([bsize, bsize], np.uint8)
-            data = cv2.dilate( data, kernel, iterations = 1)
-
+            # 축소
             kernel = np.ones([bsize, bsize], np.uint8)
             data = cv2.erode( data, kernel, iterations = 1)
+
+            # 확장
+            kernel = np.ones([bsize, bsize], np.uint8)
+            data = cv2.dilate(data, kernel, iterations=1) 
         pass
 
         image = Image(data)
@@ -1319,17 +1344,8 @@ image_normalized.save_img_as_file( "image_normalized" )
 image_normalized.plot_image( title = "Normalization", cmap="gray", border_color = "green" )
 image_normalized.plot_histogram()
 
-# TODO morphology
-
-morphology = image_normalized.morphology_closing( bsize = 3, iterations = 3 )
-morphology.save_img_as_file( morphology.algorithm )
-morphology.plot_image( title="Morphology Closing", cmap="gray", border_color = "blue" )
-morphology.plot_histogram()
-
-# -- morphology
-
 #TODO 이진화
-bin_image = morphology.binarize_image()
+bin_image = image_normalized.binarize_image()
 curr_image = bin_image
 if bin_image.reverse_required :
     bin_image = bin_image.reverse_image()
@@ -1340,6 +1356,16 @@ title = f"Binarization ({curr_image.algorithm}, {curr_image.threshold})"
 bin_image.plot_image( title=title, cmap="gray", border_color = "blue" )
 bin_image.plot_histogram()
 #-- 이진화
+
+# TODO morphology
+
+morphology = bin_image.morphology( bsize = 5, iterations = 3 )
+morphology.save_img_as_file( morphology.algorithm )
+morphology.plot_image( title="Morphology Closing", cmap="gray", border_color = "blue" )
+morphology.plot_histogram()
+
+bin_image = morphology
+# -- morphology
 
 #TODO   Y 축 데이터 히스토그램
 
@@ -1353,7 +1379,8 @@ bin_image.save_excel_file( y_signal_counts )
 
 word_segments = bin_image.word_segements( y_signal_counts, sentence )
 
-save = 1
+save = bin_image.dimension_ratio() > 3
+
 if save :
     # 세그먼테이션 파일 저장
     for idx, word_segment in enumerate( word_segments ) :
