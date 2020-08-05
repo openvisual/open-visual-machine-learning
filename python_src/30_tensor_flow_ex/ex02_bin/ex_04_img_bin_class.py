@@ -777,9 +777,11 @@ class Image :
 
     # TODO     지역 가우시안 적응 임계치 처리
     def threshold_adaptive_gaussian(self, bsize=3, c=0):
-        if 1:
+        algorithm = 0
+
+        if algorithm == 0 :
             v = self.threshold_adaptive_gaussian_opencv(bsize=bsize, c=c)
-        else:
+        elif algorithm == 1:
             v = self.threshold_adaptive_gaussian_my(bsize=bsize, c=c)
         pass
 
@@ -821,6 +823,7 @@ class Image :
         data = np.empty((h, w), dtype='B')
 
         b = int(bsize / 2)
+
         if b < 1:
             b = 1
         pass
@@ -834,9 +837,9 @@ class Image :
 
         def gaussian(x, y, bsize):
             #  The default sigma is used for the specified blockSize
-            sigma = bsize
+            #sigma = bsize
             # ksize	Aperture size. It should be odd ( ksizemod2=1 ) and positive.
-            # sigma = 0.3 * ((ksize - 1) * 0.5 - 1) + 0.8
+            sigma = 0.3 * ((ksize - 1) * 0.5 - 1) + 0.8
             ss = sigma * sigma
             pi_2_ss = 2 * math.pi * ss
 
@@ -849,7 +852,6 @@ class Image :
             # g(x,y) = exp( -(x^2 + y^2)/s^2 )/(2pi*s^2)
 
             return v
-
         pass  # -- gaussian
 
         def gaussian_sum(window, bsize):
@@ -866,34 +868,44 @@ class Image :
 
         pass  # -- gaussian_sum
 
+        bsize_square = bsize*bsize
+
         for y, row in enumerate(image_pad):
             for x, gs in enumerate(row):
                 if (b <= y < len(image_pad) - b) and (b <= x < len(row) - b):
                     window = image_pad[y - b: y + b + 1, x - b: x + b + 1]
 
-                    threshold = gaussian_sum(window, bsize) - c
+                    gaussian_avg = gaussian_sum(window, bsize)/bsize_square
+
+                    threshold = gaussian_avg - c
 
                     data[y - b][x - b] = [0, 1][gs >= threshold]
                 pass
             pass
         pass
 
-        return Image( data ), ("bsize = %s" % bsize), "adaptive gaussian thresholding my", reverse_required
+        image = Image(data)
+        image.threshold = f"bsize = {bsize}"
+        image.algorithm = "adaptive gaussian thresholding my"
+        image.reverse_required = reverse_required
 
+        return image
     pass  # -- 지역 가우시안 적응 임계치 처리
 
     # TODO 이진화 계산
     def binarize_image(self, threshold=None):
         v = None
 
-        if 1:
+        algorithm = 0
+
+        if algorithm == 0 :
             w, h = self.dimension()
             bsize = w if w > h else h
             bsize = bsize / 2
 
             bsize = 5  # for line detection
             v = self.threshold_adaptive_gaussian(bsize=bsize, c=5)
-        elif 0:
+        elif algorithm == 1 :
             bsize = 3
             v = self.threshold_adaptive_mean(bsize=bsize, c=0)
         else:
@@ -1167,7 +1179,11 @@ class Image :
             gap.idx = idx
         pass
 
-        gap_last = gaps[ -1 ]
+        gap_last = None
+
+        if gaps :
+            gap_last = gaps[ -1 ]
+        pass
 
         def compare_gap_dist( one, two ) :
             return two.distance() - one.distance()
@@ -1188,7 +1204,7 @@ class Image :
         from functools import cmp_to_key
         gaps = sorted( gaps, key=cmp_to_key(compare_gap_idx) )
 
-        if gaps[ -1 ].idx < gap_last.idx :
+        if gap_last and gaps[ -1 ].idx < gap_last.idx :
             gaps.append( gap_last )
         pass
 
