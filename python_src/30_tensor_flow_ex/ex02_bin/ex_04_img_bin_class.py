@@ -980,7 +980,23 @@ class Image :
         return image
     pass  # -- morphology_closing
 
-    def count_y_axis_signal(self, ksize):
+    def get_vertical_histogram(self, ksize):
+        msg = "vertical_histogram"
+        log.info(msg)
+        # https://medium.com/@susmithreddyvedere/segmentation-in-ocr-10de176cf373
+
+        img = self.img
+
+        vertical_hist = np.sum(img,axis=0,keepdims=True)
+
+        vertical_hist = vertical_hist[ 0 ]
+
+        log.info( f"Done. {msg}" )
+
+        return vertical_hist
+    pass  # -- count_y_axis_signal
+
+    def get_vertical_histogram_old(self, ksize):
         msg = "y axis signal count"
         log.info(msg)
 
@@ -1003,7 +1019,7 @@ class Image :
         return y_signal_counts
     pass  # -- count_y_axis_signal
 
-    def plot_y_counts(self, y_signal_counts, sentence ):
+    def plot_vertical_histogram(self, y_signal_counts, sentence):
         # y count 표출
         ax, img_show = self.plot_image( title="y count" , cmap="gray", border_color="blue")
         self.plot_histogram()
@@ -1386,9 +1402,9 @@ bin_image = morphology
 
 sentence = "오늘 비교적 온화한 날씨가"
 
-y_signal_counts = bin_image.count_y_axis_signal( ksize = 1 )
+y_signal_counts = bin_image.get_vertical_histogram(ksize = 1)
 
-bin_image.plot_y_counts( y_signal_counts, sentence )
+bin_image.plot_vertical_histogram(y_signal_counts, sentence)
 
 bin_image.save_excel_file( y_signal_counts )
 
