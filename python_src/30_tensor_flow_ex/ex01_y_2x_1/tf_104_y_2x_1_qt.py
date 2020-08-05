@@ -9,7 +9,6 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 import logging as log
 log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
-import pyqtgraph as pg
 from PyQt5 import QtWidgets, uic, QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QPushButton, QLineEdit
