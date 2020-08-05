@@ -1402,13 +1402,13 @@ bin_image = morphology
 
 sentence = "오늘 비교적 온화한 날씨가"
 
-y_signal_counts = bin_image.get_vertical_histogram(ksize = 1)
+vertical_histogram = bin_image.get_vertical_histogram(ksize = 1)
 
-bin_image.plot_vertical_histogram(y_signal_counts, sentence)
+bin_image.plot_vertical_histogram(vertical_histogram, sentence)
 
-bin_image.save_excel_file( y_signal_counts )
+bin_image.save_excel_file( vertical_histogram )
 
-word_segments = bin_image.word_segements( y_signal_counts, sentence )
+word_segments = bin_image.word_segements( vertical_histogram, sentence )
 
 save = bin_image.dimension_ratio() > 3
 
