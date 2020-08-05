@@ -358,18 +358,35 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         pass
 
         if 1 :  # plot graph
-            self.plotWidget = pg.PlotWidget( title="Loss/Accuracy" )
+            #self.plotWidget = pg.PlotWidget( title="Loss/Accuracy" )
+            fig, ax = pylab.subplots()
+
+            self.fig = fig
+            self.ax = ax
+
+            epochs = self.epochs
+            if 1 :
+                x = [ 0, epochs ]
+                y = [ 0, 0 ]
+                ax.plot( x, y , label="acc")
+            pass
+
+            if 1 :
+                x = [ 0 ]
+                y = [ 1 ]
+                ax.plot( x, y, label="loss" )
+            pass
+
+            ax.legend( loc="upper right" )
+
+            self.figureCanvas = FigureCanvas( fig )
             self.lines = []
 
-            plotWidget = self.plotWidget
-            lines = self.lines
-
-            lines.append(plotWidget.plot(pen='b'))
-            lines.append(plotWidget.plot(pen='g'))
+            figureCanvas = self.figureCanvas
 
             layout = QtWidgets.QVBoxLayout(self.plot_content)
-            layout.setContentsMargins(0, 0, 9, 0)
-            layout.addWidget(plotWidget)
+            layout.setContentsMargins(0, 0, 0, 0)
+            layout.addWidget(figureCanvas)
         pass # -- plot graph
 
         # connect signals to slots
@@ -474,8 +491,14 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
         idx = 0
 
-        if "acc" in logs :
-            acc = logs[ "acc" ]
+        if ("acc" in logs) or ("accuracy" in logs) :
+            acc = 0.0
+            if "acc" in logs :
+                acc = logs[ "acc" ]
+            else :
+                acc = logs[ "accuracy"]
+            pass
+
             acc = 0.0 + float( acc )
             row_data[ "acc" ] = acc
 
@@ -502,6 +525,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
     # callbacks
 
     def on_train_begin(self, logs=None):
+        # TODO 훈련 시작
         print("on_train_begin" )
 
         self.epoch = -1
@@ -521,16 +545,29 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         tableModel.remove_all_rows()
 
         if 1 : # init lines
-            plotWidget = self.plotWidget
-            lines = self.lines
+            ax = self.ax
+            fig = self.fig
+
+            ax.clear()
+
+            self.ax.set_autoscaley_on(True)
 
             self.acc_list = []
             self.loss_list = []
+            self.lines = []
 
-            lines[0].setData(x=[0, 1], y=[0, 1])
-            lines[1].setData(x=[0, 1], y=[0, 1])
+            x = []
+            acc_list = self.acc_list
+            loss_list = self.loss_list
+            lines = self.lines
 
-            plotWidget.update()
+            lines.append( ax.plot( x, acc_list , label="acc") )
+            lines.append( ax.plot( x, loss_list, label="loss" ) )
+
+            ax.legend( loc="upper right" )
+
+            fig.canvas.draw()
+            #fig.canvas.flush_events()
         pass # -- init lines
 
         self.statusbar.showMessage( "학습을 시작합니다." )
@@ -600,27 +637,41 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         tableModel.layoutChanged.emit()
 
         if 1 :  # plot chart
-            plotWidget = self.plotWidget
+            ax = self.ax
+            fig = self.fig
+
             lines = self.lines
             epochs = self.epochs
 
             acc_list = self.acc_list
             loss_list = self.loss_list
 
-            acc = logs[ "acc" ]
+            acc = 0
+            if "acc" in logs :
+                acc = logs[ "acc" ]
+            elif "accuracy" in logs :
+                acc = logs["accuracy"]
+            pass
+
             loss = logs[ "loss" ]
 
             0 and log.info( f"acc = {acc}, loss = {loss}")
 
-            acc_list.append( ( 0.0 + float( acc ) ) )
-            loss_list.append( ( 0.0 + float( loss ) ) )
+            acc = 0.0 + float( acc )
+            loss = 0.0 + float(loss)
+
+            acc_list.append( acc )
+            loss_list.append( loss )
 
             x_data = [i for i, _ in enumerate(acc_list)]
 
-            lines[0].setData(x=x_data, y=acc_list)
-            lines[1].setData(x=x_data, y=loss_list)
+            lines[0][0].set_data(x_data, acc_list)
+            lines[1][0].set_data(x_data, loss_list)
 
-            plotWidget.update()
+            ax.relim()
+            ax.autoscale_view()
+
+            fig.canvas.draw()
 
             log.info("Done. Line plotting")
         pass  # -- plot chart

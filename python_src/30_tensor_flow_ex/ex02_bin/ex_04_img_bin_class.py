@@ -181,7 +181,7 @@ fig = plt.figure(figsize=(13, 10), constrained_layout=True)
 plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
 
 # org img, channel img, gray scale, median blur, histogram, bin, y_count
-gs_row_cnt = 5
+gs_row_cnt = 6
 gs_col_cnt = 7
 
 gs_row = -1
@@ -505,6 +505,10 @@ class Image :
         return self.width(), self.height()
     pass
 
+    def dimension_ratio(self):
+        return self.width()/self.height()
+    pass
+
     # TODO   영상 역전 함수
     def reverse_image( self, max=None):
         log.info("Reverse image....")
@@ -723,7 +727,7 @@ class Image :
 
         image = Image( data )
         image.threshold = threshold
-        image.algorithm = "global thresholding"
+        image.algorithm = f"global thresholding ({threshold:d})"
         image.reverse_required = reverse_required
 
         return image
@@ -777,9 +781,11 @@ class Image :
 
     # TODO     지역 가우시안 적응 임계치 처리
     def threshold_adaptive_gaussian(self, bsize=3, c=0):
-        if 1:
+        algorithm = 0
+
+        if algorithm == 0 :
             v = self.threshold_adaptive_gaussian_opencv(bsize=bsize, c=c)
-        else:
+        elif algorithm == 1:
             v = self.threshold_adaptive_gaussian_my(bsize=bsize, c=c)
         pass
 
@@ -821,6 +827,7 @@ class Image :
         data = np.empty((h, w), dtype='B')
 
         b = int(bsize / 2)
+
         if b < 1:
             b = 1
         pass
@@ -834,9 +841,9 @@ class Image :
 
         def gaussian(x, y, bsize):
             #  The default sigma is used for the specified blockSize
-            sigma = bsize
+            #sigma = bsize
             # ksize	Aperture size. It should be odd ( ksizemod2=1 ) and positive.
-            # sigma = 0.3 * ((ksize - 1) * 0.5 - 1) + 0.8
+            sigma = 0.3 * ((ksize - 1) * 0.5 - 1) + 0.8
             ss = sigma * sigma
             pi_2_ss = 2 * math.pi * ss
 
@@ -849,7 +856,6 @@ class Image :
             # g(x,y) = exp( -(x^2 + y^2)/s^2 )/(2pi*s^2)
 
             return v
-
         pass  # -- gaussian
 
         def gaussian_sum(window, bsize):
@@ -866,44 +872,113 @@ class Image :
 
         pass  # -- gaussian_sum
 
+        bsize_square = bsize*bsize
+
         for y, row in enumerate(image_pad):
             for x, gs in enumerate(row):
                 if (b <= y < len(image_pad) - b) and (b <= x < len(row) - b):
                     window = image_pad[y - b: y + b + 1, x - b: x + b + 1]
 
-                    threshold = gaussian_sum(window, bsize) - c
+                    gaussian_avg = gaussian_sum(window, bsize)/bsize_square
+
+                    threshold = gaussian_avg - c
 
                     data[y - b][x - b] = [0, 1][gs >= threshold]
                 pass
             pass
         pass
 
-        return Image( data ), ("bsize = %s" % bsize), "adaptive gaussian thresholding my", reverse_required
+        image = Image(data)
+        image.threshold = f"bsize = {bsize}"
+        image.algorithm = "adaptive gaussian thresholding my"
+        image.reverse_required = reverse_required
 
+        return image
     pass  # -- 지역 가우시안 적응 임계치 처리
 
     # TODO 이진화 계산
     def binarize_image(self, threshold=None):
         v = None
 
-        if 1:
-            w, h = self.dimension()
+        algorithm = 0
+
+        w, h = self.dimension()
+
+        if w > h*3 :
+            algorithm = 2
+        pass
+
+        if algorithm == 0 :
             bsize = w if w > h else h
             bsize = bsize / 2
 
             bsize = 5  # for line detection
             v = self.threshold_adaptive_gaussian(bsize=bsize, c=5)
-        elif 0:
+        elif algorithm == 1 :
             bsize = 3
             v = self.threshold_adaptive_mean(bsize=bsize, c=0)
-        else:
-            threshold = np.average( self.img ) * 1.1
+        elif algorithm == 2 :
+            #threshold = np.average( self.img )
+
+            histogram, _ = self.make_histogram()
+            threshold = 0
+            max_y = 0
+            histogram_len = len( histogram )
+            for x, y in enumerate( histogram ) :
+                if x < histogram_len/3 :
+                    threshold = x
+                elif y > max_y :
+                    max_y = y
+                    threshold = x
+                pass
+            pass
+
             v = self.threshold_golobal( threshold=threshold )
         pass
 
         return v
     pass # -- binarize_image
     ''' 이진화 계산 '''
+
+    def morphology(self, is_open,  bsize, iterations ):
+        msg = "morphology"
+        log.info(msg)
+
+        bsize = 2*int( bsize/2 ) + 1
+
+        img = self.img
+        img = img.astype(np.uint8)
+
+        data = img
+
+        if iterations < 1 :
+            iterations = 1
+        pass
+
+        for _ in range ( iterations ) :
+
+            kernel = np.ones([bsize, bsize], np.uint8)
+            if is_open :
+                data = cv2.erode( data, kernel, iterations = 1)
+            else :
+                data = cv2.dilate(data, kernel, iterations=1)
+            pass
+
+            kernel = np.ones([bsize, bsize], np.uint8)
+            if is_open :
+                data = cv2.dilate( data, kernel, iterations = 1)
+            else :
+                data = cv2.erode(data, kernel, iterations=1)
+            pass
+        pass
+
+        op_close = "open" if is_open else "close"
+
+        image = Image(data)
+        image.algorithm = f"morphology, {op_close}, bsize={bsize}, iterations={iterations}"
+
+        return image
+    pass  # -- morphology_closing
 
     def count_y_axis_signal(self, ksize):
         msg = "y axis signal count"
@@ -946,11 +1021,24 @@ class Image :
 
         if 1 :
             # word segments coordinate
-            seginfos = self.word_seginfos( y_signal_counts, sentence )
+            seginfos, gaps, ref_y = self.word_seginfos( y_signal_counts, sentence )
+
+            if 1 :
+                x = [ 0 , w ]
+                y = [ ref_y, ref_y ]
+                charts["ref_y"] = ax.plot(x, y, color='red', alpha=1.0)
+            pass
+
+            for gap in gaps :
+                x = gap.coord
+                y = [h] * len(x)
+                charts["gaps"] = ax.fill_between(x, y, color='b', alpha=0.7)
+            pass
+
             for seginfo in seginfos :
                 x = seginfo.coord
                 y = [ h ] * len( x )
-                charts["word"] = ax.fill_between(x, y, color='r', alpha=0.5)
+                charts["segments"] = ax.fill_between(x, y, color='r', alpha=0.4)
             pass
         pass
 
@@ -1081,7 +1169,7 @@ class Image :
         # 결과창 엑셀 파일 열기
         show_excel_file = 0
         show_excel_file and explorer_open(excel_file_name)
-    pass # --  #TODO y count 데이터를 엑셀, csv 파일로 저장
+    pass # -- y count 데이터를 엑셀, csv 파일로 저장
 
     def coords_of_word_segments_absolute(self, sentence, y_signal_counts):
         # 단어 짜르기
@@ -1123,10 +1211,12 @@ class Image :
         gaps = []
 
         ref_y = np.average( y_signal_counts )
-        ref_y = ref_y/5.0 # gap 기준 높이
+        ref_y = ref_y / 3.0  # gap 기준 높이
+        ref_y = ref_y / 3.5  # gap 기준 높이
+        #ref_y = ref_y / 4.0  # gap 기준 높이
 
         prev_x = 0
-        under_ref_running = False
+        running_under_ref = False
 
         for x, y in enumerate( y_signal_counts ):
             is_under_ref = y < ref_y
@@ -1135,20 +1225,20 @@ class Image :
                 if is_under_ref :
                     prev_x = 0
                 pass
-            elif under_ref_running :
+            elif running_under_ref :
                 if not is_under_ref :
                     if prev_x is not None :
                         gaps.append( Gap( [prev_x, x] ) )
                         prev_x = None
                     pass
                 pass
-            elif not under_ref_running :
+            elif not running_under_ref :
                 if is_under_ref :
                     prev_x = x
                 pass
             pass
 
-            under_ref_running = is_under_ref
+            running_under_ref = is_under_ref
         pass
 
         if prev_x and prev_x < w - 1:
@@ -1158,6 +1248,12 @@ class Image :
 
         for idx, gap in enumerate( gaps ) :
             gap.idx = idx
+        pass
+
+        gap_last = None
+
+        if gaps :
+            gap_last = gaps[ -1 ]
         pass
 
         def compare_gap_dist( one, two ) :
@@ -1179,11 +1275,20 @@ class Image :
         from functools import cmp_to_key
         gaps = sorted( gaps, key=cmp_to_key(compare_gap_idx) )
 
+        if gap_last and gaps[ -1 ].idx < gap_last.idx :
+            gaps.append( gap_last )
+        pass
+
         seginfos = []
         prev_gap = None
 
         for curr_gap in gaps :
             if prev_gap :
+                if len( seginfos ) == 0 and prev_gap.coord[0] != 0 :
+                    coord = [ 0 , prev_gap.coord[0]]
+                    seginfos.append(SegInfo(coord))
+                pass
+
                 coord = [ prev_gap.coord[1] , curr_gap.coord[0] ]
                 seginfos.append( SegInfo( coord ) )
             pass
@@ -1191,24 +1296,19 @@ class Image :
             prev_gap = curr_gap
         pass
 
-        if prev_gap and prev_gap.coord[1] < w - 1 :
-            coord = [ prev_gap.coord[1], w - 1 ]
-            seginfos.append( SegInfo( coord ) )
-        pass
+        log.info( f"gap count = {len(gaps)}, seg count = {len(seginfos)}")
 
-        return seginfos
+        return seginfos, gaps, ref_y
     pass # -- word_seginfos
 
     def word_segements(self, y_signal_counts, sentence ):
         # 단어 짜르기
-
         img = self.img
-
         h = len( img )
 
         image_words = []
 
-        seginfos = self.word_seginfos( y_signal_counts, sentence )
+        seginfos, _ , _ = self.word_seginfos( y_signal_counts, sentence )
 
         for seginfo in seginfos :
             coord = seginfo.coord
@@ -1217,7 +1317,6 @@ class Image :
         pass
 
         return image_words
-
     pass # -- word_segements
 
 pass
@@ -1268,11 +1367,20 @@ if bin_image.reverse_required :
 pass
 
 bin_image.save_img_as_file( f"image_binarized({curr_image.algorithm})" )
-
 title = f"Binarization ({curr_image.algorithm}, {curr_image.threshold})"
 bin_image.plot_image( title=title, cmap="gray", border_color = "blue" )
 bin_image.plot_histogram()
 #-- 이진화
+
+# TODO morphology
+
+morphology = bin_image.morphology( is_open = 0, bsize = 3, iterations = 3 )
+morphology.save_img_as_file( morphology.algorithm )
+morphology.plot_image( title=morphology.algorithm, cmap="gray", border_color = "blue" )
+morphology.plot_histogram()
+
+bin_image = morphology
+# -- morphology
 
 #TODO   Y 축 데이터 히스토그램
 
@@ -1286,7 +1394,8 @@ bin_image.save_excel_file( y_signal_counts )
 
 word_segments = bin_image.word_segements( y_signal_counts, sentence )
 
-save = 1
+save = bin_image.dimension_ratio() > 3
+
 if save :
     # 세그먼테이션 파일 저장
     for idx, word_segment in enumerate( word_segments ) :
