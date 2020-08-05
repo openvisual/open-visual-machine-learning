@@ -958,7 +958,13 @@ class Image :
 
         if 1 :
             # word segments coordinate
-            seginfos, gaps = self.word_seginfos( y_signal_counts, sentence )
+            seginfos, gaps, ref_y = self.word_seginfos( y_signal_counts, sentence )
+
+            if 1 :
+                x = [ 0 , w ]
+                y = [ ref_y, ref_y ]
+                charts["ref_y"] = ax.plot(x, y, color='red', alpha=1.0)
+            pass
 
             for gap in gaps :
                 x = gap.coord
@@ -1142,7 +1148,7 @@ class Image :
         gaps = []
 
         ref_y = np.average( y_signal_counts )
-        ref_y = ref_y/5.0 # gap 기준 높이
+        ref_y = ref_y/4.0 # gap 기준 높이
 
         prev_x = 0
         running_under_ref = False
@@ -1222,20 +1228,18 @@ class Image :
 
         log.info( f"gap count = {len(gaps)}, seg count = {len(seginfos)}")
 
-        return seginfos, gaps
+        return seginfos, gaps, ref_y
     pass # -- word_seginfos
 
     def word_segements(self, y_signal_counts, sentence ):
         # 단어 짜르기
-
         img = self.img
-
         h = len( img )
 
         # 단어 갯수 만큼 무식하게 일단 짜름.
         image_words = []
 
-        seginfos, _ = self.word_seginfos( y_signal_counts, sentence )
+        seginfos, _ , _ = self.word_seginfos( y_signal_counts, sentence )
 
         for seginfo in seginfos :
             coord = seginfo.coord
@@ -1244,7 +1248,6 @@ class Image :
         pass
 
         return image_words
-
     pass # -- word_segements
 
 pass
