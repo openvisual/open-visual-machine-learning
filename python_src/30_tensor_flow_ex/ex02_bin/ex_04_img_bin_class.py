@@ -240,6 +240,9 @@ pass # -- Segment
 
 class Image :
 
+    # 이미지 저장 회수
+    img_save_cnt = 0
+
     def __init__(self, img, algorithm="" ):
         # 2차원 배열 데이터
         self.img = img
@@ -248,11 +251,10 @@ class Image :
         self.histogram_acc = None
     pass
 
-    # TODO     이미지 저장 함수
-    img_save_cnt = 0
-
     def img_file_name(self, work):
         # C:/temp 폴더에 결과 파일을 저정합니다.
+
+        folder = "C:/temp"
 
         Image.img_save_cnt += 1
 
@@ -261,8 +263,6 @@ class Image :
         fn = img_path
 
         root = fn[: fn.rfind("/")]
-
-        folder = "C:/temp"
 
         if os.path.exists(folder):
             if not os.path.isdir(folder):
@@ -463,19 +463,19 @@ class Image :
 
     # TODO  통계 함수
 
-    def average(self):
+    def average(self): # 평균
         return np.average( self.img )
     pass
 
-    def std(self):
+    def std(self): # 표준 편차
         return np.std( self.img )
     pass
 
-    def max(self):
+    def max(self): # 최대값
         return np.max( self.img )
     pass
 
-    ''' 통계 함수 '''
+    # -- 통계 함수
 
     # grayscale 변환 함수
     def convert_to_grayscale( self ) :
@@ -501,8 +501,7 @@ class Image :
         grayscale = grayscale.astype( np.int16 )
 
         return Image( grayscale )
-    pass
-    # -- grayscale 변환
+    pass # -- convert_to_grayscale
 
     def width(self):
         # image width
@@ -549,8 +548,7 @@ class Image :
         self.img = max - img
 
         return self
-    pass
-    # -- 영상 역전 함수
+    pass # -- reverse_image
 
     # TODO   잡음 제거     # Median Blur Filter 적용
 
@@ -608,7 +606,7 @@ class Image :
 
         return Image( img=data, algorithm=algorithm)
 
-    pass  # -- 잡음 제거 함수
+    pass  # -- remove_noise
 
     # TODO     Histogram 생성
 
@@ -639,7 +637,7 @@ class Image :
         self.histogram = histogram
         return histogram, histogram_acc
 
-    pass  # -- get_histogram
+    pass  # -- make_histogram
 
     # TODO    누적 히스토 그램
     @profile
@@ -654,7 +652,7 @@ class Image :
         log.info( f"Done. {msg}" )
 
         return histogram_acc
-    pass  # 누적 히스트 그램
+    pass  # accumulate_histogram
 
     # TODO    히스토그램 평활화
     @profile
@@ -715,8 +713,7 @@ class Image :
         image = Image( data )
 
         return image
-    pass
-    # -- normalize_image_by_histogram
+    pass # -- normalize_image_by_histogram
 
     ''' 이진화 '''
     # TODO     전역 임계치 처리
@@ -1330,7 +1327,7 @@ class Image :
 
         for curr_gap in gaps :
             if prev_gap :
-                if len( seginfos ) == 0 and prev_gap.coord[0] != 0 :
+                if 0 and len( seginfos ) == 0 and prev_gap.coord[0] != 0 :
                     coord = [ 0 , prev_gap.coord[0]]
                     seginfos.append(SegInfo(coord))
                 pass
