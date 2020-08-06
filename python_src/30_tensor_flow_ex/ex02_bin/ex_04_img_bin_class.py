@@ -154,22 +154,27 @@ def remove_space_except_first(s):
     return s
 pass # -- remove_space_except_first
 
+def chdir_to_curr_file() :
+    # 현재 파일의 폴더로 실행 폴더를 이동함.
+    log.info( f"Pwd 1: {os.getcwd()}" )
+    dirname = os.path.dirname(__file__) # change working dir to current file
+    if dirname :
+        os.chdir( dirname )
+        log.info(f"Pwd 2: {os.getcwd()}")
+    pass
+pass # -- chdir_to_curr_file
+
 import os, cv2, numpy as np, sys, time
 import math
 from math import pi
 
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
+
 log.info( "Done Import.".center( 80, "*") )
 
 # 현재 파일의 폴더로 실행 폴더를 이동함.
-log.info( f"Pwd 1: {os.getcwd()}" )
-dirname = os.path.dirname(__file__) # change working dir to current file
-if dirname :
-    os.chdir( dirname )
-    log.info(f"Pwd 2: {os.getcwd()}")
-pass
-#-- 현재 파일의 폴더로 실행 폴더를 이동함.
+chdir_to_curr_file()
 
 # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
 #img_path = "../data_ocr/sample_01/messi5.png"
