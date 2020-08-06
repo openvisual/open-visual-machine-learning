@@ -1,4 +1,11 @@
 # coding=utf-8
+import os
+
+import logging as log
+log.basicConfig(
+    format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
+    datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO
+    )
 
 import xlsxwriter
 
@@ -52,12 +59,23 @@ if 1 : # 챠트 추가
     worksheet.insert_chart('B7', chart)
 pass
 
+# 파일 이미지 추가.
+worksheet.insert_image('B25', 'python.png' )
+
+# 웹 이미지 파일 추가
+
+from io import BytesIO
+from urllib.request import urlopen
+
+url = "https://expertsystem.com/wp-content/uploads/2017/03/machine-learning-definition.jpeg"
+image_data = BytesIO(urlopen(url).read())
+worksheet.insert_image('G25', url, {'image_data': image_data})
+
 workbook.close()
 
 print( "Excel file(%s) was saved." % file_path)
 
-''' 폴더 열기 '''
-
+''' 엑셀 파일 열기 '''
 import webbrowser as wb
 wb.open(file_path)
 
