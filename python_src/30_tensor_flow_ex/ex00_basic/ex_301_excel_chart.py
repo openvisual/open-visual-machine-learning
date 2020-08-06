@@ -8,8 +8,8 @@ import xlsxwriter
 print( "\nHello.... Good morning!\n" )
 
 # 엑셀 파일(workbook)을 만들고, 엑셀 시트를 하나 추가함.
-path = 'C:/temp/my_chart.xlsx'
-workbook = xlsxwriter.Workbook( path )
+file_path = 'C:/temp/my_chart.xlsx'
+workbook = xlsxwriter.Workbook(file_path)
 worksheet = workbook.add_worksheet()
 
 # 엑셀 시트에 추가할 데이터
@@ -54,12 +54,12 @@ pass
 
 workbook.close()
 
-print( "Excel file(%s) was saved." % path )
+print( "Excel file(%s) was saved." % file_path)
 
 ''' 폴더 열기 '''
 
 import webbrowser as wb
-wb.open( path )
+wb.open(file_path)
 
 print( "\nGood bye!" )
 
