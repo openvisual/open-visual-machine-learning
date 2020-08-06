@@ -32,9 +32,8 @@ try :
 except :
     print( "Troch is not installed." )
 
-# OpenCV version
 try:
-    # % opencv version on only exists in Colab.
+    # % opencv version
     import cv2
     print( "OpenCV version : %s" % cv2.__version__ )
 except Exception as e :

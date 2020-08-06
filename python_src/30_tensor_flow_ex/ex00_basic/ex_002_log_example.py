@@ -7,8 +7,10 @@ warnings.filterwarnings('ignore',category=FutureWarning)
 
 # 로그 예제
 import logging as log
-log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
-    datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
+log.basicConfig(
+    format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
+    datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO
+    )
 
 # 로그를 남기는 예제입니다.
 log.info( "Hello" )
