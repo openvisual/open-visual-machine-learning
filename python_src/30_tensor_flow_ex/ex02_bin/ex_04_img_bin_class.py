@@ -106,6 +106,21 @@ def file_name_except_path_ext(path):
 pass # file_name_except_path_ext
 
 
+def is_writable(file):
+    # 파일 쓰기 가능 여부 체크
+    if os.path.exists(file):
+        try:
+            os.rename(file, file)
+
+            return True
+        except OSError as e:
+            pass
+        pass
+    pass
+
+    return False
+pass # -- is_writable
+
 def to_excel_letter(col):
     excel_column = ""
 
@@ -129,7 +144,6 @@ def to_excel_letter(col):
 
     return excel_column
 pass  # -- to_excel_letter
-
 
 def remove_space_except_first(s):
     # 첫 글자를 제외한 나머지 모음을 삭제한다.
@@ -1094,21 +1108,6 @@ class Image :
 
         # Create a workbook and add a worksheet.
         excel_file_name = f"{folder}/{file_name}_y_counts.xlsx"
-
-        def is_writable( file ):
-            # 파일 쓰기 가능 여부 체크
-            if os.path.exists(file):
-                try:
-                    os.rename(file, file)
-
-                    return True
-                except OSError as e:
-                    pass
-                pass
-            pass
-
-            return False
-        pass
 
         # 쓰기 가능 여부 체크
         if not is_writable( excel_file_name ) :
