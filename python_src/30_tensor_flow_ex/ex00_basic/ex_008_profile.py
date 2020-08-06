@@ -8,6 +8,14 @@ log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(l
 
 # 함수의 실행 시간 출력
 
+# time을 사용한 예제 / 미추천 / 코드가 복잡함.
+from time import time
+start = time()
+# your script here
+end = time()
+print(f'It took {end - start} seconds!')
+
+# profile annotation 사용 추천 / 코드가 간단함.
 # -- 사용법
 # @profile
 # def your_function(...):
