@@ -1094,6 +1094,31 @@ class Image :
 
         # Create a workbook and add a worksheet.
         excel_file_name = f"{folder}/{file_name}_y_counts.xlsx"
+
+        def is_writable( file ):
+            # 파일 쓰기 가능 여부 체크
+            if os.path.exists(file):
+                try:
+                    os.rename(file, file)
+
+                    return True
+                except OSError as e:
+                    pass
+                pass
+            pass
+
+            return False
+        pass
+
+        # 쓰기 가능 여부 체크
+        if not is_writable( excel_file_name ) :
+            import datetime
+            now = datetime.datetime.now()
+            now_str = now.strftime('%m-%d %H%M%S')
+            now_str = now_str.split( "." )[0]
+            excel_file_name = f"{folder}/{file_name}_y_counts_{now_str}.xlsx"
+        pass
+
         workbook = xlsxwriter.Workbook( excel_file_name )
         worksheet = workbook.add_worksheet()
 
@@ -1161,7 +1186,7 @@ class Image :
             # chart.set_size({'width': 720, 'height': 576})
             # Same as:
             # The default chart width x height is 480 x 288 pixels.
-            chart.set_size({'x_scale': 3.5, 'y_scale': 2.4})
+            chart.set_size({'x_scale': 2.5, 'y_scale': 1.8 })
 
             chart.set_title({'name': 'Y signal count'})
             chart.set_x_axis({
