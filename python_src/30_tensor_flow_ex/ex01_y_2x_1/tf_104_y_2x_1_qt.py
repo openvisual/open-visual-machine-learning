@@ -369,7 +369,6 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
         self.actionExit.triggered.connect(self.close_app)
 
-
         # 학습 모델 생성
         model = keras.models.Sequential( )
         model.add(Dense(1, input_shape=[1] ))

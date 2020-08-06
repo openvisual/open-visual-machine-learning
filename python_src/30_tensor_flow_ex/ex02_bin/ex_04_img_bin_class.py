@@ -89,11 +89,11 @@ pass # -- clear_prof_data
 
 ''' --- profile functions '''
 
-def explorer_open( path ) :
-    ''' open folder by an explorer'''
+def open_file_or_folder(path) :
+    ''' open file or folder by an explorer'''
     import webbrowser as wb
     wb.open( path )
-pass # -- open_folder
+pass # -- open_file_or_folder
 
 def file_name_except_path_ext(path):
     # 확장자와 파일 패스를 제외한 파일 이름 구하기.
@@ -611,7 +611,7 @@ class Image :
             pass
         pass
 
-        histogram = np.array(histogram, 'u8')
+        histogram = np.array(histogram, 'int')
 
         log.info( f"Done. {msg}" )
 
@@ -1074,7 +1074,7 @@ class Image :
     pass
     #-- y count 표출
 
-    def save_excel_file(self, y_signal_counts):
+    def save_vertical_hist_as_excel(self, vertical_histogram):
         # 엑셀 파일 저장
         folder = "C:/Temp"
 
@@ -1085,7 +1085,7 @@ class Image :
         if 0 :
             # TODO     y count 데이터를 csv 파일로 저장
             path = f"{folder}/{file_name}_y_counts.csv"
-            y_signal_counts.tofile( path, sep=',', format='%s')
+            vertical_histogram.tofile(path, sep=',', format='%s')
             log.info(f"CSV file {path} was saved.")
         pass
 
@@ -1100,13 +1100,13 @@ class Image :
         row = 0
 
         # Iterate over the data and write it out row by row.
-        velocity = np.diff( y_signal_counts )
+        vertical_histogram = vertical_histogram.astype( "int" )
+        velocity = np.diff(vertical_histogram)
+        velocity = velocity.astype( "int" )
         accel = np.diff( velocity )
-        accel = accel/3.0 # data visualization
-
 
         cell_data_list = {}
-        cell_data_list["y_count"]  = { "data" : y_signal_counts, 'type': 'column' , 'line': {'color': '#FF9900'}, }
+        cell_data_list["y_count"]  = { "data" : vertical_histogram, 'type': 'column' , 'line': {'color': '#FF9900'}, }
         cell_data_list["velocity"] = { "data" : velocity       , 'type': 'line', 'line': {'color': 'blue'} }
         cell_data_list["accel"]    = { "data" : accel   , 'type': 'line', 'line': {'color': 'green'} }
 
@@ -1180,11 +1180,11 @@ class Image :
 
         # 탐색기 창을 뛰움.
         # 결과창 폴더 열기
-        explorer_open(folder)
+        open_file_or_folder(folder)
 
         # 결과창 엑셀 파일 열기
-        show_excel_file = 0
-        show_excel_file and explorer_open(excel_file_name)
+        show_excel_file = 1
+        show_excel_file and open_file_or_folder(excel_file_name)
     pass # -- y count 데이터를 엑셀, csv 파일로 저장
 
     def coords_of_word_segments_absolute(self, sentence, y_signal_counts):
@@ -1227,9 +1227,10 @@ class Image :
         gaps = []
 
         ref_y = np.average( y_signal_counts )
-        ref_y = ref_y / 3.0  # gap 기준 높이
-        ref_y = ref_y / 3.5  # gap 기준 높이
-        #ref_y = ref_y / 4.0  # gap 기준 높이
+
+        #ref_y = ref_y / 3  # gap 기준 높이
+        #ref_y = ref_y / 3.5  # gap 기준 높이
+        ref_y = ref_y / 4.0  # gap 기준 높이
 
         prev_x = 0
         running_under_ref = False
@@ -1403,15 +1404,12 @@ bin_image = morphology
 sentence = "오늘 비교적 온화한 날씨가"
 
 vertical_histogram = bin_image.get_vertical_histogram(ksize = 1)
-
 bin_image.plot_vertical_histogram(vertical_histogram, sentence)
-
-bin_image.save_excel_file( vertical_histogram )
+bin_image.save_vertical_hist_as_excel(vertical_histogram)
 
 word_segments = bin_image.word_segements( vertical_histogram, sentence )
 
 save = bin_image.dimension_ratio() > 3
-
 if save :
     # 세그먼테이션 파일 저장
     for idx, word_segment in enumerate( word_segments ) :
