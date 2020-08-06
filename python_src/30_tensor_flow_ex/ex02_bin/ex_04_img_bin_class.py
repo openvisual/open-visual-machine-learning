@@ -1327,11 +1327,6 @@ class Image :
 
         for curr_gap in gaps :
             if prev_gap :
-                if 0 and len( seginfos ) == 0 and prev_gap.coord[0] != 0 :
-                    coord = [ 0 , prev_gap.coord[0]]
-                    seginfos.append(SegInfo(coord))
-                pass
-
                 coord = [ prev_gap.coord[1] , curr_gap.coord[0] ]
                 seginfos.append( SegInfo( coord ) )
             pass
