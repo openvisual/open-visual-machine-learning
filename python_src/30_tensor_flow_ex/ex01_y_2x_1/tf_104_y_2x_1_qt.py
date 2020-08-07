@@ -316,6 +316,9 @@ class LearnTableModel( MyTableModel ):
 
 pass # -- LearnTableModel
 
+# ui resource file import
+import my_ui_rsc
+
 class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
     def __init__(self):
@@ -804,9 +807,7 @@ if __name__ == '__main__':
 
     # Create an instance of QtWidgets.QApplication
     app = QtWidgets.QApplication(sys.argv)
-    app.setWindowIcon(QtGui.QIcon('window_icon_01.png'))
     window = MyQtApp() # Create an instance of our class
     window.show()
-    window.setWindowIcon(QtGui.QIcon('window_icon_01.png'))
     app.exec_() # Start the application
 pass # -- main

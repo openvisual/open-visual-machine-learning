@@ -26,8 +26,8 @@
    <string>Gyul for Open Visual Machine Learning    Ver 0.0.01</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="my_qt.qrc">
-    <normaloff>:/newPrefix/window_icon_01.png</normaloff>:/newPrefix/window_icon_01.png</iconset>
+   <iconset resource="my_ui_rsc.qrc">
+    <normaloff>:/newPrefix/rsc/window_icon_01.png</normaloff>:/newPrefix/rsc/window_icon_01.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">
@@ -319,6 +319,10 @@
         <property name="text">
          <string>Start</string>
         </property>
+        <property name="icon">
+         <iconset resource="my_ui_rsc.qrc">
+          <normaloff>:/newPrefix/rsc/icon_start.png</normaloff>:/newPrefix/rsc/icon_start.png</iconset>
+        </property>
        </widget>
       </item>
       <item>
@@ -388,7 +392,7 @@
   </action>
  </widget>
  <resources>
-  <include location="my_qt.qrc"/>
+  <include location="my_ui_rsc.qrc"/>
  </resources>
  <connections/>
 </ui>
