@@ -2,10 +2,6 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging as log
-log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
-    datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
-
 # 아스키 코드로 박스 그리기
 
 m = "═ ║ ╔ ╗ ╠ ╣ ╝ ╚"
@@ -24,7 +20,7 @@ box = '''
 box = box.strip()
 
 print()
-print( "A Box")
+print( "박스" )
 print( box )
 
 lines = box.split( "\n" )
