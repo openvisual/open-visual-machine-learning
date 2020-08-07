@@ -393,7 +393,13 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
             pass
         pass
 
+        # 프로세스의 표준출력을 재정의함.
         sys.stdout = Stream(newText=self.onUpdateText)
+
+        # epoch 값 다이얼/LCD Display 연계
+        self.epochs_lcd_number.display( self.epochs_dial.value() )
+        self.epochs_dial.valueChanged.connect(self.epochs_lcd_number.display)
+
     pass # MyQtApp __init__
 
     def init_plot_content(self):
@@ -544,6 +550,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
         answer.setDisabled( 1 )
         myQuestion.setDisabled( 1 )
+        self.epochs_dial.setDisabled( 1 )
 
         tableView = self.learnTableView
         tableModel = tableView.model()
@@ -590,6 +597,7 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
         progressBar.setDisabled( 1 )
 
         myQuestion.setEnabled( 1 )
+        self.epochs_dial.setEnabled(1)
 
         msg = "학습이 성공적으로 종료되었습니다. 질문을 입력하면 정답을 추론합니다."
         self.statusbar.showMessage( msg )
@@ -752,7 +760,9 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
 
         model = self.model
 
-        epochs = self.epochs
+        epochs = self.epochs_dial.value()
+
+        self.epochs = epochs
 
         callbacks = [ self ]
         self.hist = model.fit( questions, answers, epochs=epochs, batch_size=7, callbacks=callbacks )
