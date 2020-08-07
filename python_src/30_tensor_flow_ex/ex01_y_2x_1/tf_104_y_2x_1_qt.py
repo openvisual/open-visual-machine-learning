@@ -43,6 +43,8 @@ class MyTableModel(QtCore.QAbstractTableModel):
 
         self.tableView = tableView
 
+        self.header_format = {}
+
         table_header = self.table_header()
         self.table_header = table_header
 
@@ -91,15 +93,28 @@ class MyTableModel(QtCore.QAbstractTableModel):
 
         fmt = ""
 
-        tv = type( value )
+        col = index.column()
 
-        if tv == type( 0 ) :
-            fmt = ",d"
-        elif tv == type( 0.1 ) :
-            if float( int( value ) ) == value :
-                fmt = ",.0f"
-            else :
-                fmt = ",.4f"
+        header_format = self.header_format
+
+        if header_format and col < len( header_format ) :
+            hdr_fmt = header_format[ col ]
+            if hdr_fmt :
+                fmt = hdr_fmt
+            pass
+        pass
+
+        if not fmt :
+            tv = type( value )
+
+            if tv == type( 0 ) :
+                fmt = ",d"
+            elif tv == type( 0.1 ) :
+                if float( int( value ) ) == value :
+                    fmt = ",.0f"
+                else :
+                    fmt = ",.4f"
+                pass
             pass
         pass
 
@@ -122,8 +137,29 @@ class MyTableModel(QtCore.QAbstractTableModel):
             value = self.cell_value( index )
 
             if role == Qt.DisplayRole:
+
                 fmt = self.format_of_value( index, value )
-                if fmt :
+
+                if fmt == "%" :
+                    if type( value ) == str :
+                        if value.isdigit() :
+                            value = float( value )
+                        else :
+                            return value
+                        pass
+                    pass
+
+                    # 퍼센트 값으로 변환
+                    value = value*100
+
+                    if value == 0.0 :
+                        value = f"{value:.0f} %"
+                    else :
+                        value = f"{value:.1f} %"
+                    pass
+
+                    return value
+                elif fmt :
                     value_org = value
                     value = format(value, fmt)
 
@@ -135,9 +171,9 @@ class MyTableModel(QtCore.QAbstractTableModel):
                 pass
             elif Qt.TextAlignmentRole == role :
                 if type( value ) == int :
-                    return  Qt.AlignRight | QtCore.Qt.AlignVCenter
+                    return Qt.AlignRight | QtCore.Qt.AlignVCenter
                 elif type( value ) == float :
-                    return  Qt.AlignRight | QtCore.Qt.AlignVCenter
+                    return Qt.AlignRight | QtCore.Qt.AlignVCenter
                 elif isinstance( value, datetime.date) :
                     return Qt.AlignHCenter | QtCore.Qt.AlignVCenter
                 else :
@@ -207,6 +243,8 @@ pass #-- DatasetTableModel
 class DatasetTableModel( MyTableModel ):
     def __init__(self, tableView ):
         super(DatasetTableModel, self).__init__( tableView )
+
+        self.header_format = []
     pass
 
     def table_header(self):
@@ -257,6 +295,8 @@ pass #-- DatasetTableModel
 class LearnTableModel( MyTableModel ):
     def __init__(self, tableView ):
         super(LearnTableModel, self).__init__( tableView )
+
+        self.header_format = [ "", "", "%", "", "", "", "" ]
     pass
 
     def table_header(self):
