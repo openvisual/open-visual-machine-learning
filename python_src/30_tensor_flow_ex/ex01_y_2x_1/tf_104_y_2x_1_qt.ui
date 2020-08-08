@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Gyul for Open Visual Machine Learning    Ver 0.0.01</string>
+   <string>Gyul for Open Visual Machine Learning  ver 20.08.08</string>
   </property>
   <property name="windowIcon">
    <iconset resource="my_ui_rsc.qrc">
