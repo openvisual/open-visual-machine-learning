@@ -1037,7 +1037,12 @@ class Image :
 
     def plot_vertical_histogram(self, y_signal_counts, sentence):
         # y count 표출
-        ax, img_show = self.plot_image( title="y count" , cmap="gray", border_color="blue")
+        # word segments coordinate
+        seginfos, gaps, ref_y, numerator = self.word_seginfos(y_signal_counts, sentence)
+
+        title = f"vertical histogram(numerator={numerator:.2f})"
+
+        ax, img_show = self.plot_image( title=title, cmap="gray", border_color="blue")
         self.plot_histogram()
 
         w, h = self.dimension()
@@ -1053,8 +1058,6 @@ class Image :
 
         if 1 :
             # word segments coordinate
-            seginfos, gaps, ref_y = self.word_seginfos( y_signal_counts, sentence )
-
             if 1 :
                 x = [ 0 , w ]
                 y = [ ref_y, ref_y ]
@@ -1213,35 +1216,6 @@ class Image :
         show_excel_file and open_file_or_folder(excel_file_name)
     pass # -- y count 데이터를 엑셀, csv 파일로 저장
 
-    def coords_of_word_segments_absolute(self, sentence, y_signal_counts):
-        # 단어 짜르기
-        # 정답에서 스페이스(" ")가 몇 개 들어가 있는 확인함.
-        words_len = sentence.count(" ") + 1
-
-        img = self.img
-
-        h = len(img)
-        w = len(img[0])
-
-        # 단어 갯수 만큼 무식하게 일단 짜름.
-        coords = []
-
-        ref_y = np.average(y_signal_counts)
-        ref_y = 1 / 5
-
-        dw = int(w / words_len)
-        x_0 = 0
-
-        while x_0 < w:
-            coords.append(x_0)
-            x_0 += dw
-        pass
-
-        coords.append(w)
-
-        return coords
-    pass # coords_of_word_segments_absolute
-
     def word_seginfos(self, y_signal_counts, sentence ):
         img = self.img
 
@@ -1252,11 +1226,12 @@ class Image :
 
         gaps = []
 
-        ref_y = np.average( y_signal_counts )
+        # 기준값 분모
+        numerator = 3
+        #numerator = 3.5
+        #numerator = 4
 
-        #ref_y = ref_y / 3  # gap 기준 높이
-        #ref_y = ref_y / 3.5  # gap 기준 높이
-        ref_y = ref_y / 4.0  # gap 기준 높이
+        ref_y = np.average(y_signal_counts) / numerator
 
         prev_x = 0
         running_under_ref = False
@@ -1336,7 +1311,7 @@ class Image :
 
         log.info( f"gap count = {len(gaps)}, seg count = {len(seginfos)}")
 
-        return seginfos, gaps, ref_y
+        return seginfos, gaps, ref_y, numerator
     pass # -- word_seginfos
 
     def word_segements(self, y_signal_counts, sentence ):
@@ -1346,7 +1321,7 @@ class Image :
 
         image_words = []
 
-        seginfos, _ , _ = self.word_seginfos( y_signal_counts, sentence )
+        seginfos, gaps , ref_y, numerator = self.word_seginfos( y_signal_counts, sentence )
 
         for seginfo in seginfos :
             coord = seginfo.coord

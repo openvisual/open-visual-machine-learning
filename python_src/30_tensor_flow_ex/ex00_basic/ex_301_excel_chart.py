@@ -16,7 +16,9 @@ print( "\nHello.... Good morning!\n" )
 
 # 엑셀 파일(workbook)을 만들고, 엑셀 시트를 하나 추가함.
 file_path = 'C:/temp/my_chart.xlsx'
+# 엑셀 파일 만들기
 workbook = xlsxwriter.Workbook(file_path)
+# 엑셀 시트 추가
 worksheet = workbook.add_worksheet()
 
 # 엑셀 시트에 추가할 데이터
