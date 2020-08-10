@@ -1038,9 +1038,9 @@ class Image :
     def plot_vertical_histogram(self, y_signal_counts, sentence):
         # y count 표출
         # word segments coordinate
-        seginfos, gaps, ref_y, numerator = self.word_seginfos(y_signal_counts, sentence)
+        seginfos, gaps, ref_y, ref_ratio = self.word_seginfos(y_signal_counts, sentence)
 
-        title = f"vertical histogram(numerator={numerator:.2f})"
+        title = f"vertical histogram( ref ratio={ ref_ratio*100:.2f}% )"
 
         ax, img_show = self.plot_image( title=title, cmap="gray", border_color="blue")
         self.plot_histogram()
@@ -1226,12 +1226,12 @@ class Image :
 
         gaps = []
 
-        # 기준값 분모
-        numerator = 3
-        #numerator = 3.5
-        #numerator = 4
+        # 기준값 비율
+        ref_ratio = 1/3.0
+        #ref_ratio = 1/3.5
+        #ref_ratio = 1/4.0
 
-        ref_y = np.average(y_signal_counts) / numerator
+        ref_y = np.average(y_signal_counts) * ref_ratio
 
         prev_x = 0
         running_under_ref = False
@@ -1311,7 +1311,7 @@ class Image :
 
         log.info( f"gap count = {len(gaps)}, seg count = {len(seginfos)}")
 
-        return seginfos, gaps, ref_y, numerator
+        return seginfos, gaps, ref_y, ref_ratio
     pass # -- word_seginfos
 
     def word_segements(self, y_signal_counts, sentence ):
@@ -1321,7 +1321,7 @@ class Image :
 
         image_words = []
 
-        seginfos, gaps , ref_y, numerator = self.word_seginfos( y_signal_counts, sentence )
+        seginfos, gaps , ref_y, ref_ratio = self.word_seginfos( y_signal_counts, sentence )
 
         for seginfo in seginfos :
             coord = seginfo.coord
