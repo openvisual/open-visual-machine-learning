@@ -256,8 +256,6 @@ class Image :
 
         folder = "C:/temp"
 
-        Image.img_save_cnt += 1
-
         img_save_cnt = Image.img_save_cnt
 
         fn = img_path
@@ -278,9 +276,28 @@ class Image :
 
         fn = fn.replace(root, "")
         k = fn.rfind(".")
-        fn = folder + fn[: k] + ("_%02d_" % img_save_cnt) + work + fn[k:]
-        return fn
 
+        fn_hdr = folder + fn[: k]
+
+        if img_save_cnt == 0 :
+            # fn_hdr 로 시작하는 모든 파일을 삭제함.
+            import glob
+            for f in glob.glob( f"{fn_hdr}*" ):
+                log.info( f"file to delete {f}")
+                try :
+                    os.remove(f)
+                except Exception as e:
+                    error = str( e )
+                    log.info( f"cannot file to delete. error: {error}" )
+                pass
+            pass
+        pass
+
+        fn = fn_hdr + ("_%02d_" % img_save_cnt) + work + fn[k:]
+
+        Image.img_save_cnt += 1
+
+        return fn
     pass  # -- img_file_name
 
     def save_img_as_file(self, work, cmap="gray"):
@@ -375,7 +392,7 @@ class Image :
             y = histogram
             x = [ i for i, _ in enumerate(y)]
 
-            width = 1 if len( histogram ) < 10 else 5
+            width = 1 if len( y ) < 10 else 5
 
             charts["count"] = ax.bar(x, y, width=width, color='g', alpha=1.0)
         pass
@@ -1135,11 +1152,11 @@ class Image :
         accel = np.diff( velocity )
 
         cell_data_list = {}
-        cell_data_list["y_count"]  = { "data" : vertical_histogram, 'type': 'column' , 'line': {'color': '#FF9900'}, }
+        cell_data_list["y count"]  = { "data" : vertical_histogram, 'type': 'column' , 'line': {'color': '#FF9900'}, }
         cell_data_list["velocity"] = { "data" : velocity       , 'type': 'line', 'line': {'color': 'blue'} }
         cell_data_list["accel"]    = { "data" : accel   , 'type': 'line', 'line': {'color': 'green'} }
 
-        cell_data_key_list = [ "y_count", "velocity", "accel" ]
+        cell_data_key_list = [ "y count", "velocity", "accel" ]
 
         for key in cell_data_key_list :
             col = 0
@@ -1192,7 +1209,7 @@ class Image :
             # The default chart width x height is 480 x 288 pixels.
             chart.set_size({'x_scale': 2.5, 'y_scale': 1.8 })
 
-            chart.set_title({'name': 'Y signal count'})
+            chart.set_title({'name': 'Vertical Histogram'})
             chart.set_x_axis({
                 'name': 'x',
                 'name_font': {'size': 14, 'bold': True},
@@ -1227,9 +1244,9 @@ class Image :
         gaps = []
 
         # 기준값 비율
-        ref_ratio = 1/3.0
+        #ref_ratio = 1/3.0
         #ref_ratio = 1/3.5
-        #ref_ratio = 1/4.0
+        ref_ratio = 1/4.0
 
         ref_y = np.average(y_signal_counts) * ref_ratio
 
