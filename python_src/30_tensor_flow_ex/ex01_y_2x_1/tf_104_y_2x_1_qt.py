@@ -303,6 +303,8 @@ class SpinBoxDelegate(QItemDelegate):
         row = index.row()
         col = index.column()
 
+        valid = index.isValid()
+
         if 0 :
             value = index.model().data(index, Qt.EditRole)
 

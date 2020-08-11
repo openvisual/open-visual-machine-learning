@@ -180,8 +180,8 @@ chdir_to_curr_file()
 #img_path = "../data_ocr/sample_01/messi5.png"
 #img_path = "../data_ocr/sample_01/hist_work_01.png"
 #img_path = "../data_ocr/sample_01/gosu_01.png"
-img_path = "../data_ocr/sample_01/sample_21.png"
-#img_path = "../data_yegan/ex_01/_1018877.JPG"
+#img_path = "../data_ocr/sample_01/sample_21.png"
+img_path = "../data_yegan/ex_01/_1018877.JPG"
 #img_path = "../data_yegan/ex_01/1-56.JPG"
 
 #TODO    원천 이미지 획득
@@ -191,10 +191,10 @@ img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
 # 이미지 높이, 넓이, 채널수 획득
 height      = img_org.shape[0]
 width       = img_org.shape[1]
-channel_no  = img_org.shape[2]
+channel_cnt  = img_org.shape[2]
 
 log.info( f"Image path: {img_path}"  )
-print( f"Image widh: {width}, height: {height}, channel: {channel_no}" )
+print( f"Image widh: {width}, height: {height}, channel: {channel_cnt}")
 
 fig = plt.figure(figsize=(13, 10), constrained_layout=True)
 plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
