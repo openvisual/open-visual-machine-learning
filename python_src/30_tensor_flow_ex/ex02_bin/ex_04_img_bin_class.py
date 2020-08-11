@@ -387,12 +387,27 @@ class Image :
 
         charts = {}
 
-        if 1:
+        if len( histogram ) > 10 :
             # histogram bar chart
             y = histogram
             x = range(len(y))
 
-            width = 1 if len( y ) < 10 else 5
+            width = 2
+
+            import matplotlib.colors as mcolors
+
+            clist = [(0, "blue"), (0.125, "blue"), (0.25, "green"), (0.5, "cyan"), (0.7, "orange"), (0.9, "red"), (1, "red")]
+            rvb = mcolors.LinearSegmentedColormap.from_list("", clist)
+
+            clist_ratio = len( clist )/np.max( y )
+
+            charts["count"] = ax.bar(x, y, width=width, color=rvb(y*clist_ratio ) )
+
+            #charts["count"] = ax.bar(x, y, width=width, color='g', alpha=1.0)
+        else :
+            y = histogram
+            x = range(len(y))
+            width = 1
 
             charts["count"] = ax.bar(x, y, width=width, color='g', alpha=1.0)
         pass
@@ -464,7 +479,7 @@ class Image :
 
         histo_len = len(histogram)
         if histo_len > 10 :
-            ax.set_xticks(np.arange(0, 250, 50))
+            ax.set_xticks( [ 0, 50, 100, 150, 200, 255 ] )
         pass
 
         ax.grid( 1 )
