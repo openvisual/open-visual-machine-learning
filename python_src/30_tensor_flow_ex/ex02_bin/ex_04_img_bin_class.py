@@ -850,7 +850,7 @@ class Image :
 
         image = Image( data )
         image.threshold = f"bsize = {bsize}"
-        image.algorithm = "adaptive gaussian thresholding opencv"
+        image.algorithm = f"adaptive gaussian thresholding opencv (bsize={bsize})"
         image.reverse_required = reverse_required
 
         return image
