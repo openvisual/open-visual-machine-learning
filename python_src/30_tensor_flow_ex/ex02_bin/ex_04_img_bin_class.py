@@ -346,9 +346,9 @@ class Image :
     ''' -- 플롯 함수 '''
 
     def plot_histogram(self):  # 히스토 그램 표출
-
         img = self.img
-        w, h = self.dimension()
+        h = len( img )
+        w = len( img[0] )
 
         global gs_row
         gs_col = 0
@@ -390,7 +390,7 @@ class Image :
         if 1:
             # histogram bar chart
             y = histogram
-            x = [ i for i, _ in enumerate(y)]
+            x = range(len(y))
 
             width = 1 if len( y ) < 10 else 5
 
@@ -400,7 +400,7 @@ class Image :
         if 1:
             # accumulated histogram
             y = histogram_acc
-            x = [i for i, _ in enumerate(y)]
+            x = range( len(y) )
 
             charts["accumulated"] = ax.plot(x, y, color='r', alpha=1.0)
         pass
@@ -417,6 +417,7 @@ class Image :
             # histogram average chart
             x = [ gs_avg ]
             y = [ hist_max ]
+
             charts["average"] = ax.bar(x, y, width=0.5, color='b', alpha=0.5)
         pass
 
@@ -442,15 +443,9 @@ class Image :
             ax.legend(t, l, loc=loc, shadow=True)
         pass  # -- 레전드 표출
 
-        if 0:  # x 축 최대, 최소 설정
-            max_x = gs_avg + gs_std * 1.2
-
-            ax.set_xlim(0, max_x)
-        pass
-
         if 1 :
             xlim_fr = 0
-            xlim_to = len( histogram ) - 1
+            xlim_to = len( histogram )
             xlim_to = xlim_to if xlim_to > 1 else 2.5 # data visualization
             xlim_fr = xlim_fr if xlim_to > 1 else -0.5  # data visualization
 
@@ -1057,7 +1052,7 @@ class Image :
         # word segments coordinate
         seginfos, gaps, ref_y, ref_ratio = self.word_seginfos(y_signal_counts, sentence)
 
-        title = f"vertical histogram( ref ratio={ ref_ratio*100:.2f}% )"
+        title = f"Vertical histogram( ref ratio={ ref_ratio*100:.2f}% )"
 
         ax, img_show = self.plot_image( title=title, cmap="gray", border_color="blue")
         self.plot_histogram()
@@ -1069,7 +1064,7 @@ class Image :
         if 1 :
             # y count bar chart
             y = y_signal_counts
-            x = [i for i, _ in enumerate( y ) ]
+            x = range( len(y) )
             charts["y count"] = ax.bar(x, y, width=.6, color='y', align='center', alpha=1.0)
         pass
 
