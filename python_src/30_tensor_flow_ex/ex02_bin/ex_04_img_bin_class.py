@@ -396,7 +396,7 @@ class Image :
 
             import matplotlib.colors as mcolors
 
-            clist = [(0, "blue"), (0.125, "blue"), (0.25, "green"), (0.5, "cyan"), (0.7, "orange"), (0.9, "red"), (1, "red")]
+            clist = [(0, "red"), (0.125, "red"), (0.25, "red"), (0.5, "cyan"), (0.7, "orange"), (0.9, "red"), (1, "red")]
             rvb = mcolors.LinearSegmentedColormap.from_list("", clist)
 
             clist_ratio = len( clist )/np.max( y )

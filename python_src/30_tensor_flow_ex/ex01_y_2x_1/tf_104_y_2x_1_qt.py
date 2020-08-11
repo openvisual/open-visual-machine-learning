@@ -36,8 +36,8 @@ class QuestAns :
     pass
 pass
 
-# TODO      DatasetTableModel
-class MyTableModel(QtCore.QAbstractTableModel):
+# TODO   DatasetTableModel
+class MyTableModel( QtCore.QAbstractTableModel ):
     def __init__(self, tableView ):
         super(MyTableModel, self).__init__()
 
@@ -79,11 +79,11 @@ class MyTableModel(QtCore.QAbstractTableModel):
         self.tableView.scrollToBottom()
     pass # appendData
 
-    def rowCount(self, index):
+    def rowCount(self, index=QModelIndex()):
         # The length of the outer list.
         return len(self.dataList)
 
-    def columnCount(self, index):
+    def columnCount(self, index=QModelIndex()):
         # The following takes the first sub-list, and returns
         # the length (only works if all rows are an equal length)
         return self.col_count
@@ -137,7 +137,6 @@ class MyTableModel(QtCore.QAbstractTableModel):
             value = self.cell_value( index )
 
             if role == Qt.DisplayRole:
-
                 fmt = self.format_of_value( index, value )
 
                 if fmt == "%" :
@@ -185,8 +184,22 @@ class MyTableModel(QtCore.QAbstractTableModel):
         pass
     pass #-- data
 
-    # headerData
-    def headerData(self, col, orientation, role):
+    def flags(self, index):
+        row = index.row()
+        col = index.column()
+
+        if col == 0 :
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        else :
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
+        pass
+    pass # flags
+
+    def setData(self, index, text):
+        log.info( "setData(self, index, text)" )
+    pass
+
+    def headerData(self, col, orientation, role): # headerData
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             table_header = self.table_header
 
@@ -240,7 +253,83 @@ class MyTableModel(QtCore.QAbstractTableModel):
 #TODO DatasetTableModel
 pass #-- DatasetTableModel
 
+class ComboDelegate(QItemDelegate):
+    editorItems=['Combo_Zero', 'Combo_One','Combo_Two']
+    height = 25
+    width = 200
+
+    def createEditor(self, parent, option, index):
+        editor = QListWidget(parent)
+        editor.currentItemChanged.connect(self.currentItemChanged)
+
+        return editor
+    pass
+
+    def setEditorData(self,editor,index):
+        z = 0
+        for item in self.editorItems:
+            ai = QListWidgetItem(item)
+            editor.addItem(ai)
+            if item == index.data():
+                editor.setCurrentItem(editor.item(z))
+            z += 1
+        pass
+
+        editor.setGeometry(0,index.row()*self.height,self.width,self.height*len(self.editorItems))
+    pass
+
+    def setModelData(self, editor, model, index):
+        editorIndex=editor.currentIndex()
+        text=editor.currentItem().text()
+        model.setData(index, text)
+    pass
+
+    @pyqtSlot()
+    def currentItemChanged(self):
+        self.commitData.emit(self.sender())
+    pass
+pass # -- ComboDelegate
+
+class SpinBoxDelegate(QItemDelegate):
+    def createEditor(self, parent, option, index):
+        editor = QSpinBox(parent)
+        editor.setMinimum(-100)
+        editor.setMaximum(100)
+
+        return editor
+    pass
+
+    def setEditorData(self, spinBox, index):
+        row = index.row()
+        col = index.column()
+
+        if 0 :
+            value = index.model().data(index, Qt.EditRole)
+
+            value = f"{value}"
+
+            value = int( value )
+
+            spinBox.setValue(value)
+        pass
+    pass
+
+    def setModelData(self, spinBox, model, index):
+        if 0 :
+            spinBox.interpretText()
+            value = spinBox.value()
+
+            model.setData(index, value, Qt.EditRole)
+        pass
+    pass
+
+    def updateEditorGeometry(self, editor, option, index):
+        editor.setGeometry(option.rect)
+    pass
+pass # -- SpinBoxDelegate
+
 class DatasetTableModel( MyTableModel ):
+
     def __init__(self, tableView ):
         super(DatasetTableModel, self).__init__( tableView )
 
@@ -388,7 +477,15 @@ class MyQtApp(QtWidgets.QMainWindow, callbacks.Callback):
             tableModel = DatasetTableModel( tableView )
             tableView.setModel( tableModel )
 
-            tableModel.adjustColumnWidth()
+            if 1 :
+                tableModel.adjustColumnWidth()
+            pass
+
+            #delegate = ComboDelegate()
+            delegate = SpinBoxDelegate()
+
+            tableView.setItemDelegate(delegate)
+
         pass
 
         if 1 :
