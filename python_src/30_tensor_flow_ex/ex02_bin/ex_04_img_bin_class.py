@@ -1188,20 +1188,31 @@ class Image :
             chart_type = "column"
             chart = workbook.add_chart({'type': chart_type }) # line
 
-            if 1 :
+            for i, key in enumerate( cell_data_key_list ):
+                excel_row = i + 1
+
+                cell_data = cell_data_list[key].copy()
+                data = cell_data.pop( "data" )
+                type = cell_data.pop( "type" )
+
                 # Add a series to the chart.
-                data = vertical_histogram
-                left_margin = 1
-                data_len = left_margin + len(data)
+                data_len = 1 + len( data )
 
-                excel_letter = xlsxwriter.utility.xl_col_to_name(data_len)
+                excel_letter = xlsxwriter.utility.xl_col_to_name( data_len )
 
-                excel_row = len(cell_data_list)
-                chart.add_series(
-                        { 'categories': f'=Sheet1!A{1}:A{excel_row}' ,
-                          "values" : f"=Sheet1!B{1}:{excel_letter}{excel_row}" ,
-                        }
-                    )
+                # Add a series to the chart.
+                cell_data_list_len = len(cell_data_list)
+                chart.add_series({'categories': f'=Sheet1!A{excel_row}:A{excel_row}'})
+
+                series_values = f"=Sheet1!B{excel_row}:{excel_letter:}{excel_row}"
+
+                log.info( f"seires_values = {series_values}" )
+
+                series = { 'values': series_values, "name" : key }
+
+                series.update( cell_data )
+
+                chart.add_series( series )
             pass
 
             # chart.set_size({'width': 720, 'height': 576})
