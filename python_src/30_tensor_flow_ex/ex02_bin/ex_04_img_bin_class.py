@@ -181,7 +181,7 @@ chdir_to_curr_file()
 #img_path = "../data_ocr/sample_01/hist_work_01.png"
 #img_path = "../data_ocr/sample_01/gosu_01.png"
 img_path = "../data_ocr/sample_01/sample_21.png"
-img_path = "../data_yegan/ex_01/_1018877.JPG"
+#img_path = "../data_yegan/ex_01/_1018877.JPG"
 #img_path = "../data_yegan/ex_01/1-56.JPG"
 
 #TODO    원천 이미지 획득
@@ -865,7 +865,7 @@ class Image :
         log.info(msg)
         # https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_thresholding/py_thresholding.html
 
-        reverse_required = 1
+        reverse_required = 0
         bsize = 2 * int(bsize / 2) + 1
 
         img = self.img
@@ -975,6 +975,7 @@ class Image :
 
         if w > h*3 :
             algorithm = "threshold_golobal"
+            algorithm = "threshold_adaptive_gaussian"
             algorithm = "threshold_otsu_opencv"
         pass
 
@@ -982,9 +983,9 @@ class Image :
             v = self.threshold_otsu_opencv()
         elif algorithm == "threshold_adaptive_gaussian" :
             bsize = w if w > h else h
-            bsize = bsize / 2
+            bsize = bsize / 6
 
-            bsize = 5  # for line detection
+            #bsize = 5  # for line detection
             v = self.threshold_adaptive_gaussian(bsize=bsize, c=5)
         elif algorithm == "threshold_adaptive_mean" :
             bsize = 3
@@ -1436,7 +1437,7 @@ if bin_image.reverse_required :
 pass
 
 bin_image.save_img_as_file( f"image_binarized({curr_image.algorithm})" )
-title = f"Binarization ({curr_image.algorithm}, {curr_image.threshold})"
+title = f"Binarization ({curr_image.algorithm})"
 bin_image.plot_image( title=title, cmap="gray", border_color = "blue" )
 bin_image.plot_histogram()
 #-- 이진화
