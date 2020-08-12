@@ -1184,7 +1184,9 @@ class Image :
         if 1:  # 챠트 추가
             # https://xlsxwriter.readthedocs.io/chart.html
 
-            chart = workbook.add_chart({'type': "line"})
+            #chart_type = "line" #"bar" #"column"
+            chart_type = "column"
+            chart = workbook.add_chart({'type': chart_type }) # line
 
             for i, key in enumerate( cell_data_key_list ):
                 excel_row = i + 1
@@ -1197,7 +1199,6 @@ class Image :
                 data_len = 1 + len( data )
 
                 excel_letter = xlsxwriter.utility.xl_col_to_name( data_len )
-                # excel_letter = to_excel_letter( col_number )
 
                 # Add a series to the chart.
                 cell_data_list_len = len(cell_data_list)
