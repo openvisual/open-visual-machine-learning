@@ -105,7 +105,6 @@ def file_name_except_path_ext(path):
     return file_name
 pass # file_name_except_path_ext
 
-
 def is_writable(file):
     # 파일 쓰기 가능 여부 체크
     if os.path.exists(file):
@@ -165,6 +164,7 @@ def chdir_to_curr_file() :
 pass # -- chdir_to_curr_file
 
 import os, cv2, numpy as np, sys, time
+import cv2 as cv
 import math
 from math import pi
 
@@ -180,7 +180,7 @@ chdir_to_curr_file()
 #img_path = "../data_ocr/sample_01/messi5.png"
 #img_path = "../data_ocr/sample_01/hist_work_01.png"
 #img_path = "../data_ocr/sample_01/gosu_01.png"
-#img_path = "../data_ocr/sample_01/sample_21.png"
+img_path = "../data_ocr/sample_01/sample_21.png"
 img_path = "../data_yegan/ex_01/_1018877.JPG"
 #img_path = "../data_yegan/ex_01/1-56.JPG"
 
@@ -242,6 +242,7 @@ class Image :
 
     # 이미지 저장 회수
     img_save_cnt = 0
+    clear_work_files = 0
 
     def __init__(self, img, algorithm="" ):
         # 2차원 배열 데이터
@@ -279,7 +280,7 @@ class Image :
 
         fn_hdr = folder + fn[: k]
 
-        if img_save_cnt == 0 :
+        if Image.clear_work_files and img_save_cnt == 0 :
             # fn_hdr 로 시작하는 모든 파일을 삭제함.
             import glob
             for f in glob.glob( f"{fn_hdr}*" ):
@@ -396,7 +397,7 @@ class Image :
 
             import matplotlib.colors as mcolors
 
-            clist = [(0, "red"), (0.125, "red"), (0.25, "red"), (0.5, "cyan"), (0.7, "orange"), (0.9, "red"), (1, "red")]
+            clist = [(0, "blue"), (0.125, "green"), (0.25, "yellow"), (0.5, "cyan"), (0.7, "orange"), (0.9, "red"), (1, "blue")]
             rvb = mcolors.LinearSegmentedColormap.from_list("", clist)
 
             clist_ratio = len( clist )/np.max( y )
@@ -598,6 +599,7 @@ class Image :
             log.info("cv2.medianBlur( image, ksize )")
             data = cv2.medianBlur(img, ksize)
         else:
+            # my median blur
             h = len(img)  # image height
             w = len(img[0])  # image width
 
@@ -825,9 +827,9 @@ class Image :
     def threshold_otsu_opencv(self):
         msg = "Otsu threshold opencv"
         log.info(msg)
-        #https: // docs.opencv.org / 3.4 / d7 / d4d / tutorial_py_thresholding.html
+        # https: // docs.opencv.org / 3.4 / d7 / d4d / tutorial_py_thresholding.html
 
-        reverse_required = 1
+        reverse_required = 0
 
         img = self.img
         img = img.astype(np.uint8)
@@ -835,7 +837,7 @@ class Image :
         # Gaussian filtering
         #blur = cv.GaussianBlur(img, (5, 5), 0)
         # Otsu's thresholding
-        data, threshold = cv.threshold( img, 0, 1, cv.THRESH_BINARY + cv.THRESH_OTSU)
+        threshold, data = cv.threshold( img, 0, 1, cv.THRESH_BINARY + cv.THRESH_OTSU)
 
         image = Image( data )
         image.threshold = threshold
@@ -966,24 +968,28 @@ class Image :
     def binarize_image(self, threshold=None):
         v = None
 
-        algorithm = 0
+        algorithm = "threshold_adaptive_gaussian"
+        algorithm = "threshold_otsu_opencv"
 
         w, h = self.dimension()
 
         if w > h*3 :
-            algorithm = 2
+            algorithm = "threshold_golobal"
+            algorithm = "threshold_otsu_opencv"
         pass
 
-        if algorithm == 0 :
+        if algorithm == "threshold_otsu_opencv":
+            v = self.threshold_otsu_opencv()
+        elif algorithm == "threshold_adaptive_gaussian" :
             bsize = w if w > h else h
             bsize = bsize / 2
 
             bsize = 5  # for line detection
             v = self.threshold_adaptive_gaussian(bsize=bsize, c=5)
-        elif algorithm == 1 :
+        elif algorithm == "threshold_adaptive_mean" :
             bsize = 3
             v = self.threshold_adaptive_mean(bsize=bsize, c=0)
-        elif algorithm == 2 :
+        elif algorithm == "threshold_golobal" :
             #threshold = np.average( self.img )
 
             histogram, _ = self.make_histogram()
