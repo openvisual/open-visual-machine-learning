@@ -822,6 +822,29 @@ class Image :
         return image
     pass  # -- 지역 평균 적응 임계치 처리
 
+    def threshold_otsu_opencv(self):
+        msg = "Otsu threshold opencv"
+        log.info(msg)
+        #https: // docs.opencv.org / 3.4 / d7 / d4d / tutorial_py_thresholding.html
+
+        reverse_required = 1
+
+        img = self.img
+        img = img.astype(np.uint8)
+
+        # Gaussian filtering
+        #blur = cv.GaussianBlur(img, (5, 5), 0)
+        # Otsu's thresholding
+        data, threshold = cv.threshold( img, 0, 1, cv.THRESH_BINARY + cv.THRESH_OTSU)
+
+        image = Image( data )
+        image.threshold = threshold
+        image.algorithm = f"Otsu threshold opencv (threshold={threshold})"
+        image.reverse_required = reverse_required
+
+        return image
+    pass  # -- threshold_otsu_opencv
+
     # TODO     지역 가우시안 적응 임계치 처리
     def threshold_adaptive_gaussian(self, bsize=3, c=0):
         algorithm = 0
