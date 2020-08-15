@@ -17,43 +17,27 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter, MultipleLocator
 
 import numpy as np
+from numpy.fft import fft
 
 # hide toolbar
 mpl.rcParams['toolbar'] = 'None'
 
 fig, ax= plt.subplots(1)
 
-x = [ 0, 4*pi ]
+x = np.array( [ 0, 1, 2, 3 ] )
+f = np.array( [ 8, 4, 8, 0 ] )
 
-sx = np.linspace(x[0], x[1], 100 )
-sy = np.sin(sx)
+ax.plot( x , f, label="Discrete Signal" )
 
-ax.plot( sx , sy, label="sine" )
+F = fft( x )
+print( F )
 
-ax.set_xlim( x[0], x[1] )
-ax.set_yticks( [ -1, 0, 1] )
+ax.xaxis.set_major_locator( MultipleLocator(base=1))
+ax.yaxis.set_major_locator( MultipleLocator(base=2))
 
-def format( val, pos ) :
-    vopi = val/pi
-
-    if vopi == 0 :
-        v = '0'
-    elif int( vopi ) == vopi:
-        v = f'{vopi:.0f} $\pi$'
-    else :
-        v = f'{vopi:.1f} $\pi$'
-    pass
-
-    return v
-pass
-
-ax.xaxis.set_major_formatter(FuncFormatter( format ))
-ax.xaxis.set_major_locator( MultipleLocator(base=pi/2))
-
-plt.title( "Sine signal" )
+plt.legend()
+plt.title( "Exmple sigonal for DFT" )
 plt.xlabel("Time (seconds)")
 plt.ylabel("Strength")
 
-plt.grid( 1 )
-plt.legend()
 plt.show()
