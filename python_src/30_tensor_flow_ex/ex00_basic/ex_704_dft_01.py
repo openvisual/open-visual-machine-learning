@@ -24,10 +24,19 @@ mpl.rcParams['toolbar'] = 'None'
 
 fig, ax= plt.subplots(1)
 
+if 1 :
+    x = np.linspace( 0, 3, 300 )
+    # 5 + 2*cos(2*pi*x - pi/2) + 3cos(4*pi*x)
+    y = 5 + 2*np.cos(0.5*pi*x - pi/2) + 3*np.cos(pi*x)
+    ax.plot( x , y, label="sine(x)" , linestyle='dotted')
+pass
+
+
 x = np.array( [ 0, 1, 2, 3 ] )
 f = np.array( [ 8, 4, 8, 0 ] )
 
-ax.plot( x , f, label="Discrete Signal" )
+ax.bar( x , f, width=0.02, color="green" )
+ax.scatter( x, f, label="Sampling", color="green" )
 
 # 푸리에 변환
 F = fft( x )
