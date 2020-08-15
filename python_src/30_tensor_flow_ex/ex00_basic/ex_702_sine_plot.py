@@ -25,12 +25,15 @@ fig, ax= plt.subplots(1)
 
 x = [ 0, 4*pi ]
 
-sx = np.linspace(x[0], x[1], 100 )
-sy = np.sin(sx)
+sx = np.linspace(x[0], x[1], 300 )
+sy_01 = np.sin(sx)
+ax.plot( sx , sy_01, label="a = sine(x)" )
 
-print( sy )
+sy_02 = np.sin( 10*sx )*0.2
+ax.plot( sx , sy_02, label="b = 0.2sine(10x)" )
 
-ax.plot( sx , sy, label="sine" )
+sy_03 = sy_01 + sy_02
+ax.plot( sx , sy_03, label="c = a + b" )
 
 ax.set_xlim( x[0], x[1] )
 ax.set_yticks( [ -1, 0, 1] )
