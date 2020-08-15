@@ -35,12 +35,24 @@ pass
 x = np.array( [ 0, 1, 2, 3 ] )
 f = np.array( [ 8, 4, 8, 0 ] )
 
-ax.bar( x , f, width=0.02, color="green" )
-ax.scatter( x, f, label="Sampling", color="green" )
+ox = 0.03 #offset x
+ax.bar( x + ox , f, width=0.02, color="green" )
+ax.scatter( x + ox, f, label="Sampling", color="green" )
 
 # 푸리에 변환
-F = fft( x )
-print( "F = ", F )
+F = fft( f )
+F_abs = np.absolute( F )
+F_phase_deg = np.angle( F, deg=1 )
+F_phase_rad = np.angle( F, deg=0 )
+
+print( f"f = {f} " )
+print( f"F = {F} " )
+print( f"abs(F)  = {F_abs} " )
+print( f"phase(F) deg = {F_phase_deg} " )
+
+ox = -0.03 #offset x
+ax.bar( x + ox, F_abs, width=0.02, color="blue" )
+ax.scatter( x + ox, F_abs, label="FFT", color="blue" )
 
 ax.xaxis.set_major_locator( MultipleLocator(base=1))
 ax.yaxis.set_major_locator( MultipleLocator(base=2))
