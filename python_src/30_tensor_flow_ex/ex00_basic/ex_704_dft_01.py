@@ -29,8 +29,9 @@ f = np.array( [ 8, 4, 8, 0 ] )
 
 ax.plot( x , f, label="Discrete Signal" )
 
+# 푸리에 변환
 F = fft( x )
-print( F )
+print( "F = ", F )
 
 ax.xaxis.set_major_locator( MultipleLocator(base=1))
 ax.yaxis.set_major_locator( MultipleLocator(base=2))

@@ -28,6 +28,8 @@ x = [ 0, 4*pi ]
 sx = np.linspace(x[0], x[1], 100 )
 sy = np.sin(sx)
 
+print( sy )
+
 ax.plot( sx , sy, label="sine" )
 
 ax.set_xlim( x[0], x[1] )
