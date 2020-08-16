@@ -38,23 +38,33 @@ pass
 
 fig, ax= plt.subplots(1)
 
+# x 최소 값
 x0 = -pi
+# x 최대 값
 x1 = pi
 
-# 첫 번째 사인 함수
+# x 좌표값 들
 x = np.linspace(x0, x1, 300 )
-sy_01 = np.sin(x)
+y = None
 
-ax.plot( x , sy_01, label="a = sine(x)" )
+for n in range( 1, 10 ) :
+    bn = -2*pow(-1, n)/n
+    yn = bn*np.sin(n*x)/n
+    label = f"{bn:.2g} sin({n}x)/{n}"
+    if bn == -1 :
+        label = f"-sin({n}x)/{n}"
+    pass
+    ax.plot(x, yn, label=label, linestyle='dotted')
 
-# 두 번째 사인 함수
-sy_02 = 0.2*np.sin( 10*x )
-ax.plot( x , sy_02, label="b = 0.2sine(10x)" )
+    if y is None :
+        y = yn
+    else :
+        y += yn
+    pass
+pass
 
-# 첫 번 째 + 두 번 째 = 세번 째 사인 함수
-sy_03 = sy_01 + sy_02
-
-ax.plot( x , sy_03, label="c = a + b" , color="red")
+ax.plot( x , y, label=f"sum of sines", color="green" )
+ax.plot( x , x, label=f"y = x", color="yellow", linestyle="dashed" )
 
 ax.set_xlim( x0, x1 )
 
@@ -67,5 +77,5 @@ plt.xlabel("x")
 plt.ylabel("sin(x)")
 
 plt.grid( 1 )
-plt.legend()
+plt.legend(loc="upper left")
 plt.show()
