@@ -968,8 +968,9 @@ class Image :
     def binarize_image(self, threshold=None):
         v = None
 
+        #algorithm = "threshold_adaptive_gaussian"
+        #algorithm = "threshold_otsu_opencv"
         algorithm = "threshold_adaptive_gaussian"
-        algorithm = "threshold_otsu_opencv"
 
         w, h = self.dimension()
 
@@ -977,6 +978,7 @@ class Image :
             algorithm = "threshold_golobal"
             algorithm = "threshold_adaptive_gaussian"
             algorithm = "threshold_otsu_opencv"
+            algorithm = "threshold_adaptive_gaussian"
         pass
 
         if algorithm == "threshold_otsu_opencv":
@@ -1288,7 +1290,9 @@ class Image :
         #ref_ratio = 1/3.5
         ref_ratio = 1/4.0
 
-        ref_y = np.average(y_signal_counts) * ref_ratio
+        # 평균치의 몇 프로를 기준값으로 설정.
+        avg = np.average(y_signal_counts)
+        ref_y = avg * ref_ratio
 
         prev_x = 0
         running_under_ref = False
@@ -1339,9 +1343,9 @@ class Image :
         gaps = sorted( gaps, key=cmp_to_key(compare_gap_dist) )
 
         # 정답에서 스페이스(" ")가 몇 개 들어가 있는 확인함.
-        words_len = sentence.count(" ") + 1
+        words_count = sentence.count(" ") + 1
 
-        gaps = gaps[ 0 : words_len ]
+        gaps = gaps[ 0 : words_count ]
 
         def compare_gap_idx( one, two ) :
             return one.idx - two.idx

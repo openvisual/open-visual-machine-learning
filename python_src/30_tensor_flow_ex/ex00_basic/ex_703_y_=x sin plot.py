@@ -21,7 +21,7 @@ import numpy as np
 # hide toolbar
 mpl.rcParams['toolbar'] = 'None'
 
-# pi 포맷 함수
+# x pi value format
 def format_pi( val, pos ) :
     vopi = val/pi
 
@@ -38,34 +38,33 @@ pass
 
 fig, ax= plt.subplots(1)
 
-x0 = 0
-x1 = 4*pi
+x0 = -pi
+x1 = pi
 
 # 첫 번째 사인 함수
 x = np.linspace(x0, x1, 300 )
-y_01 = np.sin(x)
+sy_01 = np.sin(x)
 
-ax.plot( x , y_01, label="a = sine(x)", color = "blue" )
+ax.plot( x , sy_01, label="a = sine(x)" )
 
 # 두 번째 사인 함수
-y_02 = 0.2*np.sin( 10*x )
-ax.plot( x , y_02, label="b = 0.2sine(10x)", color = "green" )
+sy_02 = 0.2*np.sin( 10*x )
+ax.plot( x , sy_02, label="b = 0.2sine(10x)" )
 
 # 첫 번 째 + 두 번 째 = 세번 째 사인 함수
-y_03 = y_01 + y_02
+sy_03 = sy_01 + sy_02
 
-ax.plot( x , y_03, label="c = a + b" , color="red")
+ax.plot( x , sy_03, label="c = a + b" , color="red")
 
-ax.set_xlim(x0, x1)
-#ax.set_yticks( [ -1, 0, 1] )
+ax.set_xlim( x0, x1 )
 
 ax.xaxis.set_major_formatter(FuncFormatter( format_pi ))
 ax.xaxis.set_major_locator( MultipleLocator(base=pi/2))
 ax.yaxis.set_major_locator( MultipleLocator(base=1))
 
-plt.title( "Sine signal" )
-plt.xlabel("Time (seconds)")
-plt.ylabel("Strength")
+plt.title( "y = x Fourier Series" )
+plt.xlabel("x")
+plt.ylabel("sin(x)")
 
 plt.grid( 1 )
 plt.legend()
