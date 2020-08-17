@@ -51,7 +51,9 @@ for n in range( 1, 10 ) :
     bn = -2*pow(-1, n)/n
     yn = bn*np.sin(n*x)/n
     label = f"{bn:.2g} sin({n}x)/{n}"
-    if bn == -1 :
+    if n > 5 :
+        label = None
+    elif bn == -1 :
         label = f"-sin({n}x)/{n}"
     pass
     ax.plot(x, yn, label=label, linestyle='dotted')
