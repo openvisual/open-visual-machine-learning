@@ -39,9 +39,9 @@ pass
 fig, ax= plt.subplots(1)
 
 # x 최소 값
-x0 = -pi
+x0 = -1*pi
 # x 최대 값
-x1 = pi
+x1 = 1*pi
 
 # x 좌표값 들
 x = np.linspace(x0, x1, 300 )
@@ -50,12 +50,14 @@ y = None
 for n in range( 1, 10 ) :
     bn = -2*pow(-1, n)/n
     yn = bn*np.sin(n*x)/n
+
     label = f"{bn:.2g} sin({n}x)/{n}"
     if n > 5 :
         label = None
     elif bn == -1 :
         label = f"-sin({n}x)/{n}"
     pass
+
     ax.plot(x, yn, label=label, linestyle='dotted')
 
     if y is None :
