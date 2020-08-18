@@ -180,7 +180,10 @@ chdir_to_curr_file()
 #img_path = "../data_ocr/sample_01/messi5.png"
 #img_path = "../data_ocr/sample_01/hist_work_01.png"
 #img_path = "../data_ocr/sample_01/gosu_01.png"
+
+sentence = "오늘 비교적 온화한 날씨가"
 img_path = "../data_ocr/sample_01/sample_21.png"
+
 #img_path = "../data_yegan/ex_01/_1018877.JPG"
 #img_path = "../data_yegan/ex_01/1-56.JPG"
 
@@ -1457,8 +1460,6 @@ bin_image = morphology
 # -- morphology
 
 #TODO   Y 축 데이터 히스토그램
-
-sentence = "오늘 비교적 온화한 날씨가"
 
 vertical_histogram = bin_image.get_vertical_histogram(ksize = 1)
 bin_image.plot_vertical_histogram(vertical_histogram, sentence)
