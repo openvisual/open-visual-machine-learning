@@ -38,44 +38,6 @@ from matplotlib.gridspec import GridSpec
 
 log.info( "Done Import.".center( 80, "*") )
 
-# 현재 파일의 폴더로 실행 폴더를 이동함.
-chdir_to_curr_file()
-
-# 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
-#img_path = "../data_ocr/sample_01/messi5.png"
-#img_path = "../data_ocr/sample_01/hist_work_01.png"
-#img_path = "../data_ocr/sample_01/gosu_01.png"
-
-sentence = "오늘 비교적 온화한 날씨가"
-img_path = "../data_ocr/sample_01/sample_21.png"
-
-img_path = "../data_yegan/ex_01/_1018877.JPG"
-#img_path = "../data_yegan/ex_01/1-56.JPG"
-
-#TODO    원천 이미지 획득
-
-img_org = cv2.imread( img_path, cv2.IMREAD_COLOR ) #BGR order
-
-# 이미지 높이, 넓이, 채널수 획득
-height      = img_org.shape[0]
-width       = img_org.shape[1]
-channel_cnt  = img_org.shape[2]
-
-log.info( f"Image path: {img_path}"  )
-print( f"Image widh: {width}, height: {height}, channel: {channel_cnt}")
-
-fig = plt.figure(figsize=(13, 10), constrained_layout=True)
-plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
-
-# org img, channel img, gray scale, median blur, histogram, bin, y_count
-gs_row_cnt = 6
-gs_col_cnt = 7
-
-gs_row = -1
-gs_col = 0
-
-gridSpec = GridSpec( gs_row_cnt, gs_col_cnt, figure=fig )
-
 #-- 원천 이미지 획득
 
 class Gap :
@@ -120,7 +82,7 @@ class Image :
         self.histogram_acc = None
     pass
 
-    def img_file_name(self, work):
+    def img_file_name(self, img_path, work):
         # C:/temp 폴더에 결과 파일을 저정합니다.
 
         folder = "C:/temp"
@@ -169,8 +131,8 @@ class Image :
         return fn
     pass  # -- img_file_name
 
-    def save_img_as_file(self, work, cmap="gray"):
-        filename = self.img_file_name(work)
+    def save_img_as_file(self, img_path, work, cmap="gray"):
+        filename = self.img_file_name( img_path, work)
         img = self.img
 
         plt.imsave(filename, img, cmap=cmap)
@@ -1265,14 +1227,54 @@ pass
 # -- class Image
 
 def my_image_process() :
+    # 현재 파일의 폴더로 실행 폴더를 이동함.
+    chdir_to_curr_file()
+
+    # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
+    # img_path = "../data_ocr/sample_01/messi5.png"
+    # img_path = "../data_ocr/sample_01/hist_work_01.png"
+    # img_path = "../data_ocr/sample_01/gosu_01.png"
+
+    sentence = "오늘 비교적 온화한 날씨가"
+    img_path = "../data_ocr/sample_01/sample_21.png"
+
+    img_path = "../data_yegan/ex_01/_1018877.JPG"
+    # img_path = "../data_yegan/ex_01/1-56.JPG"
+
+    # TODO    원천 이미지 획득
+
+    img_org = cv2.imread(img_path, cv2.IMREAD_COLOR)  # BGR order
+
+    # 이미지 높이, 넓이, 채널수 획득
+    height = img_org.shape[0]
+    width = img_org.shape[1]
+    channel_cnt = img_org.shape[2]
+
+    log.info(f"Image path: {img_path}")
+    print(f"Image widh: {width}, height: {height}, channel: {channel_cnt}")
+
+    # org img, channel img, gray scale, median blur, histogram, bin, y_count
+    global gs_row, gs_col, gs_col_cnt, gridSpec, fig
+
+    fig = plt.figure(figsize=(13, 10), constrained_layout=True)
+    plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
+
+    gs_row_cnt = 6
+    gs_col_cnt = 7
+
+    gs_row = -1
+    gs_col = 0
+
+    gridSpec = GridSpec(gs_row_cnt, gs_col_cnt, figure=fig)
+
     image_org = Image( img_org )
-    image_org.save_img_as_file( "org" )
+    image_org.save_img_as_file( img_path, "org" )
     title = f'Original Image: { img_path.split("/")[-1] }'
     0 and image_org.plot_image( title = title , cmap=None, border_color = "green" )
 
     grayscale = image_org.convert_to_grayscale()
     grayscale.reverse_image( max = 255 )
-    grayscale.save_img_as_file( "grayscale" )
+    grayscale.save_img_as_file( img_path, "grayscale" )
     grayscale.plot_image( title="Grayscale", cmap="gray", border_color = "green" )
     grayscale.plot_histogram()
 
@@ -1287,7 +1289,7 @@ def my_image_process() :
     ksize = 3
     noise_removed = grayscale.remove_noise( ksize = ksize )
     curr_image = noise_removed
-    noise_removed.save_img_as_file( f"noise_removed({curr_image.algorithm})" )
+    noise_removed.save_img_as_file( img_path, f"noise_removed({curr_image.algorithm})" )
 
     title = f"Noise removed ({curr_image.algorithm}, ksize={ksize})"
     noise_removed.plot_image( title=title, cmap="gray", border_color = "blue" )
@@ -1298,7 +1300,7 @@ def my_image_process() :
 
     print_prof_last()
 
-    image_normalized.save_img_as_file( "image_normalized" )
+    image_normalized.save_img_as_file( img_path, "image_normalized" )
     image_normalized.plot_image( title = "Normalization", cmap="gray", border_color = "green" )
     image_normalized.plot_histogram()
 
@@ -1309,7 +1311,7 @@ def my_image_process() :
         bin_image = bin_image.reverse_image()
     pass
 
-    bin_image.save_img_as_file( f"image_binarized({curr_image.algorithm})" )
+    bin_image.save_img_as_file( img_path, f"image_binarized({curr_image.algorithm})" )
     title = f"Binarization ({curr_image.algorithm})"
     bin_image.plot_image( title=title, cmap="gray", border_color = "blue" )
     bin_image.plot_histogram()
@@ -1318,7 +1320,7 @@ def my_image_process() :
     # TODO morphology
 
     morphology = bin_image.morphology( is_open = 0, bsize = 3, iterations = 3 )
-    morphology.save_img_as_file( morphology.algorithm )
+    morphology.save_img_as_file( img_path, morphology.algorithm )
     morphology.plot_image( title=morphology.algorithm, cmap="gray", border_color = "blue" )
     morphology.plot_histogram()
 
@@ -1337,7 +1339,7 @@ def my_image_process() :
     if save :
         # 세그먼테이션 파일 저장
         for idx, word_segment in enumerate( word_segments ) :
-            word_segment.save_img_as_file( f"word_{idx:02d}" )
+            word_segment.save_img_as_file( img_path, f"word_{idx:02d}" )
         pass
     pass
 
