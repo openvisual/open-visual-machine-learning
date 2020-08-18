@@ -978,15 +978,13 @@ class Image :
         pass #-- 레전드 표출
 
         ax.set_ylabel( 'Y count', rotation=90 )
-        ax.set_xlim( 0, width )
+        ax.set_xlim( 0, w )
     pass
     #-- y count 표출
 
-    def save_vertical_hist_as_excel(self, vertical_histogram):
+    def save_vertical_hist_as_excel(self, img_path, vertical_histogram):
         # 엑셀 파일 저장
         folder = "C:/Temp"
-
-        global img_path
 
         file_name = file_name_except_path_ext( img_path )
 
@@ -1331,7 +1329,7 @@ def my_image_process() :
 
     vertical_histogram = bin_image.get_vertical_histogram(ksize = 1)
     bin_image.plot_vertical_histogram(vertical_histogram, sentence)
-    bin_image.save_vertical_hist_as_excel(vertical_histogram)
+    bin_image.save_vertical_hist_as_excel(img_path, vertical_histogram)
 
     word_segments = bin_image.word_segements( vertical_histogram, sentence )
 
