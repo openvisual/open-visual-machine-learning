@@ -23,71 +23,8 @@ import logging as log
 log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
     datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
-''' profile functions '''
-
-# -- usage
-# @profile
-# def your_function(...):
-#       ....
-#
-# your_function( ... )
-# print_prof_data()
-
-import time
-from functools import wraps
-
-PROF_DATA = {}
-PROF_LAST = None
-
-def profile(fn):
-    @wraps(fn)
-    def with_profiling(*args, **kwargs):
-        start_time = time.time()
-
-        ret = fn(*args, **kwargs)
-
-        elapsed_time = time.time() - start_time
-
-        if fn.__name__ not in PROF_DATA:
-            PROF_DATA[fn.__name__] = [0, []]
-        pass
-
-        global PROF_LAST
-        PROF_LAST = fn.__name__
-
-        PROF_DATA[fn.__name__][0] += 1
-        PROF_DATA[fn.__name__][1].append(elapsed_time)
-
-        return ret
-
-    return with_profiling
-pass # -- profile(fn)
-
-def print_prof_name(fn_name):
-    data = PROF_DATA[ fn_name ]
-
-    max_time = max(data[1])
-    avg_time = sum(data[1]) / len(data[1])
-    msg = f"*** The function[{fn_name}] was called {data[0]} times. Exe. time max: {max_time:.3f}, average: {avg_time:.3f}"
-    log.info( msg )
-pass # -- print_prof_name()
-
-def print_prof_last( ) :
-    PROF_LAST and print_prof_name( PROF_LAST )
-pass
-
-def print_prof_data():
-    for fn_name in PROF_DATA :
-        print_prof_name( fn_name )
-    pass
-pass # -- print_prof_data()
-
-def clear_prof_data():
-    global PROF_DATA
-    PROF_DATA = {}
-pass # -- clear_prof_data
-
-''' --- profile functions '''
+# profile import
+from profile import *
 
 def open_file_or_folder(path) :
     ''' open file or folder by an explorer'''
@@ -184,7 +121,7 @@ chdir_to_curr_file()
 sentence = "오늘 비교적 온화한 날씨가"
 img_path = "../data_ocr/sample_01/sample_21.png"
 
-#img_path = "../data_yegan/ex_01/_1018877.JPG"
+img_path = "../data_yegan/ex_01/_1018877.JPG"
 #img_path = "../data_yegan/ex_01/1-56.JPG"
 
 #TODO    원천 이미지 획득
@@ -1399,86 +1336,92 @@ class Image :
 pass
 # -- class Image
 
-image_org = Image( img_org )
-image_org.save_img_as_file( "org" )
-title = f'Original Image: { img_path.split("/")[-1] }'
-0 and image_org.plot_image( title = title , cmap=None, border_color = "green" )
+def my_image_process() :
+    image_org = Image( img_org )
+    image_org.save_img_as_file( "org" )
+    title = f'Original Image: { img_path.split("/")[-1] }'
+    0 and image_org.plot_image( title = title , cmap=None, border_color = "green" )
 
-grayscale = image_org.convert_to_grayscale()
-grayscale.reverse_image( max = 255 )
-grayscale.save_img_as_file( "grayscale" )
-grayscale.plot_image( title="Grayscale", cmap="gray", border_color = "green" )
-grayscale.plot_histogram()
+    grayscale = image_org.convert_to_grayscale()
+    grayscale.reverse_image( max = 255 )
+    grayscale.save_img_as_file( "grayscale" )
+    grayscale.plot_image( title="Grayscale", cmap="gray", border_color = "green" )
+    grayscale.plot_histogram()
 
-gs_avg = grayscale.average( )
-gs_std = grayscale.std( )
-sg_max = grayscale.max( )
+    gs_avg = grayscale.average( )
+    gs_std = grayscale.std( )
+    sg_max = grayscale.max( )
 
-log.info( f"grayscale avg = {gs_avg}, std = {gs_std}" )
-#-- grayscale 변환
+    log.info( f"grayscale avg = {gs_avg}, std = {gs_std}" )
+    #-- grayscale 변환
 
-# 잡음 제거
-ksize = 3
-noise_removed = grayscale.remove_noise( ksize = ksize )
-curr_image = noise_removed
-noise_removed.save_img_as_file( f"noise_removed({curr_image.algorithm})" )
+    # 잡음 제거
+    ksize = 3
+    noise_removed = grayscale.remove_noise( ksize = ksize )
+    curr_image = noise_removed
+    noise_removed.save_img_as_file( f"noise_removed({curr_image.algorithm})" )
 
-title = f"Noise removed ({curr_image.algorithm}, ksize={ksize})"
-noise_removed.plot_image( title=title, cmap="gray", border_color = "blue" )
-noise_removed.plot_histogram()
+    title = f"Noise removed ({curr_image.algorithm}, ksize={ksize})"
+    noise_removed.plot_image( title=title, cmap="gray", border_color = "blue" )
+    noise_removed.plot_histogram()
 
-# 평활화
-image_normalized = noise_removed.normalize_image_by_histogram()
+    # 평활화
+    image_normalized = noise_removed.normalize_image_by_histogram()
 
-print_prof_last()
+    print_prof_last()
 
-image_normalized.save_img_as_file( "image_normalized" )
-image_normalized.plot_image( title = "Normalization", cmap="gray", border_color = "green" )
-image_normalized.plot_histogram()
+    image_normalized.save_img_as_file( "image_normalized" )
+    image_normalized.plot_image( title = "Normalization", cmap="gray", border_color = "green" )
+    image_normalized.plot_histogram()
 
-#TODO 이진화
-bin_image = image_normalized.binarize_image()
-curr_image = bin_image
-if bin_image.reverse_required :
-    bin_image = bin_image.reverse_image()
-pass
-
-bin_image.save_img_as_file( f"image_binarized({curr_image.algorithm})" )
-title = f"Binarization ({curr_image.algorithm})"
-bin_image.plot_image( title=title, cmap="gray", border_color = "blue" )
-bin_image.plot_histogram()
-#-- 이진화
-
-# TODO morphology
-
-morphology = bin_image.morphology( is_open = 0, bsize = 3, iterations = 3 )
-morphology.save_img_as_file( morphology.algorithm )
-morphology.plot_image( title=morphology.algorithm, cmap="gray", border_color = "blue" )
-morphology.plot_histogram()
-
-bin_image = morphology
-# -- morphology
-
-#TODO   Y 축 데이터 히스토그램
-
-vertical_histogram = bin_image.get_vertical_histogram(ksize = 1)
-bin_image.plot_vertical_histogram(vertical_histogram, sentence)
-bin_image.save_vertical_hist_as_excel(vertical_histogram)
-
-word_segments = bin_image.word_segements( vertical_histogram, sentence )
-
-save = bin_image.dimension_ratio() > 3
-if save :
-    # 세그먼테이션 파일 저장
-    for idx, word_segment in enumerate( word_segments ) :
-        word_segment.save_img_as_file( f"word_{idx:02d}" )
+    #TODO 이진화
+    bin_image = image_normalized.binarize_image()
+    curr_image = bin_image
+    if bin_image.reverse_required :
+        bin_image = bin_image.reverse_image()
     pass
+
+    bin_image.save_img_as_file( f"image_binarized({curr_image.algorithm})" )
+    title = f"Binarization ({curr_image.algorithm})"
+    bin_image.plot_image( title=title, cmap="gray", border_color = "blue" )
+    bin_image.plot_histogram()
+    #-- 이진화
+
+    # TODO morphology
+
+    morphology = bin_image.morphology( is_open = 0, bsize = 3, iterations = 3 )
+    morphology.save_img_as_file( morphology.algorithm )
+    morphology.plot_image( title=morphology.algorithm, cmap="gray", border_color = "blue" )
+    morphology.plot_histogram()
+
+    bin_image = morphology
+    # -- morphology
+
+    #TODO   Y 축 데이터 히스토그램
+
+    vertical_histogram = bin_image.get_vertical_histogram(ksize = 1)
+    bin_image.plot_vertical_histogram(vertical_histogram, sentence)
+    bin_image.save_vertical_hist_as_excel(vertical_histogram)
+
+    word_segments = bin_image.word_segements( vertical_histogram, sentence )
+
+    save = bin_image.dimension_ratio() > 3
+    if save :
+        # 세그먼테이션 파일 저장
+        for idx, word_segment in enumerate( word_segments ) :
+            word_segment.save_img_as_file( f"word_{idx:02d}" )
+        pass
+    pass
+
+    log.info( "Plot show....." )
+
+    plt.show()
+
+    log.info( "Good bye!")
 pass
 
-log.info( "Plot show....." )
-
-plt.show()
-
-log.info( "Good bye!")
+if __name__ == '__main__':
+    my_image_process()
+pass # -- main
 
 # end
