@@ -10,7 +10,7 @@ import os, sys
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from PyQt5.QtWidgets import QApplication, QWidget
 
-from rsc import my_qt
+from rsc.my_qt import *
 
 class MyQtApp(QtWidgets.QMainWindow):
     def __init__(self):
