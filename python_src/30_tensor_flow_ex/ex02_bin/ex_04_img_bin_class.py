@@ -977,10 +977,10 @@ class Image :
         return y_signal_counts
     pass  # -- count_y_axis_signal
 
-    def plot_vertical_histogram(self, y_signal_counts, sentence):
+    def plot_vertical_histogram(self, vertical_histogram, sentence):
         # y count 표출
         # word segments coordinate
-        seginfos, gaps, ref_y, ref_ratio = self.word_seginfos(y_signal_counts, sentence)
+        seginfos, gaps, ref_y, ref_ratio = self.word_seginfos(vertical_histogram, sentence)
 
         title = f"Vertical histogram( ref ratio={ ref_ratio*100:.2f}% )"
 
@@ -992,24 +992,17 @@ class Image :
         charts = { }
 
         if 1 :
-            # y count bar chart
-            y = y_signal_counts
-            x = range( len(y) )
-            charts["y count"] = ax.bar(x, y, width=.6, color='y', align='center', alpha=1.0)
-        pass
-
-        if 1 :
             # word segments coordinate
             if 1 :
                 x = [ 0 , w ]
                 y = [ ref_y, ref_y ]
-                charts["ref_y"] = ax.plot(x, y, color='red', alpha=1.0)
+                charts["ref_y"] = ax.plot(x, y, color='red', alpha=1.0, linestyle='solid')
             pass
 
             for gap in gaps :
                 x = gap.coord
                 y = [h] * len(x)
-                charts["gaps"] = ax.fill_between(x, y, color='green', alpha=0.3)
+                charts["gaps"] = ax.fill_between(x, y, color='blue', alpha=0.6)
             pass
 
             for seginfo in seginfos :
@@ -1017,6 +1010,24 @@ class Image :
                 y = [ h ] * len( x )
                 charts["segments"] = ax.fill_between(x, y, color='r', alpha=0.4)
             pass
+        pass
+
+        if 1:
+            # vertical histogram
+            vertical_histogram = vertical_histogram.astype( np.int )
+
+            y = vertical_histogram
+            x = range(len(y))
+            charts["y count"] = ax.bar(x, y, width=.6, color='yellow', align='center', alpha=1.0)
+
+            from sklearn.preprocessing import MinMaxScaler
+            velocity = np.diff(vertical_histogram)
+            accel = np.diff(velocity)
+
+            y = accel
+            x = range(len(y))
+
+            charts["accel"] = ax.plot(x, y, color='green', alpha=1.0, label="accel")
         pass
 
         if 0 : # 레전드 표출
@@ -1069,9 +1080,8 @@ class Image :
         row = 0
 
         # Iterate over the data and write it out row by row.
-        vertical_histogram = vertical_histogram.astype( "int" )
+        vertical_histogram = vertical_histogram.astype( np.int )
         velocity = np.diff(vertical_histogram)
-        velocity = velocity.astype( "int" )
         accel = np.diff( velocity )
 
         cell_data_list = {}
