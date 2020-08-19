@@ -1412,7 +1412,8 @@ def my_image_process() :
         algorithm = "threshold_golobal"
     pass
 
-    bin_image = curr_image.binarize_image( algorithm, threshold=None )
+    threshold = curr_image.average() + curr_image.std()
+    bin_image = curr_image.binarize_image( algorithm=algorithm, threshold=threshold )
     curr_image = bin_image
     if bin_image.reverse_required :
         bin_image = bin_image.reverse_image()
