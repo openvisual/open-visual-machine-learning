@@ -1418,7 +1418,7 @@ def my_image_process() :
     #-- 이진화
 
     # TODO morphology
-    morphology = bin_image.morphology( is_open = 0, bsize = 5, iterations = 10, kernel_type="ellipse" )
+    morphology = bin_image.morphology( is_open = 0, bsize = 5, iterations = 10, kernel_type="cross" )
     morphology.save_img_as_file( img_path, morphology.algorithm )
     morphology.plot_image( title=morphology.algorithm, cmap="gray", border_color = "blue" )
     morphology.plot_histogram()
