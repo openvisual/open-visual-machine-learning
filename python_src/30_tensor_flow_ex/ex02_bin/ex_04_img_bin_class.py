@@ -1289,7 +1289,7 @@ def my_image_process() :
     sentence = "오늘 비교적 온화한 날씨가"
     img_path = "../data_ocr/sample_01/sample_21.png"
 
-    img_path = "../data_yegan/ex_01/_1018877.JPG"
+    #img_path = "../data_yegan/ex_01/_1018877.JPG"
     #img_path = "../data_yegan/ex_01/1-56.JPG"
 
     # TODO    원천 이미지 획득
@@ -1309,7 +1309,7 @@ def my_image_process() :
     fig = plt.figure(figsize=(13, 10), constrained_layout=True)
     plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
 
-    gs_row_cnt = 6
+    gs_row_cnt = 7
     gs_col_cnt = 7
 
     gs_row = -1
@@ -1417,14 +1417,25 @@ def my_image_process() :
     bin_image.plot_histogram()
     #-- 이진화
 
-    # TODO morphology
-    morphology = bin_image.morphology( is_open = 0, bsize = 5, iterations = 10, kernel_type="cross" )
-    morphology.save_img_as_file( img_path, morphology.algorithm )
-    morphology.plot_image( title=morphology.algorithm, cmap="gray", border_color = "blue" )
-    morphology.plot_histogram()
+    if 1 :
+        # TODO morphology
+        morphology = bin_image.morphology( is_open = 0, bsize = 5, iterations = 10, kernel_type="cross" )
+        morphology.save_img_as_file( img_path, morphology.algorithm )
+        morphology.plot_image( title=morphology.algorithm, cmap="gray", border_color = "blue" )
+        morphology.plot_histogram()
 
-    bin_image = morphology
-    # -- morphology
+        bin_image = morphology
+    pass # -- morphology
+
+    if 1:
+        # TODO Gradient 2
+        gradient = bin_image.gradient(ksize=5, kernel_type="cross")
+        gradient.save_img_as_file(img_path, gradient.algorithm)
+        gradient.plot_image(title=gradient.algorithm, cmap="gray", border_color="blue")
+        gradient.plot_histogram()
+
+        bin_image = gradient
+    pass # -- gradient 2
 
    #TODO   Y 축 데이터 히스토그램
 
