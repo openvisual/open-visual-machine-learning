@@ -429,7 +429,7 @@ class Image :
         min = np.min( data )
         max = np.max( data )
 
-        data = (254/(max - min))*(data - min)
+        data = (255/(max - min))*(data - min)
 
         min = np.min(data)
         max = np.max(data)
@@ -446,6 +446,38 @@ class Image :
 
         return Image( img=data, algorithm=algorithm)
     pass  # -- laplacian
+
+    def gradient(self, ksize=5, kernel_type="cross"):
+        # TODO   그라디언트
+        # https://docs.opencv.org/trunk/d9/d61/tutorial_py_morphological_ops.html
+
+        msg = "Gradient"
+        log.info( f"{msg} ..." )
+
+        ksize = 2*int(ksize/2) + 1
+
+        img = self.img
+
+        algorithm = f"Gradient ksize={ksize}, ktype={kernel_type}"
+
+        img = img.astype(np.uint8)
+
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (ksize, ksize))
+
+        if kernel_type == "rect":
+            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (ksize, ksize))
+        elif kernel_type == "cross":
+            kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (ksize, ksize))
+        elif kernel_type == "ellipse":
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (ksize, ksize))
+        pass
+
+        data = cv.morphologyEx(img, cv.MORPH_GRADIENT, kernel)
+
+        log.info( f"Done. {msg}" )
+
+        return Image( img=data, algorithm=algorithm)
+    pass  # -- gradient
 
     def remove_noise(self, algorithm , ksize=5 ):
         # TODO   잡음 제거
@@ -647,7 +679,7 @@ class Image :
 
         image = Image( data )
         image.threshold = threshold
-        image.algorithm = f"global thresholding ({threshold:d})"
+        image.algorithm = f"global thresholding ({threshold:0.0g})"
         image.reverse_required = reverse_required
 
         return image
@@ -839,7 +871,7 @@ class Image :
         return image
     pass  # -- 지역 가우시안 적응 임계치 처리
 
-    def binarize_image(self, algorithm):
+    def binarize_image(self, algorithm, threshold=None):
         # TODO 이진화
 
         v = None
@@ -858,19 +890,8 @@ class Image :
             bsize = 3
             v = self.threshold_adaptive_mean(bsize=bsize, c=0)
         elif algorithm == "threshold_golobal" :
-            #threshold = np.average( self.img )
-
-            histogram, _ = self.make_histogram()
-            threshold = 0
-            max_y = 0
-            histogram_len = len( histogram )
-            for x, y in enumerate( histogram ) :
-                if x < histogram_len/3 :
-                    threshold = x
-                elif y > max_y :
-                    max_y = y
-                    threshold = x
-                pass
+            if threshold is None :
+                threshold = np.average( self.img )
             pass
 
             v = self.threshold_golobal( threshold=threshold )
@@ -1278,7 +1299,7 @@ def my_image_process() :
     img_path = "../data_ocr/sample_01/sample_21.png"
 
     img_path = "../data_yegan/ex_01/_1018877.JPG"
-    # img_path = "../data_yegan/ex_01/1-56.JPG"
+    #img_path = "../data_yegan/ex_01/1-56.JPG"
 
     # TODO    원천 이미지 획득
 
@@ -1298,7 +1319,7 @@ def my_image_process() :
     fig = plt.figure(figsize=(13, 10), constrained_layout=True)
     plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
 
-    gs_row_cnt = 7
+    gs_row_cnt = 9
     gs_col_cnt = 7
 
     gs_row = -1
@@ -1324,18 +1345,41 @@ def my_image_process() :
     log.info( f"grayscale avg = {gs_avg}, std = {gs_std}" )
     #-- grayscale 변환
 
-    # 잡음 제거
-    ksize = 5
-    noise_removed = grayscale.remove_noise( algorithm="gaussian blur", ksize = ksize )
-    curr_image = noise_removed
-    noise_removed.save_img_as_file( img_path, f"noise_removed({curr_image.algorithm})" )
-
-    title = f"Noise removed ({curr_image.algorithm}, ksize={ksize})"
-    noise_removed.plot_image( title=title, cmap="gray", border_color = "blue" )
-    noise_removed.plot_histogram()
-    curr_image = noise_removed
-
     if 1 :
+        # TODO 잡음 제거
+        ksize = 5
+        noise_removed = grayscale.remove_noise( algorithm="gaussian blur", ksize = ksize )
+        curr_image = noise_removed
+        noise_removed.save_img_as_file( img_path, f"noise_removed({curr_image.algorithm})" )
+
+        title = f"Noise removed ({curr_image.algorithm}, ksize={ksize})"
+        noise_removed.plot_image( title=title, cmap="gray", border_color = "blue" )
+        noise_removed.plot_histogram()
+
+        curr_image = noise_removed
+    pass
+
+    if 1:
+        # TODO Gradient
+        gradient = curr_image.gradient(ksize=5, kernel_type="cross")
+        gradient.save_img_as_file(img_path, gradient.algorithm)
+        gradient.plot_image(title=gradient.algorithm, cmap="gray", border_color="blue")
+        gradient.plot_histogram()
+
+        curr_image = gradient
+    pass # -- gradient
+
+    if 0 :
+        # TODO 평활화
+        normalized = curr_image.normalize_image_by_histogram()
+        normalized.save_img_as_file( img_path, "image_normalized" )
+        normalized.plot_image( title = "Normalization", cmap="gray", border_color = "green" )
+        normalized.plot_histogram()
+
+        curr_image = normalized
+    pass
+
+    if 0 :
         # 라플라시안
         laplacian = curr_image.laplacian(ksize=5)
         laplacian.save_img_as_file(img_path, laplacian.algorithm)
@@ -1343,38 +1387,38 @@ def my_image_process() :
         laplacian.plot_histogram()
 
         curr_image = laplacian
+
+        # 평활화 2
+        normalized2 = curr_image.normalize_image_by_histogram()
+        normalized2.save_img_as_file(img_path, "laplacian_normalized")
+        normalized2.plot_image(title="Laplacian Normalization", cmap="gray", border_color="green")
+        normalized2.plot_histogram()
+
+        curr_image = normalized2
     pass
 
-    # 평활화
-    normalized = curr_image.normalize_image_by_histogram()
-
-    print_prof_last()
-
-    normalized.save_img_as_file( img_path, "image_normalized" )
-    normalized.plot_image( title = "Normalization", cmap="gray", border_color = "green" )
-    normalized.plot_histogram()
-
-    curr_image = normalized
-
     #TODO 이진화
-    # algorithm = "threshold_adaptive_gaussian"
-    # algorithm = "threshold_otsu_opencv"
-    algorithm = "threshold_adaptive_gaussian"
+    #algorithm = "threshold_adaptive_gaussian"
+    #algorithm = "threshold_adaptive_gaussian"
+    #algorithm = "threshold_otsu_opencv"
+    algorithm = "threshold_golobal"
 
     w, h = curr_image.dimension()
 
     if w > h * 3:
-        algorithm = "threshold_golobal"
+        algorithm = "threshold_adaptive_gaussian"
         algorithm = "threshold_adaptive_gaussian"
         algorithm = "threshold_otsu_opencv"
-        algorithm = "threshold_adaptive_gaussian"
+        algorithm = "threshold_golobal"
     pass
 
-    bin_image = curr_image.binarize_image( algorithm )
+    bin_image = curr_image.binarize_image( algorithm, threshold=None )
     curr_image = bin_image
     if bin_image.reverse_required :
         bin_image = bin_image.reverse_image()
     pass
+
+    #bin_image.reverse_image()
 
     bin_image.save_img_as_file( img_path, f"image_binarized({curr_image.algorithm})" )
     title = f"Binarization ({curr_image.algorithm})"
@@ -1391,7 +1435,7 @@ def my_image_process() :
     bin_image = morphology
     # -- morphology
 
-    #TODO   Y 축 데이터 히스토그램
+   #TODO   Y 축 데이터 히스토그램
 
     vertical_histogram = bin_image.get_vertical_histogram(ksize = 1)
     bin_image.plot_vertical_histogram(vertical_histogram, sentence)
@@ -1408,6 +1452,8 @@ def my_image_process() :
     pass
 
     log.info( "Plot show....." )
+
+    print_prof_last()
 
     plt.show()
 
