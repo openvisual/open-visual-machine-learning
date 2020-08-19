@@ -1009,7 +1009,7 @@ class Image :
             for gap in gaps :
                 x = gap.coord
                 y = [h] * len(x)
-                charts["gaps"] = ax.fill_between(x, y, color='b', alpha=0.7)
+                charts["gaps"] = ax.fill_between(x, y, color='green', alpha=0.3)
             pass
 
             for seginfo in seginfos :
