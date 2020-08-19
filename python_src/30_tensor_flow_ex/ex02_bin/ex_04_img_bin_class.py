@@ -1309,7 +1309,7 @@ def my_image_process() :
     fig = plt.figure(figsize=(13, 10), constrained_layout=True)
     plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
 
-    gs_row_cnt = 7
+    gs_row_cnt = 5
     gs_col_cnt = 7
 
     gs_row = -1
@@ -1325,8 +1325,8 @@ def my_image_process() :
     grayscale = image_org.convert_to_grayscale()
     grayscale.reverse_image( max = 255 )
     grayscale.save_img_as_file( img_path, "grayscale" )
-    grayscale.plot_image( title="Grayscale", cmap="gray", border_color = "green" )
-    grayscale.plot_histogram()
+    0 and grayscale.plot_image( title="Grayscale", cmap="gray", border_color = "green" )
+    0 and grayscale.plot_histogram()
 
     gs_avg = grayscale.average( )
     gs_std = grayscale.std( )
@@ -1343,8 +1343,8 @@ def my_image_process() :
         noise_removed.save_img_as_file( img_path, f"noise_removed({curr_image.algorithm})" )
 
         title = f"Noise removed ({curr_image.algorithm}, ksize={ksize})"
-        noise_removed.plot_image( title=title, cmap="gray", border_color = "blue" )
-        noise_removed.plot_histogram()
+        0 and noise_removed.plot_image( title=title, cmap="gray", border_color = "blue" )
+        0 and noise_removed.plot_histogram()
 
         curr_image = noise_removed
     pass
