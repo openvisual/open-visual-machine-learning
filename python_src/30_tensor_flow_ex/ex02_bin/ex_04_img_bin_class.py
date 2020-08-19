@@ -666,20 +666,11 @@ class Image :
 
         log.info( f"Threshold = {threshold}" )
 
-        w, h = self.dimension()
-
-        data = np.empty((h, w), dtype='B')
-
-        for y, row in enumerate(img):
-            for x, gs in enumerate(row):
-                gs = round(gs)  # 반올림.
-                data[y][x] = [0, 1][gs >= threshold]
-            pass
-        pass
+        data = np.where( img >= threshold , 1, 0 )
 
         image = Image( data )
         image.threshold = threshold
-        image.algorithm = f"global thresholding ({threshold:0.0g})"
+        image.algorithm = f"global thresholding ({ int(threshold) })"
         image.reverse_required = reverse_required
 
         return image
@@ -900,7 +891,7 @@ class Image :
         return v
     pass # -- binarize_image
 
-    def morphology(self, is_open, bsize, iterations, kernel_type = "cross" ):
+    def morphology(self, is_open, bsize = 5, iterations = 1, kernel_type = "cross" ):
         msg = "morphology"
         log.info(msg)
 
@@ -1313,13 +1304,12 @@ def my_image_process() :
     log.info(f"Image path: {img_path}")
     print(f"Image widh: {width}, height: {height}, channel: {channel_cnt}")
 
-    # org img, channel img, gray scale, median blur, histogram, bin, y_count
     global gs_row, gs_col, gs_col_cnt, gridSpec, fig
 
     fig = plt.figure(figsize=(13, 10), constrained_layout=True)
     plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
 
-    gs_row_cnt = 9
+    gs_row_cnt = 6
     gs_col_cnt = 7
 
     gs_row = -1
@@ -1428,7 +1418,7 @@ def my_image_process() :
     #-- 이진화
 
     # TODO morphology
-    morphology = bin_image.morphology( is_open = 0, bsize = 3, iterations = 3, kernel_type="ellipse" )
+    morphology = bin_image.morphology( is_open = 0, bsize = 5, iterations = 10, kernel_type="ellipse" )
     morphology.save_img_as_file( img_path, morphology.algorithm )
     morphology.plot_image( title=morphology.algorithm, cmap="gray", border_color = "blue" )
     morphology.plot_histogram()
