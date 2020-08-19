@@ -847,7 +847,7 @@ class Image :
     pass # -- binarize_image
     ''' 이진화 계산 '''
 
-    def morphology(self, is_open,  bsize, iterations ):
+    def morphology(self, is_open, bsize, iterations, kernel_type = "cross" ):
         msg = "morphology"
         log.info(msg)
 
@@ -862,18 +862,25 @@ class Image :
             iterations = 1
         pass
 
-        for _ in range ( iterations ) :
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (bsize, bsize))
 
-            kernel = np.ones([bsize, bsize], np.uint8)
+        if kernel_type == "rect" :
+            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (bsize, bsize))
+        elif kernel_type == "cross" :
+            kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (bsize, bsize))
+        elif kernel_type == "ellipse" :
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (bsize, bsize))
+        pass
+
+        for _ in range ( iterations ) :
             if is_open :
                 data = cv2.erode( data, kernel, iterations = 1)
             else :
                 data = cv2.dilate(data, kernel, iterations=1)
             pass
 
-            kernel = np.ones([bsize, bsize], np.uint8)
             if is_open :
-                data = cv2.dilate( data, kernel, iterations = 1)
+                data = cv2.dilate( data, kernel, iterations=1)
             else :
                 data = cv2.erode(data, kernel, iterations=1)
             pass
@@ -882,7 +889,7 @@ class Image :
         op_close = "open" if is_open else "close"
 
         image = Image(data)
-        image.algorithm = f"morphology, {op_close}, bsize={bsize}, iterations={iterations}"
+        image.algorithm = f"morphology, {op_close}, kernel={kernel_type}, bsize={bsize}, iterations={iterations}"
 
         return image
     pass  # -- morphology_closing
@@ -1318,8 +1325,7 @@ def my_image_process() :
     #-- 이진화
 
     # TODO morphology
-
-    morphology = bin_image.morphology( is_open = 0, bsize = 3, iterations = 3 )
+    morphology = bin_image.morphology( is_open = 0, bsize = 3, iterations = 3, kernel_type="ellipse" )
     morphology.save_img_as_file( img_path, morphology.algorithm )
     morphology.plot_image( title=morphology.algorithm, cmap="gray", border_color = "blue" )
     morphology.plot_histogram()
