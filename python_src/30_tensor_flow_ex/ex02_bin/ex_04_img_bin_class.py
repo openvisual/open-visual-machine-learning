@@ -408,28 +408,69 @@ class Image :
         return self
     pass # -- reverse_image
 
-    # 잡음 제거 함수
-    def remove_noise(self, ksize=3):
-        # TODO   잡음 제거
+    def laplacian(self, ksize=5):
+        # TODO   라플라시안
+        # https://docs.opencv.org/master/d5/d0f/tutorial_py_gradients.html
 
-        msg = "Remove noise"
-        log.info("%s ..." % msg)
+        msg = "Laplacian"
+        log.info( f"{msg} ..." )
+
+        ksize = 2*int(ksize/2) + 1
 
         img = self.img
 
-        algorithm = "cv.bilateralFilter"
+        algorithm = f"laplacian ksize={ksize}"
 
-        if "cv.bilateralFilter" == algorithm:
+        img = img.astype(np.float)
+
+        data = cv.Laplacian(img, cv.CV_64F)
+
+        # normalize to gray scale
+        min = np.min( data )
+        max = np.max( data )
+
+        data = (254/(max - min))*(data - min)
+
+        min = np.min(data)
+        max = np.max(data)
+        # -- # normalize to gray scale
+
+        data = data.astype(np.int)
+
+        min = np.min(data)
+        max = np.max(data)
+
+        log.info( f"min = {min}, max={max}")
+
+        log.info( f"Done. {msg}" )
+
+        return Image( img=data, algorithm=algorithm)
+    pass  # -- laplacian
+
+    def remove_noise(self, algorithm , ksize=5 ):
+        # TODO   잡음 제거
+
+        msg = "Remove noise"
+        log.info( f"{msg} ..." )
+
+        img = self.img
+
+        if algorithm == "gaussian blur"  :
+            # Gaussian filtering
+            img = img.astype(np.uint8)
+            data = cv.GaussianBlur(img, (ksize, ksize), 0)
+        elif algorithm == "bilateralFilter" :
             log.info("cv.bilateralFilter(img,ksize,75,75)")
 
             img = img.astype(np.uint8)
 
             data = cv2.bilateralFilter(img, ksize, 75, 75)
-        elif "cv2.medianBlur" == algorithm:
+        elif algorithm == "medianBlur" :
             log.info("cv2.medianBlur( image, ksize )")
 
             data = cv2.medianBlur(img, ksize)
         else:
+            algorithm = "my median blur"
             # my median blur
             h = len(img)  # image height
             w = len(img[0])  # image width
@@ -476,17 +517,23 @@ class Image :
 
         img = self.img
 
+        min = np.min( img )
+        max = np.max( img )
+
+        log.info( f"hist img min={min}, max={max}")
+
         size = 256 if np.max( img ) > 1 else 2
 
         histogram = [0] * size
 
         for row in img:
             for gs in row:
+                gs = int( gs )
                 histogram[gs] += 1
             pass
         pass
 
-        histogram = np.array(histogram, 'int')
+        histogram = np.array( histogram )
 
         log.info( f"Done. {msg}" )
 
@@ -549,17 +596,14 @@ class Image :
         log.info( f"cdf_min = {cdf_min}" )
 
         idx = 0
-        L_over_MN_cdf_min = L/(MN - cdf_min + 0.0)
 
         cdf = np.array(cdf, 'float')
 
-        cdf -= cdf_min
-        cdf *= L_over_MN_cdf_min
-        cdf += 0.5
+        cdf = (cdf - cdf_min)*(L-1)/(MN - cdf_min)
 
         for y, row in enumerate(img):
             for x, gs in enumerate(row):
-                # data[y][x] = int( (cdf[gs] - cdf_min)*L_over_MN_cdf_min + 0.5 )
+                gs = int( gs )
 
                 data[y][x] = int(cdf[gs])
 
@@ -795,27 +839,16 @@ class Image :
         return image
     pass  # -- 지역 가우시안 적응 임계치 처리
 
-    def binarize_image(self, threshold=None):
+    def binarize_image(self, algorithm):
         # TODO 이진화
 
         v = None
 
-        #algorithm = "threshold_adaptive_gaussian"
-        #algorithm = "threshold_otsu_opencv"
-        algorithm = "threshold_adaptive_gaussian"
-
-        w, h = self.dimension()
-
-        if w > h*3 :
-            algorithm = "threshold_golobal"
-            algorithm = "threshold_adaptive_gaussian"
-            algorithm = "threshold_otsu_opencv"
-            algorithm = "threshold_adaptive_gaussian"
-        pass
-
         if algorithm == "threshold_otsu_opencv":
             v = self.threshold_otsu_opencv()
         elif algorithm == "threshold_adaptive_gaussian" :
+            w, h = self.dimension()
+
             bsize = w if w > h else h
             bsize = bsize / 6
 
@@ -845,7 +878,6 @@ class Image :
 
         return v
     pass # -- binarize_image
-    ''' 이진화 계산 '''
 
     def morphology(self, is_open, bsize, iterations, kernel_type = "cross" ):
         msg = "morphology"
@@ -1266,7 +1298,7 @@ def my_image_process() :
     fig = plt.figure(figsize=(13, 10), constrained_layout=True)
     plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
 
-    gs_row_cnt = 6
+    gs_row_cnt = 7
     gs_col_cnt = 7
 
     gs_row = -1
@@ -1293,26 +1325,52 @@ def my_image_process() :
     #-- grayscale 변환
 
     # 잡음 제거
-    ksize = 3
-    noise_removed = grayscale.remove_noise( ksize = ksize )
+    ksize = 5
+    noise_removed = grayscale.remove_noise( algorithm="gaussian blur", ksize = ksize )
     curr_image = noise_removed
     noise_removed.save_img_as_file( img_path, f"noise_removed({curr_image.algorithm})" )
 
     title = f"Noise removed ({curr_image.algorithm}, ksize={ksize})"
     noise_removed.plot_image( title=title, cmap="gray", border_color = "blue" )
     noise_removed.plot_histogram()
+    curr_image = noise_removed
+
+    if 1 :
+        # 라플라시안
+        laplacian = curr_image.laplacian(ksize=5)
+        laplacian.save_img_as_file(img_path, laplacian.algorithm)
+        laplacian.plot_image(title="Laplacian", cmap="gray", border_color="green")
+        laplacian.plot_histogram()
+
+        curr_image = laplacian
+    pass
 
     # 평활화
-    image_normalized = noise_removed.normalize_image_by_histogram()
+    normalized = curr_image.normalize_image_by_histogram()
 
     print_prof_last()
 
-    image_normalized.save_img_as_file( img_path, "image_normalized" )
-    image_normalized.plot_image( title = "Normalization", cmap="gray", border_color = "green" )
-    image_normalized.plot_histogram()
+    normalized.save_img_as_file( img_path, "image_normalized" )
+    normalized.plot_image( title = "Normalization", cmap="gray", border_color = "green" )
+    normalized.plot_histogram()
+
+    curr_image = normalized
 
     #TODO 이진화
-    bin_image = image_normalized.binarize_image()
+    # algorithm = "threshold_adaptive_gaussian"
+    # algorithm = "threshold_otsu_opencv"
+    algorithm = "threshold_adaptive_gaussian"
+
+    w, h = curr_image.dimension()
+
+    if w > h * 3:
+        algorithm = "threshold_golobal"
+        algorithm = "threshold_adaptive_gaussian"
+        algorithm = "threshold_otsu_opencv"
+        algorithm = "threshold_adaptive_gaussian"
+    pass
+
+    bin_image = curr_image.binarize_image( algorithm )
     curr_image = bin_image
     if bin_image.reverse_required :
         bin_image = bin_image.reverse_image()
