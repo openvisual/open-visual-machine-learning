@@ -408,10 +408,10 @@ class Image :
         return self
     pass # -- reverse_image
 
-    # TODO   잡음 제거     # Median Blur Filter 적용
-
     # 잡음 제거 함수
     def remove_noise(self, ksize=3):
+        # TODO   잡음 제거
+
         msg = "Remove noise"
         log.info("%s ..." % msg)
 
@@ -427,6 +427,7 @@ class Image :
             data = cv2.bilateralFilter(img, ksize, 75, 75)
         elif "cv2.medianBlur" == algorithm:
             log.info("cv2.medianBlur( image, ksize )")
+
             data = cv2.medianBlur(img, ksize)
         else:
             # my median blur
@@ -794,8 +795,9 @@ class Image :
         return image
     pass  # -- 지역 가우시안 적응 임계치 처리
 
-    # TODO 이진화 계산
     def binarize_image(self, threshold=None):
+        # TODO 이진화
+
         v = None
 
         #algorithm = "threshold_adaptive_gaussian"
@@ -982,7 +984,7 @@ class Image :
     pass
     #-- y count 표출
 
-    def save_vertical_hist_as_excel(self, img_path, vertical_histogram):
+    def save_vertical_hist_as_excel(self, img_path, vertical_histogram, show_excel_file = 0):
         # 엑셀 파일 저장
         folder = "C:/Temp"
 
@@ -1099,11 +1101,11 @@ class Image :
         open_file_or_folder(folder)
 
         # 결과창 엑셀 파일 열기
-        show_excel_file = 1
-        show_excel_file and open_file_or_folder(excel_file_name)
+        if show_excel_file :  open_file_or_folder(excel_file_name)
     pass # -- y count 데이터를 엑셀, csv 파일로 저장
 
     def word_seginfos(self, y_signal_counts, sentence ):
+        # 세그먼트 정보 계산
         img = self.img
 
         h = len(img)
@@ -1329,7 +1331,7 @@ def my_image_process() :
 
     vertical_histogram = bin_image.get_vertical_histogram(ksize = 1)
     bin_image.plot_vertical_histogram(vertical_histogram, sentence)
-    bin_image.save_vertical_hist_as_excel(img_path, vertical_histogram)
+    bin_image.save_vertical_hist_as_excel(img_path, vertical_histogram, show_excel_file  = 0 )
 
     word_segments = bin_image.word_segements( vertical_histogram, sentence )
 
