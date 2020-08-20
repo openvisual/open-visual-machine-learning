@@ -17,7 +17,7 @@ def numeral_system(number, base):
     return numeral_system(q, base) + n if q else n
 pass
 
-for x in range( 1, 11 ) :
+for x in range( 0, 11 ) :
     result = numeral_system(x, 3)
     print( result )
 pass
