@@ -11,14 +11,14 @@ for i in range( 1, 101 ) :
     my_sum = my_sum + i
 pass
 
-print( "합계 = " , my_sum )
+print( "합계 = ", my_sum)
 
 # 다른 방법
 print()
 print( "Good morning" )
 
 numbers = range( 1, 101 )
-my_sum2 = sum( numbers )
+my_sum2 = sum(numbers)
 
 print( "합계 2 = " , my_sum2 )
 
@@ -26,6 +26,6 @@ print( "합계 2 = " , my_sum2 )
 print()
 print( "Good afternoon" )
 
-my_sum2 = sum( range( 1, 101 ) )
+my_sum2 = sum(range(1, 101))
 
 print( "합계 3 = " , my_sum2 )
