@@ -7,6 +7,7 @@ print( "소수" )
 prime_numbers = []
 for i in range( 2, 101 ) :
     is_prime = True
+
     for p in prime_numbers :
         if i%p == 0 :
             is_prime = False
@@ -16,6 +17,7 @@ for i in range( 2, 101 ) :
 
     if is_prime :
         prime_numbers.append( i )
+    pass
 pass
 
 print( prime_numbers )

@@ -10,4 +10,11 @@ for i in range( 1, 101 ) :
     pass
 pass
 
+print()
+print( "다른 방법" )
+
+for i in range( 1, 101 , 2 ) :
+    print( i )
+pass
+
 print( "Good bye!")

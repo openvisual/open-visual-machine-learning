@@ -21,3 +21,11 @@ numbers = range( 1, 101 )
 my_sum2 = sum( numbers )
 
 print( "합계 2 = " , my_sum2 )
+
+# 다른 방법
+print()
+print( "Good afternoon" )
+
+my_sum2 = sum( range( 1, 101 ) )
+
+print( "합계 3 = " , my_sum2 )

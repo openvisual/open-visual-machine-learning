@@ -7,16 +7,16 @@ print( "Hello" )
 prime_numbers = []
 
 for number in range(2, 100) :
-    isPrime = True
+    is_prime = True
 
     for p in prime_numbers :
         if number%p == 0 :
-            isPrime = False
+            is_prime = False
             break
         pass
     pass
 
-    if isPrime :
+    if is_prime :
         prime_numbers.append(number)
     pass
 pass
