@@ -54,10 +54,11 @@ for i, hist in enumerate( histogram ) :
     pass
 pass
 
+print( "thresh_avg = " , thresh_avg )
 bin_by_threshold_avg = np.where( grayscale >= thresh_avg , 1, 0 )
 ax = plt.subplot( 3, 1, 2 )
 ax.imshow( bin_by_threshold_avg, cmap="gray" )
-ax.set_xlabel( "Threshold average" )
+ax.set_xlabel( f"Threshold average({thresh_avg})" )
 ax.set_ylabel("y")
 
 # isodata 임계치 구하기
