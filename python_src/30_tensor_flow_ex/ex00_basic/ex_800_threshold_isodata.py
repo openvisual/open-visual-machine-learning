@@ -60,6 +60,7 @@ ax.imshow( bin_by_threshold_avg, cmap="gray" )
 ax.set_xlabel( "Threshold average" )
 ax.set_ylabel("y")
 
+# isodata 임계치 구하기
 t = 0
 t_diff = None
 for i in range( 2, 256 ) :
