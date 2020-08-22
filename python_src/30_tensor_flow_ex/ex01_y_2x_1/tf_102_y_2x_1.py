@@ -2,15 +2,11 @@
 import warnings 
 warnings.filterwarnings('ignore',category=FutureWarning)
 
-import numpy as np, random
+import numpy as np
 
 import tensorflow as tf
 from tensorflow import keras
-
-from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Lambda  
-from tensorflow.python.keras import backend as K 
 
 class QuestAns :
     def __init__(self, quest, answer) :
