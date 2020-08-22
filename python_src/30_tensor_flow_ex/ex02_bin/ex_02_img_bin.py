@@ -5,6 +5,10 @@ warnings.filterwarnings('ignore',category=FutureWarning)
 
 import os, cv2, numpy as np, sys
 
+import logging as log
+log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
+    datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
+
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 log.info( "Done Import.".center( 80, "*") )
