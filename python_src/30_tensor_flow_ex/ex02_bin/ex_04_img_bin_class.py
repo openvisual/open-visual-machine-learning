@@ -1299,6 +1299,9 @@ def my_image_process() :
     sentence = "오늘 비교적 온화한 날씨가"
     img_path = "../data_ocr/sample_01/sample_21.png"
 
+    sentence = "가제 제안하다 호박 현대인"
+    img_path = "../data_ocr/sample_01/sample_100.png"
+
     #img_path = "../data_yegan/ex_01/_1018877.JPG"
     #img_path = "../data_yegan/ex_01/1-56.JPG"
 
