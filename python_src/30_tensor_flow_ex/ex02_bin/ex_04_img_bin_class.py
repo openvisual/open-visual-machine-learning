@@ -653,16 +653,15 @@ class Image :
 
     ''' 이진화 '''
     # TODO     전역 임계치 처리
-    def threshold_golobal(self, threshold=None):
-        log.info("Global Threshold")
+    def threshold_golobal(self ):
+        msg = "Threshold global"
+        log.info( f"{msg}" )
 
         reverse_required = 0
 
         img = self.img
 
-        if not threshold:
-            threshold = np.average(img)
-        pass
+        threshold = np.average(img) + np.std( img )
 
         log.info( f"Threshold = {threshold}" )
 
@@ -675,6 +674,78 @@ class Image :
 
         return image
     pass  # -- 전역 임계치 처리
+
+    def threshold_isodata(self ):
+        msg = "Threshold isodata"
+        log.info( f"{msg}")
+
+        reverse_required = 0
+
+        img = self.img
+
+        histogram, _ = self.make_histogram()
+
+        threshold = 0
+        t_diff = None
+        for i in range(2, 256):
+            mL_hist = histogram[0: i]
+            mL = sum(mL_hist * np.arange(0, i)) / sum(mL_hist)
+            mH_hist = histogram[i:]
+            mH = sum(mH_hist * np.arange(i, 256)) / sum(mH_hist)
+
+            diff = abs(i - (mL + mH) / 2)
+            if t_diff is None or diff < t_diff:
+                t_diff = diff
+                threshold = i
+            pass
+        pass
+
+        log.info( f"Threshold isodata = {threshold}" )
+
+        data = np.where( img >= threshold , 1, 0 )
+
+        image = Image( data )
+        image.threshold = threshold
+        image.algorithm = f"threshold isodata ({ int(threshold) })"
+        image.reverse_required = reverse_required
+
+        return image
+    pass  # -- threshold_isodata
+
+    def threshold_balanced(self ):
+        msg = "Threshold balanced"
+        log.info( f"{msg}")
+
+        reverse_required = 0
+
+        img = self.img
+
+        histogram, _ = self.make_histogram()
+
+        threshold = 0
+        t_diff = None
+        for i in range(2, 256):
+            mL_hist = histogram[0: i]
+            mH_hist = histogram[i:]
+
+            diff = abs(sum(mL_hist) - sum(mH_hist))
+            if t_diff is None or diff < t_diff:
+                t_diff = diff
+                threshold = i
+            pass
+        pass
+
+        log.info( f"Threshold balanced = {threshold}" )
+
+        data = np.where( img >= threshold , 1, 0 )
+
+        image = Image( data )
+        image.threshold = threshold
+        image.algorithm = f"threshold balanced ({ int(threshold) })"
+        image.reverse_required = reverse_required
+
+        return image
+    pass  # -- threshold_balanced
 
     # TODO     지역 평균 적응 임계치 처리
     def threshold_adaptive_mean(self, bsize=3, c=0):
@@ -862,12 +933,12 @@ class Image :
         return image
     pass  # -- 지역 가우시안 적응 임계치 처리
 
-    def binarize_image(self, algorithm, threshold=None):
+    def binarize_image(self, algorithm ):
         # TODO 이진화
 
         v = None
 
-        if algorithm == "threshold_otsu_opencv":
+        if "otsu" in algorithm :
             v = self.threshold_otsu_opencv()
         elif algorithm == "threshold_adaptive_gaussian" :
             w, h = self.dimension()
@@ -881,11 +952,11 @@ class Image :
             bsize = 3
             v = self.threshold_adaptive_mean(bsize=bsize, c=0)
         elif algorithm == "threshold_golobal" :
-            if threshold is None :
-                threshold = np.average( self.img )
-            pass
-
-            v = self.threshold_golobal( threshold=threshold )
+            v = self.threshold_golobal()
+        elif "isodata" in algorithm :
+            v = self.threshold_isodata()
+        elif "balanced" in algorithm:
+            v = self.threshold_balanced()
         pass
 
         return v
@@ -1324,7 +1395,7 @@ def my_image_process() :
     fig = plt.figure(figsize=(13, 10), constrained_layout=True)
     plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
 
-    gs_row_cnt = 5
+    gs_row_cnt = 6
     gs_col_cnt = 7
 
     gs_row = -1
@@ -1374,7 +1445,7 @@ def my_image_process() :
         curr_image = gradient
     pass # -- gradient
 
-    if action =="segementation" :
+    if action == "segmentation" :
         # TODO 평활화
         normalized = curr_image.normalize_image_by_histogram()
         normalized.save_img_as_file( img_path, "image_normalized" )
@@ -1405,20 +1476,12 @@ def my_image_process() :
     #TODO 이진화
     #algorithm = "threshold_adaptive_gaussian"
     #algorithm = "threshold_adaptive_gaussian"
-    #algorithm = "threshold_otsu_opencv"
+    #algorithm = "threshold_otsu"
+    #algorithm = "threshold_isodata"
+    #algorithm = "threshold_balanced"
     algorithm = "threshold_golobal"
 
-    w, h = curr_image.dimension()
-
-    if w > h * 3:
-        algorithm = "threshold_adaptive_gaussian"
-        algorithm = "threshold_adaptive_gaussian"
-        algorithm = "threshold_otsu_opencv"
-        algorithm = "threshold_golobal"
-    pass
-
-    threshold = curr_image.average() + curr_image.std()
-    bin_image = curr_image.binarize_image( algorithm=algorithm, threshold=threshold )
+    bin_image = curr_image.binarize_image( algorithm=algorithm )
     curr_image = bin_image
     if bin_image.reverse_required :
         bin_image = bin_image.reverse_image()
@@ -1432,9 +1495,9 @@ def my_image_process() :
     bin_image.plot_histogram()
     #-- 이진화
 
-    if 1 :
+    if 0 :
         # TODO morphology
-        morphology = bin_image.morphology( is_open = 0, bsize = 5, iterations = 10, kernel_type="cross" )
+        morphology = bin_image.morphology( is_open = 0, bsize = 3, iterations = 1, kernel_type="cross" )
         morphology.save_img_as_file( img_path, morphology.algorithm )
         morphology.plot_image( title=morphology.algorithm, cmap="gray", border_color = "blue" )
         morphology.plot_histogram()
