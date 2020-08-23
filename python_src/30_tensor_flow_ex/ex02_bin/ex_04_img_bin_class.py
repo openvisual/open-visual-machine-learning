@@ -1291,6 +1291,7 @@ def my_image_process() :
     # 현재 파일의 폴더로 실행 폴더를 이동함.
     chdir_to_curr_file()
 
+    action = "segmentation"
     # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
     # img_path = "../data_ocr/sample_01/messi5.png"
     # img_path = "../data_ocr/sample_01/hist_work_01.png"
@@ -1302,6 +1303,7 @@ def my_image_process() :
     sentence = "가제 제안하다 호박 현대인"
     img_path = "../data_ocr/sample_01/sample_100.png"
 
+    # action = "line extract"
     #img_path = "../data_yegan/ex_01/_1018877.JPG"
     #img_path = "../data_yegan/ex_01/1-56.JPG"
 
@@ -1338,8 +1340,8 @@ def my_image_process() :
     grayscale = image_org.convert_to_grayscale()
     grayscale.reverse_image( max = 255 )
     grayscale.save_img_as_file( img_path, "grayscale" )
-    0 and grayscale.plot_image( title="Grayscale", cmap="gray", border_color = "green" )
-    0 and grayscale.plot_histogram()
+    grayscale.plot_image( title="Grayscale", cmap="gray", border_color = "green" )
+    grayscale.plot_histogram()
 
     gs_avg = grayscale.average( )
     gs_std = grayscale.std( )
@@ -1356,13 +1358,13 @@ def my_image_process() :
         noise_removed.save_img_as_file( img_path, f"noise_removed({curr_image.algorithm})" )
 
         title = f"Noise removed ({curr_image.algorithm}, ksize={ksize})"
-        0 and noise_removed.plot_image( title=title, cmap="gray", border_color = "blue" )
-        0 and noise_removed.plot_histogram()
+        noise_removed.plot_image( title=title, cmap="gray", border_color = "blue" )
+        noise_removed.plot_histogram()
 
         curr_image = noise_removed
     pass
 
-    if 1:
+    if action == "line extract":
         # TODO Gradient
         gradient = curr_image.gradient(ksize=5, kernel_type="cross")
         gradient.save_img_as_file(img_path, gradient.algorithm)
@@ -1372,7 +1374,7 @@ def my_image_process() :
         curr_image = gradient
     pass # -- gradient
 
-    if 0 :
+    if action =="segementation" :
         # TODO 평활화
         normalized = curr_image.normalize_image_by_histogram()
         normalized.save_img_as_file( img_path, "image_normalized" )
@@ -1440,7 +1442,7 @@ def my_image_process() :
         bin_image = morphology
     pass # -- morphology
 
-    if 1:
+    if action == "line extract":
         # TODO Gradient 2
         gradient = bin_image.gradient(ksize=5, kernel_type="cross")
         gradient.save_img_as_file(img_path, gradient.algorithm)

@@ -45,20 +45,13 @@ ax.set_xlabel( "Grayscale" )
 ax.set_ylabel("y")
 ax.legend()
 
-hist_avg = np.average( histogram )
-thresh_avg = 0
-for i, hist in enumerate( histogram ) :
-    if hist >= hist_avg :
-        thresh_avg = i
-        break
-    pass
-pass
+thresh_avg = sum( histogram * np.arange(256) )/(w*h)
 
 print( "thresh_avg = " , thresh_avg )
 bin_by_threshold_avg = np.where( grayscale >= thresh_avg , 1, 0 )
 ax = plt.subplot( 3, 1, 2 )
 ax.imshow( bin_by_threshold_avg, cmap="gray" )
-ax.set_xlabel( f"Threshold average({thresh_avg})" )
+ax.set_xlabel( f"Threshold average({thresh_avg:.2f})" )
 ax.set_ylabel("y")
 
 # isodata 임계치 구하기
@@ -67,10 +60,10 @@ t_diff = None
 for i in range( 2, 256 ) :
     mL_hist = histogram[ 0 : i ]
     mH_hist = histogram[ i : ]
-    mL = np.average( mL_hist, weights=np.arange( 0, i, 1) )
-    mH = np.average( mH_hist, weights=np.arange( i, 256 , 1 ))
+    mL = sum(mL_hist * np.arange(0, i)) / sum(mL_hist)
+    mH = sum(mH_hist * np.arange(i, 256)) / sum(mH_hist)
 
-    diff = i - (mL + mH)/2
+    diff = abs( i - (mL + mH)/2 )
     if t_diff is None or diff < t_diff :
         t_diff = diff
         t = i
@@ -80,7 +73,7 @@ pass
 bin_by_threshold_isodata = np.where( grayscale >= t , 1, 0 )
 ax = plt.subplot( 3, 1, 3 )
 ax.imshow( bin_by_threshold_isodata, cmap="gray" )
-ax.set_xlabel( "Threshold isodata" )
+ax.set_xlabel( f"Threshold isodata({t})" )
 ax.set_ylabel("y")
 
 plt.show()
