@@ -787,7 +787,7 @@ class Image :
 
         image = Image( data )
         image.threshold = -1
-        image.algorithm = "adaptive mean thresholding"
+        image.algorithm = "adaptive mean"
         image.reverse_required = reverse_required
 
         return image
@@ -817,7 +817,7 @@ class Image :
     pass  # -- threshold_otsu_opencv
 
     # TODO     지역 가우시안 적응 임계치 처리
-    def threshold_adaptive_gaussian(self, bsize=3, c=0):
+    def threshold_adaptive_gaussian(self, bsize=5, c=0):
         algorithm = 0
 
         if algorithm == 0 :
@@ -829,7 +829,7 @@ class Image :
         return v
     pass # -- threshold_adaptive_gaussian
 
-    def threshold_adaptive_gaussian_opencv(self, bsize=3, c=0):
+    def threshold_adaptive_gaussian_opencv(self, bsize=5, c=0):
         msg = "Apdative threshold gaussian opencv"
         log.info(msg)
         # https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_thresholding/py_thresholding.html
@@ -949,7 +949,7 @@ class Image :
             #bsize = 5  # for line detection
             v = self.threshold_adaptive_gaussian(bsize=bsize, c=5)
         elif algorithm == "threshold_adaptive_mean" :
-            bsize = 3
+            bsize = 5
             v = self.threshold_adaptive_mean(bsize=bsize, c=0)
         elif algorithm == "threshold_golobal" :
             v = self.threshold_golobal()
@@ -1474,11 +1474,11 @@ def my_image_process() :
     pass
 
     #TODO 이진화
-    #algorithm = "threshold_adaptive_gaussian"
-    #algorithm = "threshold_adaptive_gaussian"
     #algorithm = "threshold_otsu"
     #algorithm = "threshold_isodata"
     #algorithm = "threshold_balanced"
+    #algorithm = "threshold_adaptive_gaussian"
+    #algorithm = "threshold_adaptive_mean"
     algorithm = "threshold_golobal"
 
     bin_image = curr_image.binarize_image( algorithm=algorithm )
