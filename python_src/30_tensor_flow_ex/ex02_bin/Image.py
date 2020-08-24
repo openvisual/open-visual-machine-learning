@@ -131,7 +131,6 @@ class Image :
 
     ''' -- 이미지 저장 함수 '''
 
-    # TODO 플롯 함수
     # pyplot ax 의 프레임 경계 색상 변경
     def change_ax_border_color(self, ax, color):
         for spine in ax.spines.values():
@@ -141,12 +140,16 @@ class Image :
     pass  # -- change_ax_border_color
 
     def plot_image( self, title="", cmap="gray", border_color="black"):
-        # 그레이 스케일 이미지 표출
+        # TODO 이미지 그리기
 
-        if Image.gridSpec is None :
+        if Image.gridSpec is None or Image.gs_row >= Image.gs_row_cnt :
+            Image.gs_row = -1
 
             Image.fig = plt.figure(figsize=(13, 10), constrained_layout=True)
             Image.gridSpec = GridSpec(Image.gs_row_cnt, Image.gs_col_cnt, figure=Image.fig)
+
+            # plot 윈도우 제목 변경
+            plt.get_current_fig_manager().canvas.set_window_title(Image.action.capitalize())
         pass
 
         Image.gs_row += 1
@@ -1117,13 +1120,6 @@ class Image :
         folder = "C:/Temp"
 
         file_name = file_name_except_path_ext( img_path )
-
-        if 0 :
-            # TODO     y count 데이터를 csv 파일로 저장
-            path = f"{folder}/{file_name}_y_counts.csv"
-            vertical_histogram.tofile(path, sep=',', format='%s')
-            log.info(f"CSV file {path} was saved.")
-        pass
 
         # TODO     y count 데이터를 엑셀 파일로 저장
         import xlsxwriter

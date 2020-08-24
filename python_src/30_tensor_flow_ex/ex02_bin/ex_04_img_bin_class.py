@@ -38,6 +38,7 @@ def my_image_process() :
     chdir_to_curr_file()
 
     action = "segmentation"
+    Image.action = action
     # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
     # img_path = "../data_ocr/sample_01/messi5.png"
     # img_path = "../data_ocr/sample_01/hist_work_01.png"
@@ -196,8 +197,6 @@ def my_image_process() :
     log.info( "Plot show....." )
 
     print_prof_last()
-
-    plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
 
     plt.show()
 

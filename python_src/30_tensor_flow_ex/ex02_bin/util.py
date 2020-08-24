@@ -34,8 +34,10 @@ def is_writable(file):
 
             return True
         except OSError as e:
-            pass
+            log.info( f"is is not writable. {file}" )
         pass
+    else :
+        return True
     pass
 
     return False
