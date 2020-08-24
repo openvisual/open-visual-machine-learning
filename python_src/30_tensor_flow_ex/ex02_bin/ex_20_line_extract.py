@@ -136,6 +136,16 @@ def my_line_extract() :
         curr_image = morphology
     pass # -- morphology
 
+    if 1 :
+        # 허프 라인 추출
+        hough = curr_image.hough_lines()
+
+        hough.save_img_as_file(img_path, hough.algorithm, cmap=None)
+        hough.plot_image(title=hough.algorithm, cmap="gray", border_color="blue")
+
+        curr_image = hough
+    pass
+
     log.info( "Plot show....." )
 
     print_prof_last()

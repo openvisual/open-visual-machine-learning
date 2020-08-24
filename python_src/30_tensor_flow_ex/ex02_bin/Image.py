@@ -143,6 +143,8 @@ class Image :
     def plot_image( self, title="", cmap="gray", border_color="black"):
         # TODO 이미지 그리기
 
+        #cmap = "gray"
+
         Image.gs_row += 1
 
         if Image.gridSpec is None or Image.gs_row >= Image.gs_row_cnt :
@@ -1337,6 +1339,38 @@ class Image :
 
         return image_words
     pass # -- word_segements
+
+    def hough_lines(self):
+        # hough line 추출
+        msg = "hough line"
+        log.info( f"{msg}")
+
+        img = self.img
+
+        img = img.astype(np.uint8)
+
+        if np.max( img ) < 2 :
+            img = img*255
+        pass
+
+        lines = cv.HoughLinesP(img, 1, np.pi / 180, 50, None, 50, 10)
+
+        data = cv.cvtColor( img, cv.COLOR_GRAY2BGR )
+
+        if lines is not None:
+            for i in range(0, len(lines)):
+                l = lines[i][0]
+                cv.line( data, (l[0], l[1]), (l[2], l[3]), (0, 0, 255), 3, cv.LINE_AA)
+            pass
+        pass
+
+        image = Image(data)
+        image.algorithm = "hough lines"
+
+        log.info(f"Done. {msg}")
+
+        return image
+    pass # hough_lines
 
 pass
 # -- class Image
