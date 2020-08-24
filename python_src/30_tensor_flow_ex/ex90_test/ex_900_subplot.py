@@ -1,20 +1,25 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import warnings 
 warnings.filterwarnings('ignore',category=FutureWarning)
 
-# 로그 예제
 import logging as log
 log.basicConfig(
     format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
     datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO
     )
 
-# 로그를 남기는 예제입니다.
-log.info( "Hello" )
-log.info( "Good bye!" )
+import numpy as np
+import matplotlib.pyplot as plt
 
-# -- 로그 예제
+x = np.arange(0, 25,0.1)
+fig, axis = plt.subplots(2)
+
+plt.ylabel('sin(x)')
+plt.xlabel('x')
+
+axis[0].plot(np.sin(x))
+axis[1].plot(np.cos(x))
+
+plt.show()
