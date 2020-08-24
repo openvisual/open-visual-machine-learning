@@ -633,9 +633,27 @@ class Image :
 
         img = self.img
 
-        threshold = np.average(img) + np.std( img )
+        h = len( img )
+        w = len( img[0] )
 
-        log.info( f"Threshold = {threshold}" )
+        histogram = None
+
+        if not hasattr(self, "histogram" ) or self.histogram is None :
+            histogram , _ = self.make_histogram()
+        else :
+            histogram = self.histogram
+        pass
+
+        histogram = histogram.copy()
+
+        margin = 20
+        histogram[0: margin] = 0
+
+        x = np.arange(0, len(histogram))
+
+        avg =  margin + ( sum( histogram * x )/np.sum( histogram ) )
+
+        threshold = avg
 
         data = np.where( img >= threshold , 1, 0 )
 
@@ -765,8 +783,8 @@ class Image :
         return image
     pass  # -- 지역 평균 적응 임계치 처리
 
-    def threshold_otsu_opencv(self):
-        msg = "Otsu threshold opencv"
+    def threshold_otsu(self):
+        msg = "threshold otsu"
         log.info(msg)
         # https: // docs.opencv.org / 3.4 / d7 / d4d / tutorial_py_thresholding.html
 
@@ -782,7 +800,7 @@ class Image :
 
         image = Image( data )
         image.threshold = threshold
-        image.algorithm = f"Otsu threshold opencv (threshold={threshold})"
+        image.algorithm = f"otsu threshold={threshold}"
         image.reverse_required = reverse_required
 
         return image
@@ -816,7 +834,7 @@ class Image :
 
         image = Image( data )
         image.threshold = f"bsize = {bsize}"
-        image.algorithm = f"adaptive gaussian thresholding opencv (bsize={bsize})"
+        image.algorithm = f"adaptive gaussian, bsize={bsize}"
         image.reverse_required = reverse_required
 
         return image
@@ -911,19 +929,19 @@ class Image :
         v = None
 
         if "otsu" in algorithm :
-            v = self.threshold_otsu_opencv()
-        elif algorithm == "threshold_adaptive_gaussian" :
+            v = self.threshold_otsu()
+        elif "gaussian" in algorithm :
             w, h = self.dimension()
 
             bsize = w if w > h else h
             bsize = bsize / 6
+            bsize = 13
 
-            #bsize = 5  # for line detection
-            v = self.threshold_adaptive_gaussian(bsize=bsize, c=5)
-        elif algorithm == "threshold_adaptive_mean" :
+            v = self.threshold_adaptive_gaussian(bsize=bsize, c=0)
+        elif "mean" in algorithm :
             bsize = 5
             v = self.threshold_adaptive_mean(bsize=bsize, c=0)
-        elif algorithm == "threshold_golobal" :
+        elif "global" in algorithm :
             v = self.threshold_golobal()
         elif "isodata" in algorithm :
             v = self.threshold_isodata()
