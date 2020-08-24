@@ -55,6 +55,14 @@ class Image :
     img_save_cnt = 0
     clear_work_files = 0
 
+    gs_row_cnt = 6
+    gs_col_cnt = 7
+
+    gs_row = -1
+    gs_col = 0
+
+    gridSpec = None
+
     def __init__(self, img, algorithm="" ):
         # 2차원 배열 데이터
         self.img = img
@@ -134,12 +142,18 @@ class Image :
 
     def plot_image( self, title="", cmap="gray", border_color="black"):
         # 그레이 스케일 이미지 표출
-        global gs_row
-        gs_row += 1
-        gs_col = 1
-        colspan = gs_col_cnt - gs_col
 
-        ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
+        if Image.gridSpec is None :
+
+            Image.fig = plt.figure(figsize=(13, 10), constrained_layout=True)
+            Image.gridSpec = GridSpec(Image.gs_row_cnt, Image.gs_col_cnt, figure=Image.fig)
+        pass
+
+        Image.gs_row += 1
+        gs_col = 1
+        colspan = Image.gs_col_cnt - gs_col
+
+        ax = plt.subplot(Image.gridSpec.new_subplotspec((Image.gs_row, gs_col), colspan=colspan))
 
         img = self.img
 
@@ -150,7 +164,7 @@ class Image :
 
         border_color and self.change_ax_border_color(ax, border_color)
 
-        fig.colorbar(img_show, ax=ax)
+        Image.fig.colorbar(img_show, ax=ax)
 
         return ax, img_show
 
@@ -162,11 +176,10 @@ class Image :
         h = len( img )
         w = len( img[0] )
 
-        global gs_row
         gs_col = 0
         colspan = 1
 
-        ax = plt.subplot(gridSpec.new_subplotspec((gs_row, gs_col), colspan=colspan))
+        ax = plt.subplot(Image.gridSpec.new_subplotspec((Image.gs_row, gs_col), colspan=colspan))
 
         if not hasattr(self, "histogram") or self.histogram is None :
             self.make_histogram()

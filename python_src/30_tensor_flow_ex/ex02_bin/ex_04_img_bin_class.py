@@ -65,19 +65,6 @@ def my_image_process() :
     log.info(f"Image path: {img_path}")
     print(f"Image widh: {width}, height: {height}, channel: {channel_cnt}")
 
-    global gs_row, gs_col, gs_col_cnt, gridSpec, fig
-
-    fig = plt.figure(figsize=(13, 10), constrained_layout=True)
-    plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
-
-    gs_row_cnt = 6
-    gs_col_cnt = 7
-
-    gs_row = -1
-    gs_col = 0
-
-    gridSpec = GridSpec(gs_row_cnt, gs_col_cnt, figure=fig)
-
     image_org = Image( img_org )
     image_org.save_img_as_file( img_path, "org" )
     title = f'Original Image: { img_path.split("/")[-1] }'
@@ -209,6 +196,8 @@ def my_image_process() :
     log.info( "Plot show....." )
 
     print_prof_last()
+
+    plt.get_current_fig_manager().canvas.set_window_title("2D Line Extraction")
 
     plt.show()
 

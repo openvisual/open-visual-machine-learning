@@ -10,24 +10,13 @@ log.basicConfig(
     datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO
     )
 
-import numpy as np
 import matplotlib.pyplot as plt
 
-x = np.arange(0, 25,0.1)
-fig, axis = plt.subplots(2)
+ax1 = plt.subplot2grid((3, 2), (0, 0), colspan=1)
+ax2 = plt.subplot2grid((3, 2), (0, 1), colspan=1)
+ax3 = plt.subplot2grid((3, 2), (1, 0), colspan=2)
+ax4 = plt.subplot2grid((3, 2), (2, 0), colspan=2)
 
-plt.ylabel('sin(x)')
-plt.xlabel('x')
-
-axis[0].plot(np.sin(x))
-axis[1].plot(np.cos(x))
-
-fig, axis = plt.subplots(2)
-
-plt.ylabel('sin(x)')
-plt.xlabel('x')
-
-axis[0].plot(np.sin(x))
-axis[1].plot(np.cos(x))
+plt.tight_layout()
 
 plt.show()
