@@ -1366,6 +1366,7 @@ class Image :
         lines = cv.HoughLinesP(img, 1, np.pi / 180, 50, None, 50, 10)
 
         data = cv.cvtColor( img, cv.COLOR_GRAY2BGR )
+        data = data*0
 
         import matplotlib.colors as mcolors
         from matplotlib.colors import hex2color, rgb2hex
@@ -1402,5 +1403,3 @@ class Image :
 
 pass
 # -- class Image
-
-# end
