@@ -121,9 +121,15 @@ class Image :
         return fn
     pass  # -- img_file_name
 
-    def save_img_as_file(self, img_path, work, cmap="gray"):
+    def save_img_as_file(self, img_path, work, ):
         filename = self.img_file_name( img_path, work)
         img = self.img
+
+        cmap = "gray"
+
+        if len( img ) == 3 :
+            cmap = None
+        pass
 
         plt.imsave(filename, img, cmap=cmap)
 
@@ -140,10 +146,8 @@ class Image :
 
     pass  # -- change_ax_border_color
 
-    def plot_image( self, title="", cmap="gray", border_color="black"):
+    def plot_image( self, title="", border_color="black"):
         # TODO 이미지 그리기
-
-        #cmap = "gray"
 
         Image.gs_row += 1
 
@@ -168,6 +172,12 @@ class Image :
         ax = plt.subplot(Image.gridSpec.new_subplotspec((Image.gs_row, gs_col), colspan=colspan))
 
         img = self.img
+
+        cmap = "gray"
+
+        if len( img ) == 3 :
+            cmap = None
+        pass
 
         img_show = ax.imshow(img, cmap=cmap )
 
@@ -1047,7 +1057,7 @@ class Image :
 
         title = f"Vertical histogram( ref ratio={ ref_ratio*100:.2f}% )"
 
-        ax, img_show = self.plot_image( title=title, cmap="gray", border_color="blue")
+        ax, img_show = self.plot_image( title=title,  border_color="blue")
         self.plot_histogram()
 
         w, h = self.dimension()

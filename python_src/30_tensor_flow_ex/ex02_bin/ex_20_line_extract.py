@@ -66,7 +66,7 @@ def my_line_extract() :
     grayscale = image_org.convert_to_grayscale()
     grayscale.reverse_image( max=255 )
     grayscale.save_img_as_file( img_path, "grayscale" )
-    grayscale.plot_image( title="Grayscale", cmap="gray", border_color = "green" )
+    grayscale.plot_image( title="Grayscale", border_color = "green" )
     grayscale.plot_histogram()
     #-- grayscale 변환
 
@@ -78,7 +78,7 @@ def my_line_extract() :
         noise_removed.save_img_as_file( img_path, f"noise_removed({curr_image.algorithm})" )
 
         title = f"Noise removed ({curr_image.algorithm}, ksize={ksize})"
-        noise_removed.plot_image( title=title, cmap="gray", border_color = "blue" )
+        noise_removed.plot_image( title=title, border_color = "blue" )
         noise_removed.plot_histogram()
 
         curr_image = noise_removed
@@ -88,7 +88,7 @@ def my_line_extract() :
         # TODO 평활화
         normalized = curr_image.normalize_image_by_histogram()
         normalized.save_img_as_file( img_path, "image_normalized" )
-        normalized.plot_image( title="Normalization", cmap="gray", border_color = "green" )
+        normalized.plot_image( title="Normalization", border_color = "green" )
         normalized.plot_histogram()
 
         curr_image = normalized
@@ -98,7 +98,7 @@ def my_line_extract() :
         # TODO Gradient
         gradient = curr_image.gradient(ksize=7, kernel_type="cross")
         gradient.save_img_as_file(img_path, gradient.algorithm)
-        gradient.plot_image(title=gradient.algorithm, cmap="gray", border_color="blue")
+        gradient.plot_image(title=gradient.algorithm, border_color="blue")
         gradient.plot_histogram()
 
         curr_image = gradient
@@ -120,7 +120,7 @@ def my_line_extract() :
 
         bin_image.save_img_as_file( img_path, f"image_binarized({bin_image.algorithm})" )
         title = f"Binarization ({bin_image.algorithm})"
-        bin_image.plot_image( title=title, cmap="gray", border_color="blue" )
+        bin_image.plot_image( title=title, border_color="blue" )
         bin_image.plot_histogram()
 
         curr_image = bin_image
@@ -130,7 +130,7 @@ def my_line_extract() :
         # TODO morphology
         morphology = curr_image.morphology( is_open=0, bsize=7, iterations=3, kernel_type="cross" )
         morphology.save_img_as_file( img_path, morphology.algorithm )
-        morphology.plot_image( title=morphology.algorithm, cmap="gray", border_color="blue" )
+        morphology.plot_image( title=morphology.algorithm, border_color="blue" )
         morphology.plot_histogram()
 
         curr_image = morphology
@@ -140,8 +140,8 @@ def my_line_extract() :
         # 허프 라인 추출
         hough = curr_image.hough_lines()
 
-        hough.save_img_as_file(img_path, hough.algorithm, cmap=None)
-        hough.plot_image(title=hough.algorithm, cmap="gray", border_color="blue")
+        hough.save_img_as_file(img_path, hough.algorithm )
+        hough.plot_image(title=hough.algorithm, border_color="blue")
 
         curr_image = hough
     pass

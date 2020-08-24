@@ -66,12 +66,12 @@ def my_image_process() :
     image_org = Image( img_org )
     image_org.save_img_as_file( img_path, "org" )
     title = f'Original Image: { img_path.split("/")[-1] }'
-    0 and image_org.plot_image( title = title , cmap=None, border_color = "green" )
+    0 and image_org.plot_image( title = title , border_color = "green" )
 
     grayscale = image_org.convert_to_grayscale()
     grayscale.reverse_image( max = 255 )
     grayscale.save_img_as_file( img_path, "grayscale" )
-    grayscale.plot_image( title="Grayscale", cmap="gray", border_color = "green" )
+    grayscale.plot_image( title="Grayscale", border_color = "green" )
     grayscale.plot_histogram()
 
     gs_avg = grayscale.average( )
@@ -89,7 +89,7 @@ def my_image_process() :
         noise_removed.save_img_as_file( img_path, f"noise_removed({curr_image.algorithm})" )
 
         title = f"Noise removed ({curr_image.algorithm}, ksize={ksize})"
-        noise_removed.plot_image( title=title, cmap="gray", border_color = "blue" )
+        noise_removed.plot_image( title=title, border_color = "blue" )
         noise_removed.plot_histogram()
 
         curr_image = noise_removed
@@ -99,7 +99,7 @@ def my_image_process() :
         # TODO Gradient
         gradient = curr_image.gradient(ksize=5, kernel_type="cross")
         gradient.save_img_as_file(img_path, gradient.algorithm)
-        gradient.plot_image(title=gradient.algorithm, cmap="gray", border_color="blue")
+        gradient.plot_image(title=gradient.algorithm, border_color="blue")
         gradient.plot_histogram()
 
         curr_image = gradient
@@ -109,7 +109,7 @@ def my_image_process() :
         # TODO 평활화
         normalized = curr_image.normalize_image_by_histogram()
         normalized.save_img_as_file( img_path, "image_normalized" )
-        normalized.plot_image( title = "Normalization", cmap="gray", border_color = "green" )
+        normalized.plot_image( title = "Normalization", border_color = "green" )
         normalized.plot_histogram()
 
         curr_image = normalized
@@ -119,7 +119,7 @@ def my_image_process() :
         # 라플라시안
         laplacian = curr_image.laplacian(ksize=5)
         laplacian.save_img_as_file(img_path, laplacian.algorithm)
-        laplacian.plot_image(title="Laplacian", cmap="gray", border_color="green")
+        laplacian.plot_image(title="Laplacian", border_color="green")
         laplacian.plot_histogram()
 
         curr_image = laplacian
@@ -127,7 +127,7 @@ def my_image_process() :
         # 평활화 2
         normalized2 = curr_image.normalize_image_by_histogram()
         normalized2.save_img_as_file(img_path, "laplacian_normalized")
-        normalized2.plot_image(title="Laplacian Normalization", cmap="gray", border_color="green")
+        normalized2.plot_image(title="Laplacian Normalization", border_color="green")
         normalized2.plot_histogram()
 
         curr_image = normalized2
@@ -151,7 +151,7 @@ def my_image_process() :
 
     bin_image.save_img_as_file( img_path, f"image_binarized({curr_image.algorithm})" )
     title = f"Binarization ({curr_image.algorithm})"
-    bin_image.plot_image( title=title, cmap="gray", border_color = "blue" )
+    bin_image.plot_image( title=title, border_color = "blue" )
     bin_image.plot_histogram()
     #-- 이진화
 
@@ -159,7 +159,7 @@ def my_image_process() :
         # TODO morphology
         morphology = bin_image.morphology( is_open = 0, bsize = 3, iterations = 1, kernel_type="cross" )
         morphology.save_img_as_file( img_path, morphology.algorithm )
-        morphology.plot_image( title=morphology.algorithm, cmap="gray", border_color = "blue" )
+        morphology.plot_image( title=morphology.algorithm, border_color = "blue" )
         morphology.plot_histogram()
 
         bin_image = morphology
@@ -169,7 +169,7 @@ def my_image_process() :
         # TODO Gradient 2
         gradient = bin_image.gradient(ksize=5, kernel_type="cross")
         gradient.save_img_as_file(img_path, gradient.algorithm)
-        gradient.plot_image(title=gradient.algorithm, cmap="gray", border_color="blue")
+        gradient.plot_image(title=gradient.algorithm, border_color="blue")
         gradient.plot_histogram()
 
         bin_image = gradient
