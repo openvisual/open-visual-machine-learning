@@ -139,7 +139,7 @@ def my_image_process() :
     #algorithm = "threshold_balanced"
     #algorithm = "threshold_adaptive_gaussian"
     #algorithm = "threshold_adaptive_mean"
-    algorithm = "threshold_golobal"
+    algorithm = "threshold_global"
 
     bin_image = curr_image.threshold(algorithm=algorithm)
     curr_image = bin_image

@@ -85,6 +85,16 @@ def my_line_extract() :
     pass
 
     if 1 :
+        # TODO 평활화
+        normalized = curr_image.normalize_image_by_histogram()
+        normalized.save_img_as_file( img_path, "image_normalized" )
+        normalized.plot_image( title="Normalization", cmap="gray", border_color = "green" )
+        normalized.plot_histogram()
+
+        curr_image = normalized
+    pass
+
+    if 1:
         # TODO Gradient
         gradient = curr_image.gradient(ksize=5, kernel_type="cross")
         gradient.save_img_as_file(img_path, gradient.algorithm)
@@ -92,17 +102,7 @@ def my_line_extract() :
         gradient.plot_histogram()
 
         curr_image = gradient
-    pass # -- gradient
-
-    if 1 :
-        # TODO 평활화
-        normalized = curr_image.normalize_image_by_histogram()
-        normalized.save_img_as_file( img_path, "image_normalized" )
-        normalized.plot_image( title = "Normalization", cmap="gray", border_color = "green" )
-        normalized.plot_histogram()
-
-        curr_image = normalized
-    pass
+    pass  # -- gradient
 
     if 0 :
         # 라플라시안
@@ -123,12 +123,12 @@ def my_line_extract() :
     pass
 
     #TODO 이진화
-    #algorithm = "threshold_otsu"
+    algorithm = "threshold_otsu"
     #algorithm = "threshold_isodata"
     #algorithm = "threshold_balanced"
     #algorithm = "threshold_adaptive_gaussian"
     #algorithm = "threshold_adaptive_mean"
-    algorithm = "threshold_golobal"
+    #algorithm = "threshold_global"
 
     bin_image = curr_image.threshold(algorithm=algorithm)
     curr_image = bin_image
@@ -146,7 +146,7 @@ def my_line_extract() :
 
     if 1 :
         # TODO morphology
-        morphology = bin_image.morphology( is_open = 0, bsize = 3, iterations = 1, kernel_type="cross" )
+        morphology = bin_image.morphology( is_open = 0, bsize=7, iterations=3, kernel_type="cross" )
         morphology.save_img_as_file( img_path, morphology.algorithm )
         morphology.plot_image( title=morphology.algorithm, cmap="gray", border_color = "blue" )
         morphology.plot_histogram()
@@ -154,7 +154,7 @@ def my_line_extract() :
         bin_image = morphology
     pass # -- morphology
 
-    if 1 :
+    if 0 :
         # TODO Gradient 2
         gradient = bin_image.gradient(ksize=5, kernel_type="cross")
         gradient.save_img_as_file(img_path, gradient.algorithm)

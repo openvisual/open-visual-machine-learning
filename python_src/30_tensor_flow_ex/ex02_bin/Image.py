@@ -114,7 +114,7 @@ class Image :
             pass
         pass
 
-        fn = fn_hdr + ("_%02d_" % img_save_cnt) + work + fn[k:]
+        fn = fn_hdr + ("_%02d_" % img_save_cnt) + work + fn[k:].lower()
 
         Image.img_save_cnt += 1
 
@@ -236,9 +236,9 @@ class Image :
 
             clist_ratio = len( clist )/np.max( y )
 
-            charts["count"] = ax.bar(x, y, width=width, color=rvb(y*clist_ratio ) )
+            #charts["count"] = ax.bar(x, y, width=width, color=rvb(y*clist_ratio ) )
 
-            #charts["count"] = ax.bar(x, y, width=width, color='g', alpha=1.0)
+            charts["count"] = ax.bar(x, y, width=width, color='g', alpha=1.0)
         else :
             y = histogram
             x = range(len(y))
@@ -486,7 +486,6 @@ class Image :
 
     def remove_noise(self, algorithm , ksize=5 ):
         # TODO   잡음 제거
-
         msg = "Remove noise"
         log.info( f"{msg} ..." )
 
@@ -494,56 +493,24 @@ class Image :
 
         if algorithm == "gaussian blur"  :
             # Gaussian filtering
+            algorithm = f"{algorithm} ksize={ksize}"
+
             img = img.astype(np.uint8)
             data = cv.GaussianBlur(img, (ksize, ksize), 0)
         elif algorithm == "bilateralFilter" :
-            log.info("cv.bilateralFilter(img,ksize,75,75)")
+            algorithm = f"{algorithm} ksize={ksize}, 75, 75"
 
             img = img.astype(np.uint8)
-
             data = cv2.bilateralFilter(img, ksize, 75, 75)
         elif algorithm == "medianBlur" :
-            log.info("cv2.medianBlur( image, ksize )")
+            algorithm = f"{algorithm} ksize={ksize}"
 
             data = cv2.medianBlur(img, ksize)
-        else:
-            algorithm = "my median blur"
-            # my median blur
-            h = len(img)  # image height
-            w = len(img[0])  # image width
-
-            b = int(ksize / 2)
-
-            data = np.empty([h, w], dtype=img.dtype)
-
-            idx = 0
-            for y in range(h):
-                for x in range(w):
-                    y0 = y - b
-                    x0 = x - b
-
-                    if y0 < 0:
-                        y0 = 0
-                    pass
-
-                    if x0 < 0:
-                        x0 = 0
-                    pass
-
-                    window = img[y0: y + b + 1, x0: x + b + 1]
-                    median = np.median(window)
-                    data[y][x] = median
-
-                    0 and log.info( f"[{idx:05d}] data[{y}][{x}] = {median:.4f}" )
-                    idx += 1
-                pass
-            pass
         pass
 
         log.info( f"Done. {msg}" )
 
         return Image( img=data, algorithm=algorithm)
-
     pass  # -- remove_noise
 
     @profile
