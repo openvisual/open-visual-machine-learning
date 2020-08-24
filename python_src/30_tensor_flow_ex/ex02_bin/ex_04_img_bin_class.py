@@ -61,7 +61,7 @@ def my_image_process() :
     channel_cnt = img_org.shape[2]
 
     log.info(f"Image path: {img_path}")
-    print(f"Image widh: {width}, height: {height}, channel: {channel_cnt}")
+    log.info(f"Image width: {width}, height: {height}, channel: {channel_cnt}")
 
     image_org = Image( img_org )
     image_org.save_img_as_file( img_path, "org" )
@@ -141,7 +141,7 @@ def my_image_process() :
     #algorithm = "threshold_adaptive_mean"
     algorithm = "threshold_golobal"
 
-    bin_image = curr_image.binarize_image( algorithm=algorithm )
+    bin_image = curr_image.threshold(algorithm=algorithm)
     curr_image = bin_image
     if bin_image.reverse_required :
         bin_image = bin_image.reverse_image()

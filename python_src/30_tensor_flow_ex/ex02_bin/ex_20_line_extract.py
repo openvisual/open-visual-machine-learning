@@ -56,24 +56,18 @@ def my_line_extract() :
     channel_cnt = img_org.shape[2]
 
     log.info(f"Image path: {img_path}")
-    print(f"Image widh: {width}, height: {height}, channel: {channel_cnt}")
+    log.info(f"Image width: {width}, height: {height}, channel: {channel_cnt}")
 
     image_org = Image( img_org )
     image_org.save_img_as_file( img_path, "org" )
     title = f'Original Image: { img_path.split("/")[-1] }'
-    0 and image_org.plot_image( title = title , cmap=None, border_color = "green" )
+    0 and image_org.plot_image( title=title , cmap=None, border_color = "green" )
 
     grayscale = image_org.convert_to_grayscale()
-    grayscale.reverse_image( max = 255 )
+    grayscale.reverse_image( max=255 )
     grayscale.save_img_as_file( img_path, "grayscale" )
     grayscale.plot_image( title="Grayscale", cmap="gray", border_color = "green" )
     grayscale.plot_histogram()
-
-    gs_avg = grayscale.average( )
-    gs_std = grayscale.std( )
-    sg_max = grayscale.max( )
-
-    log.info( f"grayscale avg = {gs_avg}, std = {gs_std}" )
     #-- grayscale 변환
 
     if 1 :
@@ -90,7 +84,7 @@ def my_line_extract() :
         curr_image = noise_removed
     pass
 
-    if action == "line extract":
+    if 1 :
         # TODO Gradient
         gradient = curr_image.gradient(ksize=5, kernel_type="cross")
         gradient.save_img_as_file(img_path, gradient.algorithm)
@@ -100,7 +94,7 @@ def my_line_extract() :
         curr_image = gradient
     pass # -- gradient
 
-    if action == "segmentation" :
+    if 1 :
         # TODO 평활화
         normalized = curr_image.normalize_image_by_histogram()
         normalized.save_img_as_file( img_path, "image_normalized" )
@@ -136,7 +130,7 @@ def my_line_extract() :
     #algorithm = "threshold_adaptive_mean"
     algorithm = "threshold_golobal"
 
-    bin_image = curr_image.binarize_image( algorithm=algorithm )
+    bin_image = curr_image.threshold(algorithm=algorithm)
     curr_image = bin_image
     if bin_image.reverse_required :
         bin_image = bin_image.reverse_image()
@@ -150,7 +144,7 @@ def my_line_extract() :
     bin_image.plot_histogram()
     #-- 이진화
 
-    if 0 :
+    if 1 :
         # TODO morphology
         morphology = bin_image.morphology( is_open = 0, bsize = 3, iterations = 1, kernel_type="cross" )
         morphology.save_img_as_file( img_path, morphology.algorithm )
@@ -160,7 +154,7 @@ def my_line_extract() :
         bin_image = morphology
     pass # -- morphology
 
-    if action == "line extract":
+    if 1 :
         # TODO Gradient 2
         gradient = bin_image.gradient(ksize=5, kernel_type="cross")
         gradient.save_img_as_file(img_path, gradient.algorithm)
@@ -169,8 +163,6 @@ def my_line_extract() :
 
         bin_image = gradient
     pass # -- gradient 2
-
-    #TODO   Y 축 데이터 히스토그램
 
     log.info( "Plot show....." )
 

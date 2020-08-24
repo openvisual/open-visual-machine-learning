@@ -55,13 +55,14 @@ class Image :
     img_save_cnt = 0
     clear_work_files = 0
 
-    gs_row_cnt = 6
+    gs_row_cnt = 4
     gs_col_cnt = 7
 
     gs_row = -1
     gs_col = 0
 
     gridSpec = None
+    plt_windows_cnt = 0
 
     def __init__(self, img, algorithm="" ):
         # 2차원 배열 데이터
@@ -142,17 +143,23 @@ class Image :
     def plot_image( self, title="", cmap="gray", border_color="black"):
         # TODO 이미지 그리기
 
+        Image.gs_row += 1
+
         if Image.gridSpec is None or Image.gs_row >= Image.gs_row_cnt :
-            Image.gs_row = -1
+            Image.gs_row = 0
 
             Image.fig = plt.figure(figsize=(13, 10), constrained_layout=True)
             Image.gridSpec = GridSpec(Image.gs_row_cnt, Image.gs_col_cnt, figure=Image.fig)
 
+            Image.plt_windows_cnt += 1
+
+            cnt = Image.plt_windows_cnt
+
             # plot 윈도우 제목 변경
-            plt.get_current_fig_manager().canvas.set_window_title(Image.action.capitalize())
+            win_title = Image.action.capitalize()
+            plt.get_current_fig_manager().canvas.set_window_title( f"{win_title} {cnt}" )
         pass
 
-        Image.gs_row += 1
         gs_col = 1
         colspan = Image.gs_col_cnt - gs_col
 
@@ -931,7 +938,7 @@ class Image :
         return image
     pass  # -- 지역 가우시안 적응 임계치 처리
 
-    def binarize_image(self, algorithm ):
+    def threshold(self, algorithm):
         # TODO 이진화
 
         v = None
