@@ -1375,7 +1375,7 @@ class Image :
 
         colors = []
 
-        for key, hex_color in enumerate( color_dict ) :
+        for name, hex_color in enumerate( color_dict ) :
             color = hex2color(hex_color)
             color = tuple([int(255 * x) for x in color])
 
