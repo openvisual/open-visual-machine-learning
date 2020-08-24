@@ -33,27 +33,22 @@ from Image import *
 
 log.info( "Done Import.".center( 80, "*") )
 
-def my_image_process() :
-    action = "segmentation"
+def my_line_extract() :
+
+    action = "line extract"
     Image.action = action
     # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
     # img_path = "../data_ocr/sample_01/messi5.png"
     # img_path = "../data_ocr/sample_01/hist_work_01.png"
     # img_path = "../data_ocr/sample_01/gosu_01.png"
 
-    sentence = "오늘 비교적 온화한 날씨가"
-    img_path = "../data_ocr/sample_01/sample_21.png"
-
-    sentence = "가제 제안하다 호박 현대인"
-    img_path = "../data_ocr/sample_01/sample_100.png"
-
-    # action = "line extract"
-    #img_path = "../data_yegan/ex_01/_1018877.JPG"
+    img_path = "../data_yegan/ex_01/_1018877.JPG"
     #img_path = "../data_yegan/ex_01/1-56.JPG"
 
     # TODO    원천 이미지 획득
 
-    img_org = cv2.imread(img_path, cv2.IMREAD_COLOR)  # BGR order
+    # read original image
+    img_org = cv2.imread(img_path, 1)
 
     # 이미지 높이, 넓이, 채널수 획득
     height = img_org.shape[0]
@@ -175,21 +170,7 @@ def my_image_process() :
         bin_image = gradient
     pass # -- gradient 2
 
-   #TODO   Y 축 데이터 히스토그램
-
-    vertical_histogram = bin_image.get_vertical_histogram(ksize = 1)
-    bin_image.plot_vertical_histogram(vertical_histogram, sentence)
-    bin_image.save_vertical_hist_as_excel(img_path, vertical_histogram, show_excel_file  = 0 )
-
-    word_segments = bin_image.word_segements( vertical_histogram, sentence )
-
-    save = bin_image.dimension_ratio() > 3
-    if save :
-        # 세그먼테이션 파일 저장
-        for idx, word_segment in enumerate( word_segments ) :
-            word_segment.save_img_as_file( img_path, f"word_{idx:02d}" )
-        pass
-    pass
+    #TODO   Y 축 데이터 히스토그램
 
     log.info( "Plot show....." )
 
@@ -204,7 +185,7 @@ if __name__ == '__main__':
     # 현재 파일의 폴더로 실행 폴더를 이동함.
     chdir_to_curr_file()
 
-    my_image_process()
+    my_line_extract()
 pass # -- main
 
 # end
