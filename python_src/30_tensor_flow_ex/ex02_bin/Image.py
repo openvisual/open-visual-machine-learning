@@ -1370,12 +1370,12 @@ class Image :
         import matplotlib.colors as mcolors
         from matplotlib.colors import hex2color, rgb2hex
 
-        mcolors = mcolors.BASE_COLORS
-        mcolors = mcolors.TABLEAU_COLORS
+        color_dict = mcolors.BASE_COLORS
+        color_dict = mcolors.TABLEAU_COLORS
 
         colors = []
 
-        for key, hex_color in enumerate( mcolors ) :
+        for name, hex_color in enumerate( color_dict ) :
             color = hex2color(hex_color)
             color = tuple([int(255 * x) for x in color])
 
