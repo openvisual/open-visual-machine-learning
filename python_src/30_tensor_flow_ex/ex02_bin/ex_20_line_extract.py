@@ -121,7 +121,6 @@ def my_line_extract() :
         bin_image.save_img_as_file( img_path, f"image_binarized({bin_image.algorithm})" )
         title = f"Binarization ({bin_image.algorithm})"
         bin_image.plot_image( title=title, border_color="blue" )
-        bin_image.plot_histogram()
 
         curr_image = bin_image
     pass #-- 이진화
@@ -131,7 +130,7 @@ def my_line_extract() :
         morphology = curr_image.morphology( is_open=0, bsize=7, iterations=3, kernel_type="cross" )
         morphology.save_img_as_file( img_path, morphology.algorithm )
         morphology.plot_image( title=morphology.algorithm, border_color="blue" )
-        morphology.plot_histogram()
+        0 and morphology.plot_histogram()
 
         curr_image = morphology
     pass # -- morphology

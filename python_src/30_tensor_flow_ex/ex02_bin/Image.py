@@ -1057,7 +1057,7 @@ class Image :
 
         title = f"Vertical histogram( ref ratio={ ref_ratio*100:.2f}% )"
 
-        ax, img_show = self.plot_image( title=title,  border_color="blue")
+        ax, img_show = self.plot_image( title=title, border_color="blue")
         self.plot_histogram()
 
         w, h = self.dimension()
@@ -1367,11 +1367,29 @@ class Image :
 
         data = cv.cvtColor( img, cv.COLOR_GRAY2BGR )
 
-        if lines is not None:
-            for i in range(0, len(lines)):
-                l = lines[i][0]
-                cv.line( data, (l[0], l[1]), (l[2], l[3]), (0, 0, 255), 3, cv.LINE_AA)
-            pass
+        import matplotlib.colors as mcolors
+        from matplotlib.colors import hex2color, rgb2hex
+
+        mcolors = mcolors.BASE_COLORS
+        mcolors = mcolors.TABLEAU_COLORS
+
+        colors = []
+
+        for key, hex_color in enumerate( mcolors ) :
+            color = hex2color(hex_color)
+            color = tuple([int(255 * x) for x in color])
+
+            colors.append( color )
+            log.info(f"{name} = {hex_color} = {color}")
+        pass
+
+        colors_len = len(colors)
+
+        for i, line in enumerate( lines ) :
+            l = line[0]
+            #color = (0, 0, 255)
+            color = colors[ i%colors_len ]
+            cv.line(data, (l[0], l[1]), (l[2], l[3]), color, 3, cv.LINE_AA)
         pass
 
         image = Image(data)
