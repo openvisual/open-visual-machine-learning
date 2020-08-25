@@ -6,7 +6,7 @@ warnings.filterwarnings('ignore', category=FutureWarning)
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 import logging as log
-log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
+log.basicConfig( format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
     datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
 # profile import
@@ -1416,12 +1416,8 @@ class Image :
             lines.append( Line( line = line[0] ) )
         pass
 
-        def compare_line_length(a, b):
-            return a.distum() - b.distum()
-        pass
-
         from functools import cmp_to_key
-        lines = sorted( lines, key=cmp_to_key(compare_line_length))
+        lines = sorted( lines, key=cmp_to_key(Line.compare_line_length))
         lines = lines[ : : -1 ]
 
         radius = int( diagonal/600 )
@@ -1433,15 +1429,15 @@ class Image :
             q = line.q
             color = colors[ i%colors_len ]
 
-            lenth = line.length()
-            thickness = 2 + int( math.log( length, 10 ) )
+            thickness = line.thickness()
+
             cv.line(data, (p.x, p.y), (q.x, q.y), color, thickness=thickness, lineType=cv.LINE_AA)
             cv.circle(data, (p.x, p.y), radius, color, thickness=thickness, lineType=8 )
             cv.circle(data, (q.x, q.y), radius, color, thickness=thickness, lineType=8 )
         pass
 
         image = Image(data)
-        image.algorithm = f"hough lines(thesh={threshold}, legth={minLineLength}, gap={maxLineGap})"
+        image.algorithm = f"hough lines(thresh={threshold}, legth={minLineLength}, gap={maxLineGap})"
 
         log.info(f"Done. {msg}")
 

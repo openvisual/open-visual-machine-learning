@@ -29,4 +29,26 @@ class Line:
         q = self.q
         return (p.x - q.x)*(p.x - q.x) + (p.y - q.y)*(p.y - q.y)
     pass
+
+    def thickness(self):
+        length = self.length()
+
+        if length > 1000:
+            thickness = 23 + length / 1000
+        elif length > 100:
+            thickness = 12 + length / 100
+        else:
+            thickness = 2 + length / 10
+        pass
+
+        thickness = int(thickness)
+
+        return thickness
+    pass
+
+    @staticmethod
+    def compare_line_length(a, b):
+        return a.distum() - b.distum()
+    pass
+
 pass
