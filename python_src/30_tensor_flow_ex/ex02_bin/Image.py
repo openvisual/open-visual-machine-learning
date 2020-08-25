@@ -21,6 +21,8 @@ import math
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
+from Line import *
+
 class Gap :
     # a gap between segments
     def __init__(self, coord):
@@ -1408,31 +1410,34 @@ class Image :
         maxLineGap = 5
 
         lines_org = cv.HoughLinesP(img, 1, np.pi/180, threshold, lines=None, minLineLength=minLineLength, maxLineGap=maxLineGap )
+
         lines = []
         for line in lines_org :
-            lines.append( line[0] )
+            lines.append( Line( line = line[0] ) )
         pass
 
         def compare_line_length(a, b):
-            a_distum = (a[2] - a[0])*(a[2] - a[0]) + (a[3] - a[1])*(a[3] - a[1])
-            b_distum = (b[2] - b[0])*(b[2] - b[0]) + (b[3] - b[1])*(b[3] - b[1])
-
-            return a_distum - b_distum
+            return a.distum() - b.distum()
         pass
 
         from functools import cmp_to_key
         lines = sorted( lines, key=cmp_to_key(compare_line_length))
+        lines = lines[ : : -1 ]
 
         radius = int( diagonal/600 )
         radius = radius if radius > 5 else 5
         thickness = 3
 
         for i, line in enumerate( lines ) :
-            l = line
+            p = line.p
+            q = line.q
             color = colors[ i%colors_len ]
-            cv.line(data, (l[0], l[1]), (l[2], l[3]), color, thickness=thickness, lineType=cv.LINE_AA)
-            cv.circle(data, (l[0], l[1]), radius, color, thickness=thickness, lineType=8 )
-            cv.circle(data, (l[2], l[3]), radius, color, thickness=thickness, lineType=8 )
+
+            lenth = line.length()
+            thickness = 2 + int( math.log( length, 10 ) )
+            cv.line(data, (p.x, p.y), (q.x, q.y), color, thickness=thickness, lineType=cv.LINE_AA)
+            cv.circle(data, (p.x, p.y), radius, color, thickness=thickness, lineType=8 )
+            cv.circle(data, (q.x, q.y), radius, color, thickness=thickness, lineType=8 )
         pass
 
         image = Image(data)
