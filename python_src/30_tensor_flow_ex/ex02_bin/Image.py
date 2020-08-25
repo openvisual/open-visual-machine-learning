@@ -1436,13 +1436,13 @@ class Image :
             color = colors[i % colors_len]
             thickness = line.thickness()
 
-            p = line.a
-            q = line.b
+            a = line.a
+            b = line.b
 
-            cv.line(data, (p.x, p.y), (q.x, q.y), color, thickness=thickness, lineType=cv.LINE_AA)
+            cv.line(data, (a.x, a.y), (b.x, b.y), color, thickness=thickness, lineType=cv.LINE_AA)
 
-            cv.circle(data, (p.x, p.y), radius, color, thickness=thickness, lineType=8 )
-            cv.circle(data, (q.x, q.y), radius, color, thickness=thickness, lineType=8 )
+            cv.circle(data, (a.x, a.y), radius, color, thickness=thickness, lineType=8)
+            cv.circle(data, (b.x, b.y), radius, color, thickness=thickness, lineType=8)
         pass
 
         image = Image(data)
