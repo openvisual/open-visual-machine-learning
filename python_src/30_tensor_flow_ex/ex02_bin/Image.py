@@ -1407,14 +1407,28 @@ class Image :
         minLineLength = int( diagonal/40 )
         maxLineGap = 5
 
-        lines = cv.HoughLinesP(img, 1, np.pi/180, threshold, lines=None, minLineLength=minLineLength, maxLineGap=maxLineGap )
+        lines_org = cv.HoughLinesP(img, 1, np.pi/180, threshold, lines=None, minLineLength=minLineLength, maxLineGap=maxLineGap )
+        lines = []
+        for line in lines_org :
+            lines.append( line[0] )
+        pass
+
+        def compare_line_length(a, b):
+            a_distum = (a[2] - a[0])*(a[2] - a[0]) + (a[3] - a[1])*(a[3] - a[1])
+            b_distum = (b[2] - b[0])*(b[2] - b[0]) + (b[3] - b[1])*(b[3] - b[1])
+
+            return a_distum - b_distum
+        pass
+
+        from functools import cmp_to_key
+        lines = sorted( lines, key=cmp_to_key(compare_line_length))
 
         radius = int( diagonal/600 )
         radius = radius if radius > 5 else 5
         thickness = 3
 
         for i, line in enumerate( lines ) :
-            l = line[0]
+            l = line
             color = colors[ i%colors_len ]
             cv.line(data, (l[0], l[1]), (l[2], l[3]), color, thickness=thickness, lineType=cv.LINE_AA)
             cv.circle(data, (l[0], l[1]), radius, color, thickness=thickness, lineType=8 )
