@@ -159,6 +159,11 @@ if __name__ == '__main__':
     chdir_to_curr_file()
 
     my_line_extract()
+
+    # 결과창 폴더 열기
+
+    folder = "c:/temp"
+    open_file_or_folder(folder)
 pass # -- main
 
 # end

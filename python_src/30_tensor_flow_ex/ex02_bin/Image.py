@@ -1355,7 +1355,32 @@ class Image :
         msg = "hough line"
         log.info( f"{msg}")
 
+        # colors
+        colors = []
+
+        if 1 :
+            import matplotlib.colors as mcolors
+            from matplotlib.colors import hex2color, rgb2hex
+
+            color_dict = mcolors.BASE_COLORS
+            color_dict = mcolors.TABLEAU_COLORS
+
+            for name, hex_color in enumerate(color_dict):
+                color = hex2color(hex_color)
+                color = tuple([int(255 * x) for x in color])
+
+                colors.append(color)
+                log.info(f"{name} = {hex_color} = {color}")
+            pass
+        pass
+
+        colors_len = len(colors)
+        # -- colors
+
         img = self.img
+
+        h = len( img )
+        w = len( img[0] )
 
         img = img.astype(np.uint8)
 
@@ -1363,38 +1388,34 @@ class Image :
             img = img*255
         pass
 
-        lines = cv.HoughLinesP(img, 1, np.pi / 180, 50, None, 50, 10)
-
         data = cv.cvtColor( img, cv.COLOR_GRAY2BGR )
         data = data*0
 
-        import matplotlib.colors as mcolors
-        from matplotlib.colors import hex2color, rgb2hex
+        '''
+        rho – r 값의 범위 (0 ~ 1 실수)
+        theta – 𝜃 값의 범위(0 ~ 180 정수)
+        threshold – 만나는 점의 기준, 숫자가 작으면 많은 선이 검출되지만 정확도가 떨어지고, 숫자가 크면 정확도가 올라감.
+        minLineLength – 선의 최소 길이. 이 값보다 작으면 reject.
+        maxLineGap – 선과 선사이의 최대 허용간격. 이 값보다 작으며 reject.
+        '''
+        threshold = 50
+        maxLineGap = 10
+        minLineLength = 50
 
-        color_dict = mcolors.BASE_COLORS
-        color_dict = mcolors.TABLEAU_COLORS
-
-        colors = []
-
-        for name, hex_color in enumerate( color_dict ) :
-            color = hex2color(hex_color)
-            color = tuple([int(255 * x) for x in color])
-
-            colors.append( color )
-            log.info(f"{name} = {hex_color} = {color}")
+        if 1 :
+            minLineLength = int( math.sqrt( w*w + h*h )/30 )
         pass
 
-        colors_len = len(colors)
+        lines = cv.HoughLinesP(img, 1, np.pi/180, threshold, lines=None, minLineLength=minLineLength, maxLineGap=maxLineGap )
 
         for i, line in enumerate( lines ) :
             l = line[0]
-            #color = (0, 0, 255)
             color = colors[ i%colors_len ]
             cv.line(data, (l[0], l[1]), (l[2], l[3]), color, 3, cv.LINE_AA)
         pass
 
         image = Image(data)
-        image.algorithm = "hough lines"
+        image.algorithm = f"hough lines(minLineLen={minLineLength}"
 
         log.info(f"Done. {msg}")
 
