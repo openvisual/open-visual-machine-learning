@@ -1370,7 +1370,7 @@ class Image :
                 color = tuple([int(255 * x) for x in color])
 
                 colors.append(color)
-                log.info(f"{name} = {hex_color} = {color}")
+                #log.info(f"{name} = {hex_color} = {color}")
             pass
         pass
 
@@ -1398,24 +1398,31 @@ class Image :
         minLineLength – 선의 최소 길이. 이 값보다 작으면 reject.
         maxLineGap – 선과 선사이의 최대 허용간격. 이 값보다 작으며 reject.
         '''
-        threshold = 50
-        maxLineGap = 10
-        minLineLength = 50
+        diagonal = math.sqrt(w * w + h * h)
 
-        if 1 :
-            minLineLength = int( math.sqrt( w*w + h*h )/30 )
-        pass
+        # threshold = 50
+        # maxLineGap = 10
+
+        threshold = 100
+        minLineLength = int( diagonal/40 )
+        maxLineGap = 5
 
         lines = cv.HoughLinesP(img, 1, np.pi/180, threshold, lines=None, minLineLength=minLineLength, maxLineGap=maxLineGap )
+
+        radius = int( diagonal/600 )
+        radius = radius if radius > 5 else 5
+        thickness = 3
 
         for i, line in enumerate( lines ) :
             l = line[0]
             color = colors[ i%colors_len ]
-            cv.line(data, (l[0], l[1]), (l[2], l[3]), color, 3, cv.LINE_AA)
+            cv.line(data, (l[0], l[1]), (l[2], l[3]), color, thickness=thickness, lineType=cv.LINE_AA)
+            cv.circle(data, (l[0], l[1]), radius, color, thickness=thickness, lineType=8 )
+            cv.circle(data, (l[2], l[3]), radius, color, thickness=thickness, lineType=8 )
         pass
 
         image = Image(data)
-        image.algorithm = f"hough lines(minLineLen={minLineLength}"
+        image.algorithm = f"hough lines(thesh={threshold}, legth={minLineLength}, gap={maxLineGap})"
 
         log.info(f"Done. {msg}")
 
