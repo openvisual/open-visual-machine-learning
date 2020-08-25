@@ -14,6 +14,8 @@ from profile import *
 # utility import
 from util import *
 
+from functools import cmp_to_key
+
 import os, cv2, numpy as np, sys, time
 import cv2 as cv
 import math
@@ -1416,7 +1418,6 @@ class Image :
             lines.append( Line( line = line[0] ) )
         pass
 
-        from functools import cmp_to_key
         lines = sorted( lines, key=cmp_to_key(Line.compare_line_length))
         lines = lines[ : : -1 ]
 
