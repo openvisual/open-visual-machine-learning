@@ -137,9 +137,11 @@ def my_line_extract() :
 
     if 1 :
         # 허프 라인 추출
-        hough = curr_image.hough_lines()
+        hough = curr_image.hough_lines(merge_lines=0)
+        hough.save_img_as_file(img_path, hough.algorithm)
 
-        hough.save_img_as_file(img_path, hough.algorithm )
+        hough = curr_image.hough_lines(merge_lines=1)
+        hough.save_img_as_file(img_path, hough.algorithm)
         hough.plot_image(title=hough.algorithm, border_color="blue")
 
         curr_image = hough

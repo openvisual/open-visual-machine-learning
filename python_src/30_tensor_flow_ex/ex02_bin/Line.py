@@ -45,28 +45,28 @@ class Point:
 pass
 
 class Line:
-    def __init__(self, p=None , q=None, line=None ):
+    def __init__(self, a=None , b=None, line=None ):
         if line is not None :
-            self.p = Point(line[0], line[1])
-            self.q = Point(line[2], line[3])
+            self.a = Point(line[0], line[1])
+            self.b = Point(line[2], line[3])
         else :
-            self.p = p
-            self.q = q
+            self.a = a
+            self.b = b
         pass
     pass
 
     def __getitem__(self, i):
         if i == 0 :
-            return self.p
+            return self.a
         elif i == 1 :
-            return self.q
+            return self.b
         else :
             return None
         pass
     pass
 
     def __str__(self):
-        return f"Line({self.p.x}, {self.p.y}, {self.q.x}, {self.q.y})"
+        return f"Line({self.a.x}, {self.a.y}, {self.b.x}, {self.b.y})"
     pass
 
     def length(self):
@@ -74,7 +74,7 @@ class Line:
     pass
 
     def distum(self):
-        return self.p.distum( self.q )
+        return self.a.distum(self.b)
     pass
 
     def thickness(self):
@@ -94,11 +94,11 @@ class Line:
     pass
 
     def dx(self):
-        return self.q.x - self.p.x
+        return self.b.x - self.a.x
     pass
 
     def dy(self):
-        return self.q.y - self.p.y
+        return self.b.y - self.a.y
     pass
 
     def slope_radian(self):
@@ -123,7 +123,7 @@ class Line:
         merge_line = None
 
         if self.is_mergeable( line , error_deg=error_deg, snap_dist=snap_dist) :
-            points = [ self.p, self.q, line.p, line.q ]
+            points = [self.a, self.b, line.a, line.b]
 
             log.info( f"points org = { ', '.join([str(p) for p in points]) }")
 
@@ -144,10 +144,10 @@ class Line:
             a_distum = self.distum()
             b_distum = line.distum()
 
-            p = self.p
-            q = self.q
+            p = self.a
+            q = self.b
 
-            distums = [ p.distum(line.p), p.distum(line.q), q.distum(line.p) , q.distum(line.q) ]
+            distums = [p.distum(line.a), p.distum(line.b), q.distum(line.a) , q.distum(line.b)]
 
             max_distum = max( distums )
 

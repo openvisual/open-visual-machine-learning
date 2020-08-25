@@ -1354,7 +1354,7 @@ class Image :
         return image_words
     pass # -- word_segements
 
-    def hough_lines(self):
+    def hough_lines(self, merge_lines=1):
         # hough line 추출
         msg = "hough line"
         log.info( f"{msg}")
@@ -1420,7 +1420,10 @@ class Image :
 
         snap_dist = 5
         error_deg = 5
-        lines = Line.merge_lines(lines, error_deg=error_deg, snap_dist=snap_dist)
+
+        if merge_lines :
+            lines = Line.merge_lines(lines, error_deg=error_deg, snap_dist=snap_dist)
+        pass
 
         lines = sorted( lines, key=cmp_to_key(Line.compare_line_length))
         lines = lines[ : : -1 ]
@@ -1433,8 +1436,8 @@ class Image :
             color = colors[i % colors_len]
             thickness = line.thickness()
 
-            p = line.p
-            q = line.q
+            p = line.a
+            q = line.b
 
             cv.line(data, (p.x, p.y), (q.x, q.y), color, thickness=thickness, lineType=cv.LINE_AA)
 
@@ -1443,7 +1446,7 @@ class Image :
         pass
 
         image = Image(data)
-        image.algorithm = f"hough lines(thresh={threshold}, legth={minLineLength}, gap={maxLineGap}, error_deg={error_deg}, snap={snap_dist})"
+        image.algorithm = f"hough lines(thresh={threshold}, legth={minLineLength}, gap={maxLineGap}, merge={merge_lines}, error_deg={error_deg}, snap={snap_dist})"
 
         log.info(f"Done. {msg}")
 
