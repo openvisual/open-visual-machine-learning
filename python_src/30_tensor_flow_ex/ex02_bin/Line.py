@@ -173,37 +173,23 @@ class Line:
 
         lines = sorted(lines, key=cmp_to_key(Line.compare_line_slope))
 
-        is_merged = True
-
-        while is_merged :
-            i = 0
-            is_merged = False
-
-            while i < len(lines) - 1 :
-                line = lines[i]
-
-                j = i + 1
-
-                while j < len(lines) :
-                    line2 = lines[j]
-                    merge_line = line.merge(line2, error_deg=error_deg, snap_dist=snap_dist)
-                    if merge_line is not None:
-                        is_merged = True
-
-                        lines[i] = merge_line
-                        lines.pop( j )
-                        log.info( f"Line({i}, {j}) are merged." )
-                    else :
-                        j = len( lines )
-                    pass
-                pass
-
-                if is_merged :
-                    break
-                else :
-                    i += 1
+        i = 0
+        while i < len(lines) - 1:
+            line = lines[i]
+            j = i + 1
+            while j < len(lines):
+                line2 = lines[j]
+                merge_line = line.merge(line2, error_deg=error_deg, snap_dist=snap_dist)
+                if merge_line is not None:
+                    lines[i] = merge_line
+                    lines.pop(j)
+                    log.info(f"Line({i}, {j}) are merged.")
+                else:
+                    j += 1
                 pass
             pass
+
+            i += 1
         pass
 
         return lines
