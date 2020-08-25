@@ -149,6 +149,11 @@ def my_line_extract() :
 
     print_prof_last()
 
+    # 결과창 폴더 열기
+
+    folder = "c:/temp"
+    open_file_or_folder(folder)
+
     plt.show()
 
     log.info( "Good bye!")
@@ -160,10 +165,6 @@ if __name__ == '__main__':
 
     my_line_extract()
 
-    # 결과창 폴더 열기
-
-    folder = "c:/temp"
-    open_file_or_folder(folder)
 pass # -- main
 
 # end
