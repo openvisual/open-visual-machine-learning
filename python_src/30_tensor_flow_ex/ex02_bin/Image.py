@@ -1418,6 +1418,10 @@ class Image :
             lines.append( Line( line = line[0] ) )
         pass
 
+        snap_dist = 5
+        error_deg = 2
+        lines = Line.merge_lines(lines, error_deg=error_deg, snap_dist=snap_dist)
+
         lines = sorted( lines, key=cmp_to_key(Line.compare_line_length))
         lines = lines[ : : -1 ]
 
@@ -1438,7 +1442,7 @@ class Image :
         pass
 
         image = Image(data)
-        image.algorithm = f"hough lines(thresh={threshold}, legth={minLineLength}, gap={maxLineGap})"
+        image.algorithm = f"hough lines(thresh={threshold}, legth={minLineLength}, gap={maxLineGap}, error_deg={error_deg}, snap={snap_dist})"
 
         log.info(f"Done. {msg}")
 
