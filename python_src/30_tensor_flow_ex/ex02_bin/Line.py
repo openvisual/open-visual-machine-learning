@@ -14,7 +14,9 @@ class Point:
     pass
 
     def distum(self, p ):
-        return (self.x - p.x)*(self.x - p.x) + (self.y - p.y)*(self.y - p.y)
+        dx = self.x - p.x
+        dy = self.y - p.y
+        return dx*dx + dy*dy
     pass
 
     def distance(self, p):
@@ -31,6 +33,10 @@ class Point:
         pass
     pass
 
+    def __str__(self):
+        return f"Point( {self.x}, {self.y} )"
+    pass
+
     @staticmethod
     def compare_point_x(a, b):
         return a.x - b.x
@@ -39,7 +45,7 @@ class Point:
 pass
 
 class Line:
-    def __init__(self, p=None , q=None, line = None ):
+    def __init__(self, p=None , q=None, line=None ):
         if line is not None :
             self.p = Point(line[0], line[1])
             self.q = Point(line[2], line[3])
@@ -57,6 +63,10 @@ class Line:
         else :
             return None
         pass
+    pass
+
+    def __str__(self):
+        return f"Line({self.p.x}, {self.p.y}, {self.q.x}, {self.q.y})"
     pass
 
     def length(self):
@@ -99,7 +109,12 @@ class Line:
     pass
 
     def is_same_slope(self, line, error_deg=1 ):
-        diff_deg = abs( math.degrees(self.slope_radian() - line.slope_radian()) )
+        sa = math.degrees( self.slope_radian() )
+        sb = math.degrees( line.slope_radian() )
+
+        diff_deg = abs( sa - sb )
+
+        log.info( f"sa = {sa:.2f}, sb = {sb:.2f}, diff = {diff_deg:.2f}")
 
         return diff_deg <= error_deg
     pass
@@ -107,68 +122,38 @@ class Line:
     def merge(self, line, error_deg=1, snap_dist=5 ):
         merge_line = None
 
-        if self.is_same_slope( line , error_deg=error_deg) and self.distance(line) < snap_dist :
+        if self.is_mergeable( line , error_deg=error_deg, snap_dist=snap_dist) :
             points = [ self.p, self.q, line.p, line.q ]
+
+            log.info( f"points org = { ', '.join([str(p) for p in points]) }")
 
             points = sorted(points, key=cmp_to_key(Point.compare_point_x))
 
+            log.info( f"points sort = { ', '.join([str(p) for p in points]) }")
+
             merge_line = Line( p = points[0], q = points[-1] )
+
+            log.info( f"merge line = {merge_line}")
         pass
 
         return merge_line
     pass
 
-    def distance(self, line):
-        if self.is_intersects( line ) :
-            return 0
-        pass
+    def is_mergeable(self, line, error_deg, snap_dist ):
+        if self.is_same_slope( line, error_deg = error_deg ) :
+            a_distum = self.distum()
+            b_distum = line.distum()
 
-        p = self.p
-        q = self.q
+            p = self.p
+            q = self.q
 
-        distums = [ p.distum(line.p) , p.distum(line.q), q.distum( line.p), q.distum(line.q) ]
+            distums = [ p.distum(line.p), p.distum(line.q), q.distum(line.p) , q.distum(line.q) ]
 
-        min_distum = min( distums )
+            max_distum = max( distums )
 
-        return math.sqrt( min_distum )
-    pass
-
-    def is_intersects(self, line):
-        if self.intersect_point(line) is not None:
-            return True
-        else:
-            return False
-        pass
-
-    pass
-
-    def my_line(self):
-        p = self.p
-        q = self.q
-
-        a = (p[1] - q[1])
-        b = (q[0] - p[0])
-        c = (q[0] * p[1] - p[0] * q[1])
-
-        return a, b, c
-    pass
-
-    def intersect_point(self, line ):
-        l1 = self.my_line()
-        l2 = line.my_line()
-
-        d = l1[0] * l2[1] - l1[1] * l2[0]
-
-        if d == 0 :
-            return None
+            return max_distum <= ( a_distum + b_distum )
         else :
-            dx = l1[2] * l2[1] - l1[1] * l2[2]
-            dy = l1[0] * l2[2] - l1[2] * l2[0]
-
-            x = dx / d
-            y = dy / d
-
-            return Point( x, y )
+            return False
         pass
     pass
 
@@ -188,23 +173,37 @@ class Line:
 
         lines = sorted(lines, key=cmp_to_key(Line.compare_line_slope))
 
-        i = 0
-        while i < len(lines) - 1:
-            line = lines[i]
-            j = i + 1
-            while j < len(lines) :
-                line2 = lines[j]
-                merge_line = line.merge(line2, error_deg=error_deg, snap_dist=snap_dist)
-                if merge_line is not None:
-                    lines[i] = merge_line
-                    lines.pop( j )
+        is_merged = True
 
-                    log.info( f"Line({i}, {j}) are merged." )
+        while is_merged :
+            i = 0
+            is_merged = False
+
+            while i < len(lines) - 1 :
+                line = lines[i]
+
+                j = i + 1
+
+                while j < len(lines) :
+                    line2 = lines[j]
+                    merge_line = line.merge(line2, error_deg=error_deg, snap_dist=snap_dist)
+                    if merge_line is not None:
+                        is_merged = True
+
+                        lines[i] = merge_line
+                        lines.pop( j )
+                        log.info( f"Line({i}, {j}) are merged." )
+                    else :
+                        j = len( lines )
+                    pass
+                pass
+
+                if is_merged :
+                    break
                 else :
-                    j += 1
+                    i += 1
                 pass
             pass
-            i += 1
         pass
 
         return lines

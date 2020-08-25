@@ -1419,7 +1419,7 @@ class Image :
         pass
 
         snap_dist = 5
-        error_deg = 2
+        error_deg = 5
         lines = Line.merge_lines(lines, error_deg=error_deg, snap_dist=snap_dist)
 
         lines = sorted( lines, key=cmp_to_key(Line.compare_line_length))
@@ -1430,13 +1430,14 @@ class Image :
         thickness = 3
 
         for i, line in enumerate( lines ) :
-            p = line.p
-            q = line.q
-            color = colors[ i%colors_len ]
-
+            color = colors[i % colors_len]
             thickness = line.thickness()
 
+            p = line.p
+            q = line.q
+
             cv.line(data, (p.x, p.y), (q.x, q.y), color, thickness=thickness, lineType=cv.LINE_AA)
+
             cv.circle(data, (p.x, p.y), radius, color, thickness=thickness, lineType=8 )
             cv.circle(data, (q.x, q.y), radius, color, thickness=thickness, lineType=8 )
         pass
