@@ -12,14 +12,6 @@ from PyQt5.QtGui import QImage, QPixmap, QPainterPath
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QFileDialog
 
 class QtImageViewer(QGraphicsView):
-    """ PyQt image viewer widget for a QPixmap in a QGraphicsView scene with mouse zooming and panning.
-    Some useful image format conversion utilities:
-        qimage2ndarray: NumPy ndarray <==> QImage    (https://github.com/hmeine/qimage2ndarray)
-        ImageQt: PIL Image <==> QImage  (https://github.com/python-pillow/Pillow/blob/master/PIL/ImageQt.py)
-    """
-
-    # Mouse button signals emit image scene (x, y) coordinates.
-    # !!! For image (row, column) matrix indexing, row = y and column = x.
 
     def __init__(self):
         QGraphicsView.__init__(self)
@@ -32,7 +24,6 @@ class QtImageViewer(QGraphicsView):
         self._pixmapHandle = None
 
         # Image aspect ratio mode.
-        # !!! ONLY applies to full image. Aspect ratio is always ignored when zooming.
         #   Qt.IgnoreAspectRatio: Scale image to fit viewport.
         #   Qt.KeepAspectRatio: Scale image to fit inside viewport, preserving aspect ratio.
         #   Qt.KeepAspectRatioByExpanding: Scale image to fill the viewport, preserving aspect ratio.
@@ -42,7 +33,6 @@ class QtImageViewer(QGraphicsView):
         #   Qt.ScrollBarAlwaysOff: Never shows a scroll bar.
         #   Qt.ScrollBarAlwaysOn: Always shows a scroll bar.
         #   Qt.ScrollBarAsNeeded: Shows a scroll bar only when zoomed.
-        scrollPolicy = Qt.ScrollBarAsNeeded
         scrollPolicy = Qt.ScrollBarAlwaysOn
         self.setHorizontalScrollBarPolicy(scrollPolicy)
         self.setVerticalScrollBarPolicy(scrollPolicy)
@@ -107,14 +97,15 @@ class QtImageViewer(QGraphicsView):
         # Load an image from file.
 
         if len(fileName) == 0:
-            fileName, dummy = QFileDialog.getOpenFileName(self, "Open image file.")
+            filter = "Image Files (*.png *.jpg *.bmp)"
+            fileName, dummy = QFileDialog.getOpenFileName(self, "Open image file.", filter=filter)
         pass
 
         if len(fileName) and os.path.isfile(fileName):
             image = QImage(fileName)
             self.setImage(image)
         pass
-    pass
+    pass # -- loadImageFromFile
 
     def updateViewer(self):
         """ Show current zoom (if showing entire image, apply current aspect ratio mode).
