@@ -20,7 +20,7 @@ class Point:
     pass
 
     def distance(self, p):
-        return math.sqrt( self.distum(p))
+        return math.sqrt(self.distum(p))
     pass
 
     def __getitem__(self, i):
@@ -131,7 +131,7 @@ class Line:
 
             log.info( f"points sort = { ', '.join([str(p) for p in points]) }")
 
-            merge_line = Line( p = points[0], q = points[-1] )
+            merge_line = Line( a = points[0], b = points[-1] )
 
             log.info( f"merge line = {merge_line}")
         pass
@@ -141,13 +141,14 @@ class Line:
 
     def is_mergeable(self, line, error_deg, snap_dist ):
         if self.is_same_slope( line, error_deg = error_deg ) :
+
             a_distum = self.distum()
             b_distum = line.distum()
 
-            p = self.a
-            q = self.b
+            a = self.a
+            b = self.b
 
-            distums = [p.distum(line.a), p.distum(line.b), q.distum(line.a) , q.distum(line.b)]
+            distums = [a.distum(line.a), a.distum(line.b), b.distum(line.a) , b.distum(line.b)]
 
             max_distum = max( distums )
 
@@ -175,11 +176,9 @@ class Line:
 
         i = 0
         while i < len(lines) - 1:
-            line = lines[i]
             j = i + 1
             while j < len(lines):
-                line2 = lines[j]
-                merge_line = line.merge(line2, error_deg=error_deg, snap_dist=snap_dist)
+                merge_line = lines[i].merge(lines[j], error_deg=error_deg, snap_dist=snap_dist)
                 if merge_line is not None:
                     lines[i] = merge_line
                     lines.pop(j)
@@ -188,7 +187,6 @@ class Line:
                     j += 1
                 pass
             pass
-
             i += 1
         pass
 
