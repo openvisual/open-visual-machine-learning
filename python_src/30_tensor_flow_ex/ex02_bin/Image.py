@@ -1404,9 +1404,6 @@ class Image :
         '''
         diagonal = math.sqrt(w * w + h * h)
 
-        # threshold = 50
-        # maxLineGap = 10
-
         threshold = 100
         minLineLength = int( diagonal/40 )
         maxLineGap = 5
@@ -1418,8 +1415,8 @@ class Image :
             lines.append( Line( line = line[0] ) )
         pass
 
-        error_deg = 5
-        snap_dist = int( diagonal/100 )
+        error_deg = 2
+        snap_dist = int( diagonal/150 )
 
         if merge_lines :
             lines = Line.merge_lines(lines, error_deg=error_deg, snap_dist=snap_dist)
