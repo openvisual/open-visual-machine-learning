@@ -18,65 +18,33 @@ class MyQtApp(QtWidgets.QMainWindow):
 
         uic.loadUi('./QtBinApp.ui', self)
 
-        tabWidget = self.tabWidget
+        # 탭 인덱스 설정
+        self.tabWidgetLeft.setCurrentIndex( 0 )
+        self.tabWidgetRight.setCurrentIndex(0)
 
-        if tabWidget.count() > 0 :
-            # init first tab
-            tab = tabWidget.widget( 0 )
-            uic.loadUi('./TabContent.ui', tab)
-        pass
+        self.tabWidgetLeft.currentChanged.connect( self.when_tab_widget_current_changed )
 
-        if tabWidget.count() > 0 :
-            # set last tab text as +
-            tabLast = QWidget()
-
-            tabWidget.addTab(tabLast, "+")
-
-            tabWidget.setCurrentIndex(0)
-        pass
-
-        self.appendingTab = False
-
-        self.tabWidget.currentChanged.connect( self.when_tab_widget_current_changed )
-        self.appendTab.clicked.connect( self.when_append_tab_clicked )
+        self.exitBtn.clicked.connect( self.when_exitBtnClicked )
+        self.actionExit.triggered.connect(self.close_app)
     pass
+
+    def when_exitBtnClicked(self, e):
+        log.info( "when_exitBtnClicked" )
+
+        self.close()
+    pass
+
+    def close_app( self ):
+        log.info( "close app" )
+        self.hide()
+        sys.exit()
+    pass # -- close_app
 
     def when_tab_widget_current_changed(self, index):
         log.info("when_tabWidget_currentChanged")
 
         tabWidget = self.tabWidget
-
-        if self.appendingTab :
-            log.info( "appendingTab" )
-        elif index == tabWidget.count() - 1 :
-            self.appendingTab = True
-            self.when_append_tab_clicked()
-            self.appendingTab = False
-        pass
     pass # -- when_tab_widget_current_changed
-
-    def when_append_tab_clicked(self):
-        log.info( "when_append_tab_clicked" )
-
-        tabWidget = self.tabWidget
-
-        tabLast = tabWidget.widget( tabWidget.count() - 1 )
-
-        tabWidget.removeTab( tabWidget.count() - 1 )
-
-        tab = QWidget()
-
-        uic.loadUi( './TabContent.ui', tab )
-
-        tabWidget.addTab( tab, f"Tab {tabWidget.count() + 1}" )
-
-        imageViewer = tab.imageViewer
-        image_path = "./python.png"
-
-        self.show_image_on_image_viewer( imageViewer, image_path )
-
-        tabWidget.addTab( tabLast, "+" )
-    pass # -- when_append_tab_clicked
 
     def show_image_on_image_viewer(self , image_viewer, image_path ):
         size = image_viewer.geometry()
@@ -84,9 +52,7 @@ class MyQtApp(QtWidgets.QMainWindow):
         h = size.height()
 
         image_profile = QtGui.QImage(image_path)  # QImage object
-        image_profile = image_profile.scaled(w, h,
-                          aspectRatioMode=QtCore.Qt.KeepAspectRatio,
-                          transformMode=QtCore.Qt.SmoothTransformation)
+        image_profile = image_profile.scaled(w, h, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)
         # To scale image for example and keep its Aspect Ration
         image_viewer.setPixmap(QtGui.QPixmap.fromImage(image_profile))
     pass
