@@ -14,6 +14,22 @@ class Point:
         self.y = y
     pass
 
+    def __getitem__(self, i):
+        if i == 0:
+            return self.x
+        elif i == 1:
+            return self.y
+        else:
+            return None
+        pass
+
+    pass
+
+    def __str__(self):
+        return f"Point( {self.x}, {self.y} )"
+
+    pass
+
     def distum(self, p ):
         dx = self.x - p.x
         dy = self.y - p.y
@@ -24,20 +40,6 @@ class Point:
         return math.sqrt(self.distum(p))
     pass
 
-    def __getitem__(self, i):
-        if i == 0 :
-            return self.x
-        elif i == 1 :
-            return self.y
-        else :
-            return None
-        pass
-    pass
-
-    def __str__(self):
-        return f"Point( {self.x}, {self.y} )"
-    pass
-
     @staticmethod
     def compare_point_x(a, b):
         return a.x - b.x
@@ -46,6 +48,7 @@ class Point:
 pass
 
 class Line:
+
     def __init__(self, a=None , b=None, line=None ):
         if line is not None :
             self.a = Point(line[0], line[1])
