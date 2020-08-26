@@ -1418,8 +1418,8 @@ class Image :
             lines.append( Line( line = line[0] ) )
         pass
 
-        snap_dist = 5
         error_deg = 5
+        snap_dist = int( diagonal/100 )
 
         if merge_lines :
             lines = Line.merge_lines(lines, error_deg=error_deg, snap_dist=snap_dist)

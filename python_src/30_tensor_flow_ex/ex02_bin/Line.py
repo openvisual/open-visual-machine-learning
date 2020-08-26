@@ -8,6 +8,7 @@ from functools import cmp_to_key
 import math
 
 class Point:
+
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -114,26 +115,27 @@ class Line:
 
         diff_deg = abs( sa - sb )
 
-        log.info( f"sa = {sa:.2f}, sb = {sb:.2f}, diff = {diff_deg:.2f}")
+        0 and log.info( f"sa = {sa:.2f}, sb = {sb:.2f}, diff = {diff_deg:.2f}")
 
         return diff_deg <= error_deg
     pass
 
     def merge(self, line, error_deg=1, snap_dist=5 ):
         merge_line = None
+        debug = 0
 
         if self.is_mergeable( line , error_deg=error_deg, snap_dist=snap_dist) :
             points = [self.a, self.b, line.a, line.b]
 
-            log.info( f"points org = { ', '.join([str(p) for p in points]) }")
+            debug and log.info( f"points org = { ', '.join([str(p) for p in points]) }")
 
             points = sorted(points, key=cmp_to_key(Point.compare_point_x))
 
-            log.info( f"points sort = { ', '.join([str(p) for p in points]) }")
+            debug and log.info( f"points sort = { ', '.join([str(p) for p in points]) }")
 
             merge_line = Line( a = points[0], b = points[-1] )
 
-            log.info( f"merge line = {merge_line}")
+            debug and log.info( f"merge line = {merge_line}")
         pass
 
         return merge_line
@@ -147,7 +149,8 @@ class Line:
             line2 = LineString([(line.a.x, line.a.y), (line.b.x, line.b.y)])
 
             dist = line1.distance(line2)
-            log.info( f"dist = {dist}" )
+
+            0 and log.info( f"dist = {dist}" )
 
             return dist <= snap_dist
         else :
@@ -172,18 +175,25 @@ class Line:
         lines = sorted(lines, key=cmp_to_key(Line.compare_line_slope))
 
         i = 0
-        while i < len(lines) - 1:
-            j = i + 1
+        while i < len(lines) :
+            j = 0
+
             while j < len(lines):
-                merge_line = lines[i].merge(lines[j], error_deg=error_deg, snap_dist=snap_dist)
+                merge_line = None
+                if i is not j :
+                    merge_line = lines[i].merge(lines[j], error_deg=error_deg, snap_dist=snap_dist)
+                pass
+
                 if merge_line is not None:
                     lines[i] = merge_line
                     lines.pop(j)
+
                     log.info(f"Line({i}, {j}) are merged.")
                 else:
                     j += 1
                 pass
             pass
+
             i += 1
         pass
 
