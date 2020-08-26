@@ -12,6 +12,9 @@ from PyQt5.QtWidgets import QApplication, QWidget
 
 from rsc.my_qt import *
 
+from QtImageViewer import *
+
+
 class MyQtApp(QtWidgets.QMainWindow):
     def __init__(self):
         super(MyQtApp, self).__init__() # Call the inherited classes __init__ method
@@ -19,13 +22,27 @@ class MyQtApp(QtWidgets.QMainWindow):
         uic.loadUi('./QtBinApp.ui', self)
 
         # 탭 인덱스 설정
-        self.tabWidgetLeft.setCurrentIndex( 0 )
-        self.tabWidgetRight.setCurrentIndex(0)
+
+        self.init_tab( self.tabWidgetLeft )
+        self.init_tab( self.tabWidgetRight )
 
         self.tabWidgetLeft.currentChanged.connect( self.when_tab_widget_current_changed )
 
         self.exitBtn.clicked.connect( self.when_exitBtnClicked )
         self.actionExit.triggered.connect(self.close_app)
+    pass
+
+    def init_tab(self, tabWidget):
+        tabWidget.setCurrentIndex(0)
+
+        tab = tabWidget.widget( 0 )
+
+        lay = QtWidgets.QVBoxLayout( tab )
+        m = 2
+        lay.setContentsMargins( m, m, m, m)
+
+        imageViewer = QtImageViewer()
+        lay.addWidget( imageViewer )
     pass
 
     def when_exitBtnClicked(self, e):
@@ -42,8 +59,7 @@ class MyQtApp(QtWidgets.QMainWindow):
 
     def when_tab_widget_current_changed(self, index):
         log.info("when_tabWidget_currentChanged")
-
-        tabWidget = self.tabWidget
+        pass
     pass # -- when_tab_widget_current_changed
 
     def show_image_on_image_viewer(self , image_viewer, image_path ):

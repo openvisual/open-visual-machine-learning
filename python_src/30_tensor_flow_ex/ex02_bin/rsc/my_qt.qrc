@@ -4,6 +4,7 @@
   </qresource>
   <qresource prefix="file">
     <file>file open.png</file>
+    <file>empty_grid.png</file>
     <file>file save.png</file>
   </qresource>
 </RCC>

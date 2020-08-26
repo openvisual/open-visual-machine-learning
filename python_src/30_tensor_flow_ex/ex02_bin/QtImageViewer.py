@@ -11,6 +11,8 @@ from PyQt5.QtCore import Qt, QRectF, pyqtSignal, QT_VERSION_STR
 from PyQt5.QtGui import QImage, QPixmap, QPainterPath
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QFileDialog
 
+from rsc.my_qt import *
+
 class QtImageViewer(QGraphicsView):
 
     def __init__(self):
@@ -43,6 +45,9 @@ class QtImageViewer(QGraphicsView):
         # Flags for enabling/disabling mouse interaction.
         self.canZoom = True
         self.canPan = True
+
+        image = QPixmap(":/file/empty_grid.png")
+        self.setImage( image )
     pass
 
     def hasImage(self):
