@@ -141,18 +141,15 @@ class Line:
 
     def is_mergeable(self, line, error_deg, snap_dist ):
         if self.is_same_slope( line, error_deg = error_deg ) :
+            from shapely.geometry import LineString
 
-            a_distum = self.distum()
-            b_distum = line.distum()
+            line1 = LineString([(self.a.x, self.a.y), (self.b.x, self.b.y)])
+            line2 = LineString([(line.a.x, line.a.y), (line.b.x, line.b.y)])
 
-            a = self.a
-            b = self.b
+            dist = line1.distance(line2)
+            log.info( f"dist = {dist}" )
 
-            distums = [a.distum(line.a), a.distum(line.b), b.distum(line.a) , b.distum(line.b)]
-
-            max_distum = max( distums )
-
-            return max_distum <= ( a_distum + b_distum )
+            return dist <= snap_dist
         else :
             return False
         pass
