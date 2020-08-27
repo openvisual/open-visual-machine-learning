@@ -175,29 +175,36 @@ class Line:
     def merge_lines( lines, error_deg=1, snap_dist=5 ):
         lines = lines.copy()
 
-        lines = sorted(lines, key=cmp_to_key(Line.compare_line_slope))
+        line_merged = True
 
-        i = 0
-        while i < len(lines) - 1 :
-            j = 0
-            while j < len(lines):
-                merge_line = None
+        while line_merged :
+            line_merged = False
 
-                if i is not j :
-                    merge_line = lines[i].merge(lines[j], error_deg=error_deg, snap_dist=snap_dist)
+            i = 0
+            lines = sorted(lines, key=cmp_to_key(Line.compare_line_slope))
+
+            while i < len(lines) - 1 :
+                j = 0
+                while j < len(lines):
+                    merge_line = None
+
+                    if i is not j :
+                        merge_line = lines[i].merge(lines[j], error_deg=error_deg, snap_dist=snap_dist)
+                    pass
+
+                    if merge_line is not None:
+                        line_merged = True
+                        lines[i] = merge_line
+                        lines.pop(j)
+
+                        log.info(f"Line({i}, {j}) are merged.")
+                    else:
+                        j += 1
+                    pass
                 pass
 
-                if merge_line is not None:
-                    lines[i] = merge_line
-                    lines.pop(j)
-
-                    log.info(f"Line({i}, {j}) are merged.")
-                else:
-                    j += 1
-                pass
+                i += 1
             pass
-
-            i += 1
         pass
 
         return lines

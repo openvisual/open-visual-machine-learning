@@ -1405,8 +1405,8 @@ class Image :
         diagonal = math.sqrt(w * w + h * h)
 
         threshold = 100
-        minLineLength = int( diagonal/40 )
-        maxLineGap = 5
+        minLineLength = int( diagonal/50 )
+        maxLineGap = 20
 
         lines_org = cv.HoughLinesP(img, 1, np.pi/180, threshold, lines=None, minLineLength=minLineLength, maxLineGap=maxLineGap )
 
