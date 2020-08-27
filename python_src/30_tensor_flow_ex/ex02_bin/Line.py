@@ -178,11 +178,11 @@ class Line:
         lines = sorted(lines, key=cmp_to_key(Line.compare_line_slope))
 
         i = 0
-        while i < len(lines) :
+        while i < len(lines) - 1 :
             j = 0
-
             while j < len(lines):
                 merge_line = None
+
                 if i is not j :
                     merge_line = lines[i].merge(lines[j], error_deg=error_deg, snap_dist=snap_dist)
                 pass
