@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import warnings 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import warnings
 warnings.filterwarnings('ignore',category=FutureWarning)
 
 # 로그 예제
@@ -13,8 +14,8 @@ log.basicConfig(
     datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO
     )
 
-# 로그를 남기는 예제입니다.
-log.info( "Hello" )
-log.info( "Good bye!" )
+from hanutils.hangul_utils import split_syllable_char, split_syllables, join_jamos
 
-# -- 로그 예제
+print(split_syllable_char(u"안"))
+
+print(split_syllables(u"안녕하세요"))
