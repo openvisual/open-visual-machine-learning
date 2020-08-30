@@ -1,18 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import warnings
-warnings.filterwarnings('ignore',category=FutureWarning)
-
-# 로그 예제
-import logging as log
-log.basicConfig(
-    format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
-    datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO
-    )
+# 한글 자모 분리병합 소스
+# https://github.com/kaniblu/hangul-utils
+# git clone https://github.com/kaniblu/hangul-utils hanutils
 
 from hanutils.hangul_utils import split_syllable_char, split_syllables, join_jamos
 
