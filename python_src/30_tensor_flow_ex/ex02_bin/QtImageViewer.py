@@ -6,6 +6,7 @@ import sys, os.path
 import logging as log
 log.basicConfig( format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -221,12 +222,33 @@ class QtImageViewer(QGraphicsView):
         pass
     pass
 
+    def isCtrl(self):
+        isCtrl = False
+
+        modifiers = QtWidgets.QApplication.keyboardModifiers()
+        if modifiers == QtCore.Qt.ShiftModifier:
+            log.info('Shift+Click')
+        elif modifiers == QtCore.Qt.ControlModifier:
+            isCtrl = True
+
+            log.info('Control+Click')
+        elif modifiers == (QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier):
+            log.info('Control+Shift+Click')
+        else:
+            log.info('Click')
+        pass
+
+        return isCtrl
+    pass
+
     def mousePressEvent(self, event):
         scenePos = self.mapToScene(event.pos())
 
-        if event.button() == Qt.LeftButton:
+        isCtrl = self.isCtrl()
+
+        if not isCtrl :
             self.setDragMode(QGraphicsView.ScrollHandDrag)
-        elif event.button() == Qt.RightButton:
+        else:
             self.setDragMode(QGraphicsView.RubberBandDrag)
         pass
 
@@ -237,9 +259,13 @@ class QtImageViewer(QGraphicsView):
         QGraphicsView.mouseReleaseEvent(self, event)
         scenePos = self.mapToScene(event.pos())
 
-        if event.button() == Qt.LeftButton:
+        isCtrl = self.isCtrl()
+
+        dragMode = self.dragMode()
+
+        if dragMode == QGraphicsView.ScrollHandDrag :
             self.setDragMode(QGraphicsView.NoDrag)
-        elif event.button() == Qt.RightButton:
+        elif dragMode == QGraphicsView.RubberBandDrag :
             # image zie
             sceneRect = self.sceneRect()
             viewBox = self.zoomStack[-1] if len(self.zoomStack) else sceneRect
@@ -266,9 +292,13 @@ class QtImageViewer(QGraphicsView):
     def mouseDoubleClickEvent(self, event):
         scenePos = self.mapToScene(event.pos())
 
-        if event.button() == Qt.LeftButton:
+        isCtrl = self.isCtrl()
+
+        dragMode = self.dragMode()
+
+        if not isCtrl :
             self.whenLeftMouseDoubleClicked(event)
-        elif event.button() == Qt.RightButton:
+        elif isCtrl :
             self.setZoom( 1.0 )
         pass
 
