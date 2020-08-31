@@ -46,34 +46,44 @@ class QtImageViewer(QGraphicsView):
         self.canZoom = True
         self.canPan = True
 
+        self.isEmpty = True
+
         if 0 :
             image = QPixmap(":/file/empty_grid.png")
             self.setImage( image )
         pass
     pass
 
-    def showEvent(self, e ):
-        log.info( f"showEvent size={self.size()}" )
+    def resizeEvent(self, event):
+        log.info( f"resizeEvent size={self.size()}" )
 
-        if not self.hasImage() :
+        if self.isEmpty :
             size = self.size()
             w = size.width()
             h = size.height()
+
+            log.info( f"w = {w}, h = {h}")
             image = QPixmap( w, h )
 
             painter = QPainter( image )
 
             pen = QPen()
-            pen.setWidth(40)
+            pen.setWidth( 1 )
             pen.setColor(QColor('red'))
             painter.setPen(pen)
 
-            painter.drawLine( 10, 10, w - 10, 10)
+            painter.drawLine( 10, 10, w - 10, h - 10)
 
             painter.end()
 
-            self.setImage( image )
+            self.setImage( image, True )
         pass
+
+        self.updateViewer()
+    pass
+
+    def showEvent(self, e ):
+        log.info( f"showEvent size={self.size()}" )
 
         return QGraphicsView.showEvent(self, e)
     pass
@@ -107,7 +117,9 @@ class QtImageViewer(QGraphicsView):
         return None
     pass
 
-    def setImage(self, image):
+    def setImage(self, image, isEmpty = False ):
+        self.isEmpty = isEmpty
+
         if type(image) is QPixmap:
             pixmap = image
         elif type(image) is QImage:
@@ -151,10 +163,6 @@ class QtImageViewer(QGraphicsView):
             self.zoomStack = []  # Clear the zoom stack (in case we got here because of an invalid zoom).
             self.fitInView(self.sceneRect(), self.aspectRatioMode)  # Show entire image (use current aspect ratio mode).
         pass
-    pass
-
-    def resizeEvent(self, event):
-        self.updateViewer()
     pass
 
     def mousePressEvent(self, event):
