@@ -35,7 +35,7 @@ i = fr
 # 테스트 횟수
 idx = 0
 
-while i < to :
+while i <= to :
     # 정수 유니코드 값으로 부터 한글 유니코드로 변환
     kor = chr( i )
     # 한글 자소 분리
@@ -46,7 +46,7 @@ while i < to :
     # 병합된 한글과 원래 한글과 같은 지 판변함.
     is_same = ( kor == merge )
 
-    print( f"[{idx:05d}]: 유니코드값(정수): {i}, 한글={kor}, 분할={split}, 합병={merge}, is_same={is_same}" )
+    print( f"[{idx:05d}]: 유니코드(정수): {i}, 한글={kor}, 분할={split}, 합병={merge}, 일치={is_same}" )
 
     if not is_same :
         # 분할 합볃 되지 않았을 때, 에러 메시지 출력 .
