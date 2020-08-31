@@ -15,12 +15,14 @@ from rsc.my_qt import *
 
 class QtImageViewer(QGraphicsView):
 
-    def __init__(self, settings = None):
+    def __init__(self, settings = None, dblClickFileLoad=False):
         QGraphicsView.__init__(self)
 
         if settings is None :
             settings = QSettings('TheOneTech', 'line_extractor')
         pass
+
+        self.dblClickFileLoad = dblClickFileLoad
 
         self.settings = settings
 
@@ -250,6 +252,7 @@ class QtImageViewer(QGraphicsView):
             if self.canZoom:
                 viewBBox = self.zoomStack[-1] if len(self.zoomStack) else self.sceneRect()
                 selectionBBox = self.scene.selectionArea().boundingRect().intersected(viewBBox)
+
                 self.scene.setSelectionArea(QPainterPath())  # Clear current selection area.
 
                 if selectionBBox.isValid() and (selectionBBox != viewBBox):
@@ -275,18 +278,26 @@ class QtImageViewer(QGraphicsView):
         pass
 
         QGraphicsView.mouseDoubleClickEvent(self, event)
-    pass
+    pass # -- mouseDoubleClickEvent
+
+    def wheelEvent(self, event):
+        super(QGraphicsView, self).wheelEvent(event)
+        angleDelta = event.angleDelta()
+        log.info( f"angleDelta = {angleDelta}")
+    pass # -- wheelEvent
 
     def whenLeftMouseDoubleClicked(self, event):
-        self.loadImageFromFile()
-    pass
+        if self.dblClickFileLoad :
+            self.loadImageFromFile()
+        pass
+    pass # -- whenLeftMouseDoubleClicked
 
 pass
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    viewer = QtImageViewer()
+    viewer = QtImageViewer( dblClickFileLoad = True )
 
     # Show viewer and run application.
     viewer.show()

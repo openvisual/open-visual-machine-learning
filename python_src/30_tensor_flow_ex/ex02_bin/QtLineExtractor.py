@@ -9,7 +9,7 @@ log.basicConfig(
 import os, sys
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from PyQt5.QtWidgets import QApplication, QWidget
-from PyQt5.QtCore import QSettings, QPoint, QSize
+from PyQt5.QtCore import QSettings, QPoint, QSize, Qt
 
 from rsc.my_qt import *
 
@@ -28,6 +28,9 @@ class MyQtApp(QtWidgets.QMainWindow):
 
         self.init_tab( self.tabWidgetLeft )
         self.init_tab( self.tabWidgetRight )
+
+        self.progressBar.setValue( 0 )
+        self.progressBar.setEnabled( 0 )
 
         self.tabWidgetLeft.currentChanged.connect( self.when_tab_widget_current_changed )
 
@@ -133,14 +136,21 @@ class MyQtApp(QtWidgets.QMainWindow):
 
         if 1 :
             horizontal = QtWidgets.QHBoxLayout()
-            zoomIn = QtWidgets.QPushButton("Zoom In")
-            zoomOut = QtWidgets.QPushButton("Zoom Out")
-            fullExt = QtWidgets.QPushButton("Full Extent")
-            original = QtWidgets.QPushButton("100%")
-            horizontal.addWidget( zoomIn )
-            horizontal.addWidget( zoomOut )
+
+            zoomSlider = QtWidgets.QSlider( Qt.Horizontal )
+            zoomSlider.setValue( 100 )
+
+            zoomText = QtWidgets.QLineEdit( "100%" )
+            zoomText.setReadOnly(1)
+            zoomText.setFixedWidth(40)
+            zoomText.setAlignment( Qt.AlignRight )
+
+            fullExt = QtWidgets.QPushButton( "Full Extent")
+
+            horizontal.addWidget( QtWidgets.QLabel( " Zoom ") )
+            horizontal.addWidget( zoomSlider )
+            horizontal.addWidget( zoomText )
             horizontal.addWidget( fullExt )
-            horizontal.addWidget( original )
             spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
             horizontal.addItem( spacer )
 
