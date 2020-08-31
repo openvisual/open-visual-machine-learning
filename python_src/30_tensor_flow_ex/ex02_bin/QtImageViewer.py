@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-QtImageViewer.py:
-PyQt image viewer widget for a QPixmap in a QGraphicsView scene with mouse zooming and panning.
-"""
+# QtImageViewer.py:
 
 import sys, os.path
 
+import logging as log
+log.basicConfig( format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
+
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QRectF, pyqtSignal, QT_VERSION_STR
-from PyQt5.QtGui import QImage, QPixmap, QPainterPath
+from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QFileDialog
 
 from rsc.my_qt import *
@@ -46,8 +46,36 @@ class QtImageViewer(QGraphicsView):
         self.canZoom = True
         self.canPan = True
 
-        image = QPixmap(":/file/empty_grid.png")
-        self.setImage( image )
+        if 0 :
+            image = QPixmap(":/file/empty_grid.png")
+            self.setImage( image )
+        pass
+    pass
+
+    def showEvent(self, e ):
+        log.info( f"showEvent size={self.size()}" )
+
+        if not self.hasImage() :
+            size = self.size()
+            w = size.width()
+            h = size.height()
+            image = QPixmap( w, h )
+
+            painter = QPainter( image )
+
+            pen = QPen()
+            pen.setWidth(40)
+            pen.setColor(QColor('red'))
+            painter.setPen(pen)
+
+            painter.drawLine( 10, 10, w - 10, 10)
+
+            painter.end()
+
+            self.setImage( image )
+        pass
+
+        return QGraphicsView.showEvent(self, e)
     pass
 
     def hasImage(self):
@@ -102,8 +130,8 @@ class QtImageViewer(QGraphicsView):
         # Load an image from file.
 
         if len(fileName) == 0:
-            filter = "Image Files (*.png *.jpg *.bmp)"
-            fileName, dummy = QFileDialog.getOpenFileName(self, "Open image file.", filter=filter)
+            file_filter = "Image Files (*.png *.jpg *.bmp)"
+            fileName, dummy = QFileDialog.getOpenFileName(self, "Open image file.", filter=file_filter)
         pass
 
         if len(fileName) and os.path.isfile(fileName):
