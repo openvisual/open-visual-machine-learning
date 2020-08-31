@@ -22,8 +22,8 @@ from han_utils.hangul_utils import split_syllable_char, split_syllables, join_ja
 ?   U+AC00 ~ U+D7AF	한글 글자 마디	가 ~ 힣	11,172
 ?   U+D7B0 ~ U+D7FF	한글 확장 자모B	ힰ ~ ퟻ	72
 ?   U+FF00 ~ U+FFEF	반각 자모	    ﾡ ~ ￜ	52
-
 '''
+
 # '가' 한글의 유니코드값을 정수로 변환
 fr = ord( "가" )
 # '힣' 한글의 유니코드 값을 정수로 변환
