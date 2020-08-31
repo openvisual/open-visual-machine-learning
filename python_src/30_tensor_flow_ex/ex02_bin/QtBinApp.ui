@@ -32,7 +32,7 @@
       <item row="0" column="0">
        <widget class="QTabWidget" name="tabWidgetLeft">
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab_00">
          <attribute name="title">
@@ -101,6 +101,13 @@
        <widget class="QPushButton" name="exitBtn">
         <property name="text">
          <string>Exit</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QProgressBar" name="progressBar">
+        <property name="value">
+         <number>24</number>
         </property>
        </widget>
       </item>

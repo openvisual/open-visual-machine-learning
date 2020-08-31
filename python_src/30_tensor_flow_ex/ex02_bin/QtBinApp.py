@@ -9,6 +9,7 @@ log.basicConfig(
 import os, sys
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtCore import QSettings, QPoint, QSize
 
 from rsc.my_qt import *
 
@@ -30,6 +31,23 @@ class MyQtApp(QtWidgets.QMainWindow):
 
         self.exitBtn.clicked.connect( self.when_exitBtnClicked )
         self.actionExit.triggered.connect(self.close_app)
+
+        self.startEvent()
+    pass
+
+    def startEvent(self):
+        settings = QSettings('TheOneTech', 'line_extractor')
+        self.settings = settings
+
+        # 마지막 윈도우 크기 및 위치 로딩
+        self.resize(self.settings.value("size", QSize(840, 640)))
+        self.move(self.settings.value("pos", QPoint(50, 50)))
+    pass
+
+    def showEvent(self, e ):
+        log.info( f"showEvent size={self.size()}" )
+
+        return QtWidgets.QMainWindow.showEvent(self, e)
     pass
 
     def init_tab(self, tabWidget):
@@ -49,8 +67,16 @@ class MyQtApp(QtWidgets.QMainWindow):
         gridLayout.addWidget( imageViewer, row, col )
 
         horizontal = QtWidgets.QHBoxLayout()
-        horizontal.addWidget(QtWidgets.QPushButton("21"))
-        horizontal.addWidget(QtWidgets.QPushButton("22"))
+        zoomIn = QtWidgets.QPushButton("Zoom In")
+        zoomOut = QtWidgets.QPushButton("Zoom Out")
+        fullExt = QtWidgets.QPushButton("Full Extent")
+        original = QtWidgets.QPushButton("100%")
+        horizontal.addWidget( zoomIn )
+        horizontal.addWidget( zoomOut )
+        horizontal.addWidget( fullExt )
+        horizontal.addWidget( original )
+        spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        horizontal.addItem( spacer )
 
         row += 1
         gridLayout.addLayout( horizontal, row, col )
@@ -63,6 +89,15 @@ class MyQtApp(QtWidgets.QMainWindow):
         log.info( "when_exitBtnClicked" )
 
         self.close()
+    pass
+
+    def closeEvent(self, e):
+        log.info( "closeEvent")
+        # 마지막 윈도우 크기 및 위치 저장 
+        self.settings.setValue("size", self.size())
+        self.settings.setValue("pos", self.pos())
+
+        e.accept()
     pass
 
     def close_app( self ):
