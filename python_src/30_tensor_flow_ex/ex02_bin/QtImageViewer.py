@@ -51,10 +51,6 @@ class QtImageViewer(QGraphicsView):
         # Stack of QRectF zoom boxes in scene coordinates.
         self.zoomStack = []
 
-        # Flags for enabling/disabling mouse interaction.
-        self.canZoom = True
-        self.canPan = True
-
         self.isEmpty = True
 
         if 0 :
@@ -215,28 +211,23 @@ class QtImageViewer(QGraphicsView):
     pass # -- loadImageFromFile
 
     def updateViewer(self):
-        """ Show current zoom (if showing entire image, apply current aspect ratio mode).
-        """
         if not self.hasImage():
             return
         if len(self.zoomStack) and self.sceneRect().contains(self.zoomStack[-1]):
-            self.fitInView(self.zoomStack[-1], Qt.IgnoreAspectRatio)  # Show zoomed rect (ignore aspect ratio).
+            self.fitInView(self.zoomStack[-1], Qt.IgnoreAspectRatio)
         else:
-            self.zoomStack = []  # Clear the zoom stack (in case we got here because of an invalid zoom).
-            self.fitInView(self.sceneRect(), self.aspectRatioMode)  # Show entire image (use current aspect ratio mode).
+            self.zoomStack = []
+            self.fitInView(self.sceneRect(), self.aspectRatioMode)
         pass
     pass
 
     def mousePressEvent(self, event):
         scenePos = self.mapToScene(event.pos())
+
         if event.button() == Qt.LeftButton:
-            if self.canPan:
-                self.setDragMode(QGraphicsView.ScrollHandDrag)
-            pass
+            self.setDragMode(QGraphicsView.ScrollHandDrag)
         elif event.button() == Qt.RightButton:
-            if self.canZoom:
-                self.setDragMode(QGraphicsView.RubberBandDrag)
-            pass
+            self.setDragMode(QGraphicsView.RubberBandDrag)
         pass
 
         QGraphicsView.mousePressEvent(self, event)
@@ -249,16 +240,23 @@ class QtImageViewer(QGraphicsView):
         if event.button() == Qt.LeftButton:
             self.setDragMode(QGraphicsView.NoDrag)
         elif event.button() == Qt.RightButton:
-            if self.canZoom:
-                viewBBox = self.zoomStack[-1] if len(self.zoomStack) else self.sceneRect()
-                selectionBBox = self.scene.selectionArea().boundingRect().intersected(viewBBox)
+            # image zie
+            sceneRect = self.sceneRect()
+            viewBox = self.zoomStack[-1] if len(self.zoomStack) else sceneRect
+            selectionArea = self.scene.selectionArea().boundingRect()
+            selectionBox = selectionArea.intersected(viewBox)
 
-                self.scene.setSelectionArea(QPainterPath())  # Clear current selection area.
+            log.info(f"sceneRect={sceneRect}")
+            log.info(f"viewBox={viewBox}")
+            log.info(f"selectionArea={selectionArea}")
+            log.info(f"selectionBox={selectionBox}")
 
-                if selectionBBox.isValid() and (selectionBBox != viewBBox):
-                    self.zoomStack.append(selectionBBox)
-                    self.updateViewer()
-                pass
+            # Clear current selection area.
+            self.scene.setSelectionArea(QPainterPath())
+
+            if selectionBox.isValid() and (selectionBox != viewBox):
+                self.zoomStack.append(selectionBox)
+                self.updateViewer()
             pass
 
             self.setDragMode(QGraphicsView.NoDrag)
@@ -271,14 +269,18 @@ class QtImageViewer(QGraphicsView):
         if event.button() == Qt.LeftButton:
             self.whenLeftMouseDoubleClicked(event)
         elif event.button() == Qt.RightButton:
-            if self.canZoom:
-                self.zoomStack = []  # Clear zoom stack.
-                self.updateViewer()
-            pass
+            self.setZoom( 1.0 )
         pass
 
         QGraphicsView.mouseDoubleClickEvent(self, event)
     pass # -- mouseDoubleClickEvent
+
+    def setZoom(self, ratio):
+        if ratio == 1 :
+            self.zoomStack = []  # Clear zoom stack.
+            self.updateViewer()
+        pass
+    pass
 
     def wheelEvent(self, event):
         super(QGraphicsView, self).wheelEvent(event)

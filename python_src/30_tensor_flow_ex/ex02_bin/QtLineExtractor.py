@@ -138,6 +138,8 @@ class MyQtApp(QtWidgets.QMainWindow):
             horizontal = QtWidgets.QHBoxLayout()
 
             zoomSlider = QtWidgets.QSlider( Qt.Horizontal )
+            zoomSlider.setMinimum( 10 )
+            zoomSlider.setMaximum( 400 )
             zoomSlider.setValue( 100 )
 
             zoomText = QtWidgets.QLineEdit( "100%" )
