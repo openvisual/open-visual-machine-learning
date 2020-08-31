@@ -7,7 +7,7 @@ class MyQtApp(QtWidgets.QMainWindow):
     def __init__(self):
         super(MyQtApp, self).__init__() # Call the inherited classes __init__ method
 
-        uic.loadUi( './QtBinApp.ui', self) # Load the .ui file
+        uic.loadUi( './QtLineExtractor.ui', self) # Load the .ui file
 
         self.show() # Show the GUI
     pass

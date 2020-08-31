@@ -7,7 +7,7 @@ import logging as log
 log.basicConfig( format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import Qt, QRectF, pyqtSignal, QT_VERSION_STR
+from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QFileDialog
 
@@ -15,8 +15,14 @@ from rsc.my_qt import *
 
 class QtImageViewer(QGraphicsView):
 
-    def __init__(self):
+    def __init__(self, settings = None):
         QGraphicsView.__init__(self)
+
+        if settings is None :
+            settings = QSettings('TheOneTech', 'line_extractor')
+        pass
+
+        self.settings = settings
 
         # Image is displayed as a QPixmap in a QGraphicsScene attached to this QGraphicsView.
         self.scene = QGraphicsScene()
@@ -30,6 +36,7 @@ class QtImageViewer(QGraphicsView):
         #   Qt.KeepAspectRatio: Scale image to fit inside viewport, preserving aspect ratio.
         #   Qt.KeepAspectRatioByExpanding: Scale image to fill the viewport, preserving aspect ratio.
         self.aspectRatioMode = Qt.KeepAspectRatio
+        self.aspectRatioMode = Qt.KeepAspectRatioByExpanding
 
         # Scroll bar behaviour.
         #   Qt.ScrollBarAlwaysOff: Never shows a scroll bar.
@@ -174,14 +181,35 @@ class QtImageViewer(QGraphicsView):
         # Load an image from file.
 
         if len(fileName) == 0:
+            settings = self.settings
+
+            home = os.path.expanduser('~')
+            directory = os.path.join(home, 'Documents')
+
+            directory = self.settings.value( "open_dir", directory )
+
             file_filter = "Image Files (*.png *.jpg *.bmp)"
-            fileName, dummy = QFileDialog.getOpenFileName(self, "Open image file.", filter=file_filter)
+            fileName, dummy = QFileDialog.getOpenFileName(self, "Open image file.", directory=directory, filter=file_filter)
+
+            log.info(f"fileName = {fileName}")
+
+            if fileName :
+                directory = os.path.dirname( fileName )
+                log.info( f"directory = {directory}")
+                settings.setValue("open_dir", directory )
+            pass
         pass
 
         if len(fileName) and os.path.isfile(fileName):
             image = QImage(fileName)
             self.setImage(image)
         pass
+
+        if hasattr(self, "fileNameLineEdit" ) :
+            self.fileNameLineEdit.setText(fileName)
+        pass
+
+        return fileName
     pass # -- loadImageFromFile
 
     def updateViewer(self):
