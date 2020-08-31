@@ -57,6 +57,8 @@ class QtImageViewer(QGraphicsView):
     def resizeEvent(self, event):
         log.info( f"resizeEvent size={self.size()}" )
 
+        debug = False
+
         if self.isEmpty :
             size = self.size()
             w = size.width()
@@ -67,12 +69,42 @@ class QtImageViewer(QGraphicsView):
 
             painter = QPainter( image )
 
-            pen = QPen()
-            pen.setWidth( 1 )
-            pen.setColor(QColor('red'))
-            painter.setPen(pen)
+            m = 0
+            painter.fillRect( m, m, w - 2*m , h - 2*m, QColor( 'white' ) )
 
-            painter.drawLine( 10, 10, w - 10, h - 10)
+            y = 0
+            dy = 20
+
+            row = 0
+            while y < h :
+                x = 0
+                dx = 20
+                col = 0
+                while x < w :
+                    draw = (row % 2 == col%2)
+
+                    if draw :
+                        debug and log.info(f"r={row}, c={col}, x={x}, y={y}, dx={dx}, dy={dy}")
+
+                        painter.fillRect( x, y, dx, dy, QColor('gray'))
+                    pass
+
+                    x += dx
+                    col += 1
+                pass
+
+                row += 1
+                y += dy
+            pass
+
+            if 1 :
+                pen = QPen()
+                pen.setWidth(1)
+                pen.setColor(QColor('green'))
+                painter.setPen(pen)
+
+                painter.drawRect( 0, 0, w -1, h - 2 )
+            pass
 
             painter.end()
 
