@@ -33,16 +33,30 @@ class MyQtApp(QtWidgets.QMainWindow):
     pass
 
     def init_tab(self, tabWidget):
+
         tabWidget.setCurrentIndex(0)
 
         tab = tabWidget.widget( 0 )
 
-        lay = QtWidgets.QVBoxLayout( tab )
-        m = 2
-        lay.setContentsMargins( m, m, m, m)
+        gridLayout = QtWidgets.QGridLayout()
+        gridLayout.setContentsMargins( 2, 2, 2, 2 )
+
+        row = 0
+        col = 0
 
         imageViewer = QtImageViewer()
-        lay.addWidget( imageViewer )
+
+        gridLayout.addWidget( imageViewer, row, col )
+
+        horizontal = QtWidgets.QHBoxLayout()
+        horizontal.addWidget(QtWidgets.QPushButton("21"))
+        horizontal.addWidget(QtWidgets.QPushButton("22"))
+
+        row += 1
+        gridLayout.addLayout( horizontal, row, col )
+
+        tab.setLayout( gridLayout )
+
     pass
 
     def when_exitBtnClicked(self, e):
