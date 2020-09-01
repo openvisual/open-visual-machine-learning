@@ -43,25 +43,7 @@
          <attribute name="title">
           <string>Process</string>
          </attribute>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0" colspan="2">
-           <widget class="QWidget" name="widget" native="true"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QPushButton" name="pushButton">
-            <property name="text">
-             <string>PushButton</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QPushButton" name="pushButton_2">
-            <property name="text">
-             <string>PushButton</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <layout class="QGridLayout" name="gridLayout_3"/>
         </widget>
        </widget>
       </item>
@@ -91,16 +73,19 @@
         <property name="text">
          <string>Open</string>
         </property>
-        <property name="icon">
-         <iconset resource="rsc/my_qt.qrc">
-          <normaloff>:/file/file open.png</normaloff>:/file/file open.png</iconset>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="lineExtract">
+        <property name="text">
+         <string>Line Extract</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="exitBtn">
-        <property name="text">
-         <string>Exit</string>
+       <widget class="QLCDNumber" name="durationLcdNumber">
+        <property name="digitCount">
+         <number>8</number>
         </property>
        </widget>
       </item>
@@ -111,6 +96,13 @@
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="exitBtn">
+        <property name="text">
+         <string>Exit</string>
         </property>
        </widget>
       </item>

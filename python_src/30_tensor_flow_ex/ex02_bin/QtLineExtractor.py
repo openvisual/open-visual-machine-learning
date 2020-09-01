@@ -32,6 +32,10 @@ class MyQtApp(QtWidgets.QMainWindow):
         self.progressBar.setValue( 0 )
         self.progressBar.setEnabled( 0 )
 
+        time = QtCore.QTime.currentTime()
+        text = time.toString('hh:mm:ss')
+        self.durationLcdNumber.display( text )
+
         self.tabWidgetLeft.currentChanged.connect( self.when_tab_widget_current_changed )
 
         self.exitBtn.clicked.connect( self.when_exitBtn_clicked )
