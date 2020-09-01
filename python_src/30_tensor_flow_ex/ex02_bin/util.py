@@ -119,4 +119,21 @@ def next_file( fileName , debug = False ) :
     return file_next
 pass
 
+def save_recent_file( settings, fileName ) :
+    recent_file_list = settings.value('recent_file_list', [], str)
+
+    if fileName in recent_file_list:
+        recent_file_list.remove(fileName)
+        recent_file_list.insert(0, fileName)
+    else:
+        recent_file_list.insert(0, fileName)
+    pass
+
+    if len(recent_file_list) > 9:
+        recent_file_list.pop(len(recent_file_list) - 1)
+    pass
+
+    settings.setValue("recent_file_list", recent_file_list)
+pass # save_recent_file
+
 # end

@@ -33,8 +33,6 @@ class QtLineExtractor(QtWidgets.QMainWindow):
 
         self.durationLcdNumber.display( QtCore.QTime.currentTime().toString('hh:mm:ss') )
 
-        #self.nextFileOpen.setEnabled( 0 )
-
         # signal -> slot connect
         self.tabWidgetLeft.currentChanged.connect( self.when_tab_widget_current_changed )
         self.exitBtn.clicked.connect( self.when_exitBtn_clicked )
@@ -43,11 +41,29 @@ class QtLineExtractor(QtWidgets.QMainWindow):
         self.openBtn.clicked.connect( self.when_openBtn_clicked )
         self.lineExtract.clicked.connect( self.when_lineExtract_clicked )
         self.actionFull_Screen.triggered.connect( self.when_fullScreen_clicked )
+        self.nextFileOpen.clicked.connect( self.when_nextFileOpen_clicked )
         # -- signal -> slot connect
 
         self.buildOpenRecentFilesMenuBar()
         self.startEvent()
+
+        self.paintUi()
     pass # -- __init__
+
+    def paintUi(self):
+        is_file_open = False
+
+        if self.imageViewers and self.imageViewers[0].isEmpty == False :
+            is_file_open = True
+        pass
+
+        self.nextFileOpen.setEnabled( is_file_open )
+        self.lineExtract.setEnabled( is_file_open )
+    pass # -- paintUi
+
+    def when_nextFileOpen_clicked(self, e):
+        log.info(inspect.getframeinfo(inspect.currentframe()).function)
+    pass # -- when_nextFileOpen_clicked
 
     def resizeEvent(self, event):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
@@ -148,25 +164,8 @@ class QtLineExtractor(QtWidgets.QMainWindow):
             fileName = imageViewers[0].loadImageFromFile(fileName=fileName, setFileName=True)
 
             if fileName:
-                if 1 :
-                    settings = self.settings
-                    recent_file_list = settings.value('recent_file_list', [], str)
-
-                    if fileName in recent_file_list :
-                        recent_file_list.remove( fileName )
-                        recent_file_list.insert(0, fileName)
-                    else :
-                        recent_file_list.insert( 0, fileName )
-                    pass
-
-                    if len(recent_file_list) > 9:
-                        recent_file_list.pop(len(recent_file_list) - 1 )
-                    pass
-
-                    settings.setValue("recent_file_list", recent_file_list)
-
-                    self.buildOpenRecentFilesMenuBar()
-                pass
+                save_recent_file(self.settings, fileName)
+                self.buildOpenRecentFilesMenuBar()
 
                 file_next = next_file( fileName )
 
@@ -175,6 +174,8 @@ class QtLineExtractor(QtWidgets.QMainWindow):
                 pass
             pass
         pass
+
+        self.paintUi()
     pass # -- when_openBtn_clicked
 
     def startEvent(self):
