@@ -1,24 +1,20 @@
 # -*- coding: utf-8 -*-
 
 import logging as log
-log.basicConfig(
-    format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
-    datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO
-    )
+log.basicConfig( format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
-import os, sys
+import os, sys, inspect
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtCore import QSettings, QPoint, QSize, Qt
 
 from rsc.my_qt import *
-
 from QtImageViewer import *
 
-
-class MyQtApp(QtWidgets.QMainWindow):
+class QtLineExtractor(QtWidgets.QMainWindow):
     def __init__(self):
-        super(MyQtApp, self).__init__() # Call the inherited classes __init__ method
+        # Call the inherited classes __init__ method
+        super(QtLineExtractor, self).__init__()
 
         uic.loadUi('./QtLineExtractor.ui', self)
 
@@ -42,50 +38,63 @@ class MyQtApp(QtWidgets.QMainWindow):
         self.actionExit.triggered.connect(self.close_app)
         self.actionOpen.triggered.connect( self.when_openBtn_clicked )
         self.openBtn.clicked.connect( self.when_openBtn_clicked )
+        self.lineExtract.clicked.connect( self.when_lineExtract_clicked )
 
         self.startEvent()
     pass
 
-    def when_openBtn_clicked(self, e):
+    def when_lineExtract_clicked(self, e):
+        log.info( inspect.getframeinfo(inspect.currentframe()).function )
+
         imageViewers = self.imageViewers
 
-        if imageViewers :
-            if imageViewers[0] is not None :
-                imageViewer = imageViewers[0]
-                fileName = imageViewer.loadImageFromFile()
+        if imageViewers and imageViewers[0].isEmpty :
+            self.when_openBtn_clicked( e )
+        else :
+            pass
+        pass
+    pass
 
-                _, ext = os.path.splitext( fileName )
-                ext = ext.lower()
+    def when_openBtn_clicked(self, e):
+        fun = inspect.getframeinfo(inspect.currentframe()).function
+        log.info(fun)
 
-                if fileName :
-                    directory = os.path.dirname(fileName)
-                    log.info( f"dir = {directory}" )
+        imageViewers = self.imageViewers
 
-                    find_files = f"{directory}/*{ext}"
-                    log.info( f"find_files={find_files}" )
+        if imageViewers and imageViewers[0]:
+            fileName = imageViewers[0].loadImageFromFile(setFileName=True)
 
-                    import glob
-                    files = glob.glob( find_files )
+            _, ext = os.path.splitext(fileName)
+            ext = ext.lower()
 
-                    sel_file = None
+            if fileName:
+                directory = os.path.dirname(fileName)
+                log.info(f"dir = {directory}")
 
-                    fileNameBase = os.path.basename( fileName )
+                find_files = f"{directory}/*{ext}"
+                log.info(f"find_files={find_files}")
 
-                    for file in files :
-                        fileBase = os.path.basename( file )
-                        log.info( f"fileBase = { fileBase }")
+                import glob
+                files = glob.glob(find_files)
 
-                        if fileBase > fileNameBase :
-                            sel_file = file
-                            break
-                        pass
+                sel_file = None
+
+                fileNameBase = os.path.basename(fileName)
+
+                for file in files:
+                    fileBase = os.path.basename(file)
+                    log.info(f"fileBase = {fileBase}")
+
+                    if fileBase > fileNameBase:
+                        sel_file = file
+                        break
                     pass
+                pass
 
-                    log.info( f"sel_file = {sel_file}")
+                log.info(f"sel_file = {sel_file}")
 
-                    if sel_file is not None :
-                        imageViewers[1].loadImageFromFile( sel_file )
-                    pass
+                if sel_file and imageViewers[1] :
+                    imageViewers[1].loadImageFromFile(fileName=sel_file, setFileName=True)
                 pass
             pass
         pass
@@ -100,7 +109,7 @@ class MyQtApp(QtWidgets.QMainWindow):
     pass
 
     def showEvent(self, e ):
-        log.info( f"showEvent size={self.size()}" )
+        log.info(inspect.getframeinfo(inspect.currentframe()).function)
 
         return QtWidgets.QMainWindow.showEvent(self, e)
     pass

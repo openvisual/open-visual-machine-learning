@@ -6,6 +6,8 @@ import sys, os.path
 import logging as log
 log.basicConfig( format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
+import os, sys, inspect
+
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import *
@@ -62,7 +64,11 @@ class QtImageViewer(QGraphicsView):
     pass
 
     def resizeEvent(self, event):
-        log.info( f"resizeEvent size={self.size()}" )
+        log.info( inspect.getframeinfo(inspect.currentframe()).function )
+
+        debug = False
+
+        debug and log.info( f"size={self.size()}" )
 
         debug = False
 
@@ -71,7 +77,6 @@ class QtImageViewer(QGraphicsView):
             w = size.width()
             h = size.height()
 
-            log.info( f"w = {w}, h = {h}")
             image = QPixmap( w, h )
 
             painter = QPainter( image )
@@ -122,7 +127,9 @@ class QtImageViewer(QGraphicsView):
     pass
 
     def showEvent(self, e ):
-        log.info( f"showEvent size={self.size()}" )
+        log.info(inspect.getframeinfo(inspect.currentframe()).function)
+        debug = False
+        debug and log.info( f"size={self.size()}" )
 
         return QGraphicsView.showEvent(self, e)
     pass
@@ -177,7 +184,7 @@ class QtImageViewer(QGraphicsView):
         self.updateViewer()
     pass
 
-    def loadImageFromFile(self, fileName=""):
+    def loadImageFromFile(self, fileName="", setFileName=False):
         # Load an image from file.
 
         if len(fileName) == 0:
@@ -205,7 +212,7 @@ class QtImageViewer(QGraphicsView):
             self.setImage(image)
         pass
 
-        if hasattr(self, "fileNameLineEdit" ) :
+        if setFileName and hasattr(self, "fileNameLineEdit" ) :
             self.fileNameLineEdit.setText(fileName)
         pass
 
@@ -313,18 +320,23 @@ class QtImageViewer(QGraphicsView):
         pass
     pass
 
-    def wheelEvent(self, event):
+    def wheelEvent(self, e):
+        self.mouseWheelEvent( e )
+    pass
+
+    def mouseWheelEvent(self, e):
         # 마우스 휠 이벤트
-        super(QGraphicsView, self).wheelEvent(event)
+
+        angleDelta = e.angleDelta()
+        log.info(f"angleDelta = {angleDelta}")
 
         isCtrl = self.isCtrl()
 
         if isCtrl :
             self.setDragMode(QGraphicsView.NoDrag)
+        else :
+            super(QGraphicsView, self).wheelEvent(e)
         pass
-
-        angleDelta = event.angleDelta()
-        log.info( f"angleDelta = {angleDelta}")
     pass # -- wheelEvent
 
 pass
