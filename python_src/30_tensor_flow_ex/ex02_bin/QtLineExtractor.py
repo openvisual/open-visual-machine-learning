@@ -12,6 +12,7 @@ from rsc.my_qt import *
 from QtImageViewer import *
 
 class QtLineExtractor(QtWidgets.QMainWindow):
+
     def __init__(self):
         # Call the inherited classes __init__ method
         super(QtLineExtractor, self).__init__()
@@ -39,17 +40,41 @@ class QtLineExtractor(QtWidgets.QMainWindow):
         self.actionOpen.triggered.connect( self.when_openBtn_clicked )
         self.openBtn.clicked.connect( self.when_openBtn_clicked )
         self.lineExtract.clicked.connect( self.when_lineExtract_clicked )
+        self.actionFull_Screen.triggered.connect( self.when_fullScreen_clicked )
 
         self.buildOpenRecentFilesMenuBar()
 
         self.startEvent()
-    pass
+    pass # -- __init__
 
-    def load_file(self, fileName):
+    def resizeEvent(self, event):
+        log.info(inspect.getframeinfo(inspect.currentframe()).function)
+
+        action = self.actionFull_Screen
+
+        state = self.windowState()
+
+        if state == Qt.WindowFullScreen :
+            action.setText( "Exit full screen" )
+        else :
+            action.setText( "Full Screen" )
         pass
-    pass
+    pass # -- resizeEvent
+
+    def when_fullScreen_clicked(self, e):
+        log.info(inspect.getframeinfo(inspect.currentframe()).function)
+
+        if self.isFullScreen() :
+            self.showNormal()
+        else :
+            self.showFullScreen()
+        pass
+
+    pass # -- when_fullScreen_clicked
 
     def buildOpenRecentFilesMenuBar(self):
+        log.info(inspect.getframeinfo(inspect.currentframe()).function)
+
         menuOpen_Recent = self.menuOpen_Recent
 
         settings = self.settings
@@ -62,7 +87,7 @@ class QtLineExtractor(QtWidgets.QMainWindow):
 
         for i, fileName in enumerate( recent_file_list ):
             log.info( f"fileName = {fileName}" )
-            action = QAction( fileName , menuOpen_Recent )
+            action = QAction( f"[{(i+1):d}] {fileName}", menuOpen_Recent )
             action.fileName = fileName
             menuOpen_Recent.addAction( action )
 
@@ -89,6 +114,10 @@ class QtLineExtractor(QtWidgets.QMainWindow):
     pass # -- when_lineExtract_clicked
 
     def when_openBtn_clicked(self, e = None, fileName="" ):
+        debug = False
+
+        orgFileName = fileName
+
         fun = inspect.getframeinfo(inspect.currentframe()).function
         log.info(fun)
 
@@ -101,17 +130,24 @@ class QtLineExtractor(QtWidgets.QMainWindow):
             ext = ext.lower()
 
             if fileName:
-                settings = self.settings
-                recent_file_list = settings.value('recent_file_list', [], str)
+                if 1 :
+                    settings = self.settings
+                    recent_file_list = settings.value('recent_file_list', [], str)
 
-                if fileName not in recent_file_list :
-                    recent_file_list.insert( 0, fileName )
-
-                    if len( recent_file_list ) > 9 :
-                        recent_file_list.pop( len(recent_file_list) -1 )
+                    if fileName in recent_file_list :
+                        recent_file_list.remove( fileName )
+                        recent_file_list.insert(0, fileName)
+                    else :
+                        recent_file_list.insert( 0, fileName )
                     pass
 
-                    settings.setValue( "recent_file_list", recent_file_list )
+                    if len(recent_file_list) > 9:
+                        recent_file_list.pop(len(recent_file_list) - 1 )
+                    pass
+
+                    settings.setValue("recent_file_list", recent_file_list)
+
+                    self.buildOpenRecentFilesMenuBar()
                 pass
 
                 directory = os.path.dirname(fileName)
@@ -129,7 +165,7 @@ class QtLineExtractor(QtWidgets.QMainWindow):
 
                 for file in files:
                     fileBase = os.path.basename(file)
-                    log.info(f"fileBase = {fileBase}")
+                    debug and log.info(f"fileBase = {fileBase}")
 
                     if fileBase > fileNameBase:
                         sel_file = file

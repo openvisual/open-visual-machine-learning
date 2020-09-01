@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="window">
+    <file>TheOneTechLogo_01.png</file>
     <file>window_icon_01.png</file>
   </qresource>
   <qresource prefix="file">
