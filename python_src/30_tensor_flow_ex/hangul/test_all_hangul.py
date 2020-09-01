@@ -54,6 +54,8 @@ while i <= kor_unicode_end :
         break
     pass
 
+    # 유니코드 다음 글자 설정
     i += 1
+    # 테스트 회수 증가
     idx += 1
 pass
