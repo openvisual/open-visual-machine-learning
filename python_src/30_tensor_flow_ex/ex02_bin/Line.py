@@ -1,7 +1,7 @@
 # encoding: utf-8
+
 import logging as log
-log.basicConfig( format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
-    datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
+log.basicConfig( format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
 from functools import cmp_to_key
 

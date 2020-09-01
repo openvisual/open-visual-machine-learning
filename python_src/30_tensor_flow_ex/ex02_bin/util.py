@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import warnings
-warnings.filterwarnings('ignore', category=FutureWarning)
-warnings.filterwarnings('ignore', category=DeprecationWarning)
-
 import logging as log
-log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
-    datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
+log.basicConfig( format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
 import os, glob
 
