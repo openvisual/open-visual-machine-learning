@@ -48,8 +48,8 @@ while i <= kor_unicode_end :
 
     print( f"[{idx:05d}]: 유니코드 = U+{i:X}, 정수 = {i}, 한글 = {kor}, 분할 = {split}, 합병 = {merge}, 일치 = {is_same}" )
 
+    # 분할 합볃 되지 않았을 때, 에러 메시지 출력 .
     if not is_same :
-        # 분할 합볃 되지 않았을 때, 에러 메시지 출력 .
         print( "분할 합병이 되지 않는 글자가 발견되었습니다.")
         break
     pass
