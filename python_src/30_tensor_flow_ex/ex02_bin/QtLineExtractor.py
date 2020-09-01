@@ -61,6 +61,22 @@ class QtLineExtractor(QtWidgets.QMainWindow):
         pass
     pass # -- resizeEvent
 
+    def keyPressEvent(self, e):
+        log.info(inspect.getframeinfo(inspect.currentframe()).function)
+
+        state = self.windowState()
+
+        if e.key() == QtCore.Qt.Key_Escape and state == Qt.WindowFullScreen :
+            self.showNormal()
+        elif e.key() == QtCore.Qt.Key_F11:
+            if self.isFullScreen() :
+                self.showNormal()
+            else:
+                self.showFullScreen()
+            pass
+        pass
+    pass # -- keyPressEvent
+
     def when_fullScreen_clicked(self, e):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
 
