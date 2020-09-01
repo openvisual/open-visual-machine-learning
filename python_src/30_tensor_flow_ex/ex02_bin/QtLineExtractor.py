@@ -132,7 +132,23 @@ class QtLineExtractor(QtWidgets.QMainWindow):
 
             action.triggered.connect( lambda val : self.when_recentFileAction_clicked(action.fileName) )
         pass
+
+        menuOpen_Recent.addSeparator()
+        action = QAction("Clear Recently Opened")
+        action.triggered.connect( self.when_clear_recently_opened_clicked )
+        action.setEnabled( len(recent_file_list) > 0 )
+        menuOpen_Recent.addAction(action)
+
     pass # -- buildOpenRecentFilesMenuBar
+
+    def when_clear_recently_opened_clicked(self, e):
+        log.info( inspect.getframeinfo(inspect.currentframe()).function )
+
+        settings = self.settings
+        settings.setValue("recent_file_list", [])
+
+        self.buildOpenRecentFilesMenuBar()
+    pass
 
     def when_recentFileAction_clicked(self, fileName ):
         log.info( inspect.getframeinfo(inspect.currentframe()).function )
