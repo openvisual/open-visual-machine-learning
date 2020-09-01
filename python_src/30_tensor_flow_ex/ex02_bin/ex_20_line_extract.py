@@ -96,11 +96,11 @@ def my_line_extract( img_path ) :
     if 1 :
         #TODO 이진화
         #algorithm = "threshold_otsu"
-        #algorithm = "threshold_isodata"
+        algorithm = "threshold_isodata"
         #algorithm = "threshold_balanced"
         #algorithm = "threshold_adaptive_gaussian"
         #algorithm = "threshold_adaptive_mean"
-        algorithm = "threshold_global"
+        #algorithm = "threshold_global"
 
         bin_image = curr_image.threshold(algorithm=algorithm)
         if bin_image.reverse_required :
@@ -136,25 +136,29 @@ def my_line_extract( img_path ) :
         curr_image = hough
     pass
 
-    log.info( "Plot show....." )
 
-    print_prof_last()
-
-    # 결과창 폴더 열기
-
-    folder = "c:/temp"
-    open_file_or_folder(folder)
-
-    plt.show()
-
-    log.info( "Good bye!")
 pass
 
 if __name__ == '__main__':
     # 현재 파일의 폴더로 실행 폴더를 이동함.
     chdir_to_curr_file()
 
-    my_line_extract( img_path = "../data_yegan/ex_01/_1018877.JPG" )
+    img_path = "../data_yegan/ex_01/_1018877.JPG"
+    #img_path = "../data_yegan/ex_01/_1018881.JPG"
+
+    my_line_extract( img_path = img_path )
+
+    print_prof_last()
+
+    # 결과창 폴더 열기
+    folder = "c:/temp"
+    open_file_or_folder(folder)
+
+    log.info("Plot show.....")
+
+    plt.show()
+
+    log.info("Good bye!")
 
 pass # -- main
 
