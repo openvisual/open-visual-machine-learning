@@ -8,7 +8,7 @@ import logging as log
 log.basicConfig( format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
     datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
-import os
+import os, glob
 
 def open_file_or_folder(path) :
     ''' open file or folder by an explorer'''
@@ -87,5 +87,36 @@ def chdir_to_curr_file() :
         log.info(f"Pwd 2: {os.getcwd()}")
     pass
 pass # -- chdir_to_curr_file
+
+def next_file( fileName , debug = False ) :
+    directory = os.path.dirname(fileName)
+    log.info(f"dir = {directory}")
+
+    _, ext = os.path.splitext(fileName)
+    ext = ext.lower()
+
+    find_files = f"{directory}/*{ext}"
+    log.info(f"find_files={find_files}")
+
+    files = glob.glob(find_files)
+
+    file_next = None
+
+    fileNameBase = os.path.basename(fileName)
+
+    for file in files:
+        fileBase = os.path.basename(file)
+        debug and log.info(f"fileBase = {fileBase}")
+
+        if fileBase > fileNameBase:
+            file_next = file
+            break
+        pass
+    pass
+
+    log.info(f"file_next = {file_next}")
+
+    return file_next
+pass
 
 # end

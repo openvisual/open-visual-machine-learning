@@ -80,6 +80,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="nextFileOpen">
+        <property name="text">
+         <string>Next File</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="lineExtract">
         <property name="text">
          <string>Line Extract</string>

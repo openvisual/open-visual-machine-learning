@@ -11,6 +11,8 @@ from PyQt5.QtCore import QSettings, QPoint, QSize, Qt
 from rsc.my_qt import *
 from QtImageViewer import *
 
+from util import *
+
 class QtLineExtractor(QtWidgets.QMainWindow):
 
     def __init__(self):
@@ -29,21 +31,21 @@ class QtLineExtractor(QtWidgets.QMainWindow):
         self.progressBar.setValue( 0 )
         self.progressBar.setEnabled( 0 )
 
-        time = QtCore.QTime.currentTime()
-        text = time.toString('hh:mm:ss')
-        self.durationLcdNumber.display( text )
+        self.durationLcdNumber.display( QtCore.QTime.currentTime().toString('hh:mm:ss') )
 
+        #self.nextFileOpen.setEnabled( 0 )
+
+        # signal -> slot connect
         self.tabWidgetLeft.currentChanged.connect( self.when_tab_widget_current_changed )
-
         self.exitBtn.clicked.connect( self.when_exitBtn_clicked )
         self.actionExit.triggered.connect(self.close_app)
         self.actionOpen.triggered.connect( self.when_openBtn_clicked )
         self.openBtn.clicked.connect( self.when_openBtn_clicked )
         self.lineExtract.clicked.connect( self.when_lineExtract_clicked )
         self.actionFull_Screen.triggered.connect( self.when_fullScreen_clicked )
+        # -- signal -> slot connect
 
         self.buildOpenRecentFilesMenuBar()
-
         self.startEvent()
     pass # -- __init__
 
@@ -105,6 +107,11 @@ class QtLineExtractor(QtWidgets.QMainWindow):
             log.info( f"fileName = {fileName}" )
             action = QAction( f"[{(i+1):d}] {fileName}", menuOpen_Recent )
             action.fileName = fileName
+
+            if i == 0 :
+                action.setShortcut('Ctrl+R')
+            pass
+
             menuOpen_Recent.addAction( action )
 
             action.triggered.connect( lambda val : self.when_recentFileAction_clicked(action.fileName) )
@@ -142,9 +149,6 @@ class QtLineExtractor(QtWidgets.QMainWindow):
         if imageViewers and imageViewers[0]:
             fileName = imageViewers[0].loadImageFromFile(fileName=fileName, setFileName=True)
 
-            _, ext = os.path.splitext(fileName)
-            ext = ext.lower()
-
             if fileName:
                 if 1 :
                     settings = self.settings
@@ -166,33 +170,14 @@ class QtLineExtractor(QtWidgets.QMainWindow):
                     self.buildOpenRecentFilesMenuBar()
                 pass
 
-                directory = os.path.dirname(fileName)
-                log.info(f"dir = {directory}")
+                log.info( "aaa" )
 
-                find_files = f"{directory}/*{ext}"
-                log.info(f"find_files={find_files}")
+                file_next = next_file( fileName )
 
-                import glob
-                files = glob.glob(find_files)
+                log.info(f"file_next = {file_next}")
 
-                sel_file = None
-
-                fileNameBase = os.path.basename(fileName)
-
-                for file in files:
-                    fileBase = os.path.basename(file)
-                    debug and log.info(f"fileBase = {fileBase}")
-
-                    if fileBase > fileNameBase:
-                        sel_file = file
-                        break
-                    pass
-                pass
-
-                log.info(f"sel_file = {sel_file}")
-
-                if sel_file and imageViewers[1] :
-                    imageViewers[1].loadImageFromFile(fileName=sel_file, setFileName=True)
+                if file_next and imageViewers[1] :
+                    imageViewers[1].loadImageFromFile(fileName=file_next, setFileName=True)
                 pass
             pass
         pass
