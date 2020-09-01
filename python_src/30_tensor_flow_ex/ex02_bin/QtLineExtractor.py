@@ -139,8 +139,6 @@ class QtLineExtractor(QtWidgets.QMainWindow):
     def when_openBtn_clicked(self, e = None, fileName="" ):
         debug = False
 
-        orgFileName = fileName
-
         fun = inspect.getframeinfo(inspect.currentframe()).function
         log.info(fun)
 
@@ -170,11 +168,7 @@ class QtLineExtractor(QtWidgets.QMainWindow):
                     self.buildOpenRecentFilesMenuBar()
                 pass
 
-                log.info( "aaa" )
-
                 file_next = next_file( fileName )
-
-                log.info(f"file_next = {file_next}")
 
                 if file_next and imageViewers[1] :
                     imageViewers[1].loadImageFromFile(fileName=file_next, setFileName=True)
