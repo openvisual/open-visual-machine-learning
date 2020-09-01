@@ -40,8 +40,26 @@ class QtLineExtractor(QtWidgets.QMainWindow):
         self.openBtn.clicked.connect( self.when_openBtn_clicked )
         self.lineExtract.clicked.connect( self.when_lineExtract_clicked )
 
+        self.buildOpenRecentFilesMenuBar()
+
         self.startEvent()
     pass
+
+    def buildOpenRecentFilesMenuBar(self):
+        actionOpen_Recent = self.actionOpen_Recent
+
+        settings = self.settings
+
+        recent_file_list = settings.value('recent_file_list', [], str)
+
+        actionOpen_Recent.setEnabled( len( recent_file_list ) > 0 )
+
+        menuBar = actionOpen_Recent
+
+        if recent_file_list :
+            pass
+        pass
+    pass # -- buildOpenRecentFilesMenuBar
 
     def when_lineExtract_clicked(self, e):
         log.info( inspect.getframeinfo(inspect.currentframe()).function )
@@ -228,7 +246,7 @@ if __name__ == '__main__':
 
     # Create an instance of QtWidgets.QApplication
     app = QtWidgets.QApplication(sys.argv)
-    window = MyQtApp() # Create an instance of our class
+    window = QtLineExtractor() # Create an instance of our class
     window.show()
     app.exec_() # Start the application
 pass
