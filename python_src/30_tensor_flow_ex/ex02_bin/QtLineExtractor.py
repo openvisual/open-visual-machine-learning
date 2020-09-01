@@ -5,7 +5,7 @@ log.basicConfig( format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d
 
 import os, sys, inspect
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
-from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QAction
 from PyQt5.QtCore import QSettings, QPoint, QSize, Qt
 
 from rsc.my_qt import *
@@ -45,21 +45,36 @@ class QtLineExtractor(QtWidgets.QMainWindow):
         self.startEvent()
     pass
 
+    def load_file(self, fileName):
+        pass
+    pass
+
     def buildOpenRecentFilesMenuBar(self):
-        actionOpen_Recent = self.actionOpen_Recent
+        menuOpen_Recent = self.menuOpen_Recent
 
         settings = self.settings
 
-        recent_file_list = settings.value('recent_file_list', [], str)
+        recent_file_list = settings.value( 'recent_file_list', [], str)
 
-        actionOpen_Recent.setEnabled( len( recent_file_list ) > 0 )
+        menuOpen_Recent.setEnabled( len( recent_file_list ) > 0 )
 
-        menuBar = actionOpen_Recent
+        menuOpen_Recent.clear()
 
-        if recent_file_list :
-            pass
+        for i, fileName in enumerate( recent_file_list ):
+            log.info( f"fileName = {fileName}" )
+            action = QAction( fileName , menuOpen_Recent )
+            action.fileName = fileName
+            menuOpen_Recent.addAction( action )
+
+            action.triggered.connect( lambda val : self.when_recentFileAction_clicked(action.fileName) )
         pass
     pass # -- buildOpenRecentFilesMenuBar
+
+    def when_recentFileAction_clicked(self, fileName ):
+        log.info( inspect.getframeinfo(inspect.currentframe()).function )
+
+        self.when_openBtn_clicked( e=None, fileName=fileName )
+    pass # -- when_recentFileAction_clicked
 
     def when_lineExtract_clicked(self, e):
         log.info( inspect.getframeinfo(inspect.currentframe()).function )
@@ -71,21 +86,34 @@ class QtLineExtractor(QtWidgets.QMainWindow):
         else :
             pass
         pass
-    pass
+    pass # -- when_lineExtract_clicked
 
-    def when_openBtn_clicked(self, e):
+    def when_openBtn_clicked(self, e = None, fileName="" ):
         fun = inspect.getframeinfo(inspect.currentframe()).function
         log.info(fun)
 
         imageViewers = self.imageViewers
 
         if imageViewers and imageViewers[0]:
-            fileName = imageViewers[0].loadImageFromFile(setFileName=True)
+            fileName = imageViewers[0].loadImageFromFile(fileName=fileName, setFileName=True)
 
             _, ext = os.path.splitext(fileName)
             ext = ext.lower()
 
             if fileName:
+                settings = self.settings
+                recent_file_list = settings.value('recent_file_list', [], str)
+
+                if fileName not in recent_file_list :
+                    recent_file_list.insert( 0, fileName )
+
+                    if len( recent_file_list ) > 9 :
+                        recent_file_list.pop( len(recent_file_list) -1 )
+                    pass
+
+                    settings.setValue( "recent_file_list", recent_file_list )
+                pass
+
                 directory = os.path.dirname(fileName)
                 log.info(f"dir = {directory}")
 
@@ -116,7 +144,7 @@ class QtLineExtractor(QtWidgets.QMainWindow):
                 pass
             pass
         pass
-    pass
+    pass # -- when_openBtn_clicked
 
     def startEvent(self):
         settings = self.settings
@@ -124,13 +152,13 @@ class QtLineExtractor(QtWidgets.QMainWindow):
         # 마지막 윈도우 크기 및 위치 로딩
         self.resize(self.settings.value("size", QSize(840, 640)))
         self.move(self.settings.value("pos", QPoint(50, 50)))
-    pass
+    pass # -- startEvent
 
     def showEvent(self, e ):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
 
         return QtWidgets.QMainWindow.showEvent(self, e)
-    pass
+    pass # -- showEvent
 
     def init_tab(self, tabWidget):
         settings = self.settings
@@ -193,13 +221,13 @@ class QtLineExtractor(QtWidgets.QMainWindow):
 
         tab.setLayout( gridLayout )
 
-    pass
+    pass #-- init_tab
 
     def when_exitBtn_clicked(self, e):
         log.info( "when_exitBtn_clicked" )
 
         self.close()
-    pass
+    pass # -- when_exitBtn_clicked
 
     def closeEvent(self, e):
         log.info( "closeEvent")
@@ -208,7 +236,7 @@ class QtLineExtractor(QtWidgets.QMainWindow):
         self.settings.setValue("pos", self.pos())
 
         e.accept()
-    pass
+    pass # -- closeEvent
 
     def close_app( self ):
         log.info( "close app" )
@@ -230,7 +258,7 @@ class QtLineExtractor(QtWidgets.QMainWindow):
         image_profile = image_profile.scaled(w, h, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)
         # To scale image for example and keep its Aspect Ration
         image_viewer.setPixmap(QtGui.QPixmap.fromImage(image_profile))
-    pass
+    pass # -- show_image_on_image_viewer
 pass
 
 if __name__ == '__main__':

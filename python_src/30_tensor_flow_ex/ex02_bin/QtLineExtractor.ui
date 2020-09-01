@@ -136,8 +136,17 @@
     <property name="title">
      <string>File</string>
     </property>
+    <widget class="QMenu" name="menuOpen_Recent">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="title">
+      <string>Open Recent</string>
+     </property>
+     <addaction name="actionfileList_00"/>
+    </widget>
     <addaction name="actionOpen"/>
-    <addaction name="actionOpen_Recent"/>
+    <addaction name="menuOpen_Recent"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -172,12 +181,54 @@
     <string>About Line Extractor V1.0</string>
    </property>
   </action>
-  <action name="actionOpen_Recent">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
+  <action name="actionfileList_00">
    <property name="text">
-    <string>Open Recent</string>
+    <string>fileList_00</string>
+   </property>
+  </action>
+  <action name="actionfileList_01">
+   <property name="text">
+    <string>fileList_01</string>
+   </property>
+  </action>
+  <action name="actionfileList_02">
+   <property name="text">
+    <string>fileList_02</string>
+   </property>
+  </action>
+  <action name="actionfileList_03">
+   <property name="text">
+    <string>fileList_03</string>
+   </property>
+  </action>
+  <action name="actionfileList_04">
+   <property name="text">
+    <string>fileList_04</string>
+   </property>
+  </action>
+  <action name="actionfileList_05">
+   <property name="text">
+    <string>fileList_05</string>
+   </property>
+  </action>
+  <action name="actionfileList_06">
+   <property name="text">
+    <string>fileList_06</string>
+   </property>
+  </action>
+  <action name="actionfileList_07">
+   <property name="text">
+    <string>fileList_07</string>
+   </property>
+  </action>
+  <action name="actionfileList_08">
+   <property name="text">
+    <string>fileList_08</string>
+   </property>
+  </action>
+  <action name="actionfileList_09">
+   <property name="text">
+    <string>fileList_09</string>
    </property>
   </action>
  </widget>
