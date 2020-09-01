@@ -54,7 +54,8 @@ class QtImageViewer(QGraphicsView):
 
         self.isEmpty = True
 
-        if 0 :
+        use_empty_icon = False
+        if use_empty_icon :
             image = QPixmap(":/file/empty_grid.png")
             self.setImage( image )
         pass
@@ -296,9 +297,9 @@ class QtImageViewer(QGraphicsView):
 
         dragMode = self.dragMode()
 
-        if not isCtrl :
-            self.whenLeftMouseDoubleClicked(event)
-        elif isCtrl :
+        if self.dblClickFileLoad :
+            self.loadImageFromFile()
+        else :
             self.setZoom( 1.0 )
         pass
 
@@ -313,16 +314,18 @@ class QtImageViewer(QGraphicsView):
     pass
 
     def wheelEvent(self, event):
+        # 마우스 휠 이벤트
         super(QGraphicsView, self).wheelEvent(event)
+
+        isCtrl = self.isCtrl()
+
+        if isCtrl :
+            self.setDragMode(QGraphicsView.NoDrag)
+        pass
+
         angleDelta = event.angleDelta()
         log.info( f"angleDelta = {angleDelta}")
     pass # -- wheelEvent
-
-    def whenLeftMouseDoubleClicked(self, event):
-        if self.dblClickFileLoad :
-            self.loadImageFromFile()
-        pass
-    pass # -- whenLeftMouseDoubleClicked
 
 pass
 

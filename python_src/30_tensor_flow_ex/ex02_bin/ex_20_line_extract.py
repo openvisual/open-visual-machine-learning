@@ -29,21 +29,14 @@ from Image import *
 
 log.info( "Done Import.".center( 80, "*") )
 
-def my_line_extract() :
+def my_line_extract( img_path ) :
 
     action = "line extract"
     Image.action = action
-    # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
-    # img_path = "../data_ocr/sample_01/messi5.png"
-    # img_path = "../data_ocr/sample_01/hist_work_01.png"
-    # img_path = "../data_ocr/sample_01/gosu_01.png"
-
-    img_path = "../data_yegan/ex_01/_1018877.JPG"
-    #img_path = "../data_yegan/ex_01/1-56.JPG"
 
     # TODO    원천 이미지 획득
+    # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
 
-    # read original image
     img_org = cv2.imread(img_path, 1)
 
     # 이미지 높이, 넓이, 채널수 획득
@@ -161,7 +154,7 @@ if __name__ == '__main__':
     # 현재 파일의 폴더로 실행 폴더를 이동함.
     chdir_to_curr_file()
 
-    my_line_extract()
+    my_line_extract( img_path = "../data_yegan/ex_01/_1018877.JPG" )
 
 pass # -- main
 

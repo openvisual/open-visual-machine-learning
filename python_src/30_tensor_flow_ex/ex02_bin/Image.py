@@ -68,7 +68,10 @@ class Image :
     gridSpec = None
     plt_windows_cnt = 0
 
+    use_matplot = True
+
     def __init__(self, img, algorithm="" ):
+
         # 2차원 배열 데이터
         self.img = img
         self.algorithm = algorithm
@@ -151,6 +154,14 @@ class Image :
     pass  # -- change_ax_border_color
 
     def plot_image( self, title="", border_color="black"):
+        if self.use_matplot :
+            self.plot_image_by_matplot( title, border_color )
+        else :
+            pass
+        pass
+    pass # -- plot_image
+
+    def plot_image_by_matplot(self, title="", border_color="black"):
         # TODO 이미지 그리기
 
         Image.gs_row += 1
@@ -194,10 +205,15 @@ class Image :
 
         return ax, img_show
 
-    pass  # -- plot_image
-    ''' -- 플롯 함수 '''
+    pass  # -- plot_image_by_matplotlib
 
     def plot_histogram(self):  # 히스토 그램 표출
+        if self.use_matplot :
+            self.plot_histogram_by_matplot()
+        pass
+    pass
+
+    def plot_histogram_by_matplot(self):  # 히스토 그램 표출
         img = self.img
         h = len( img )
         w = len( img[0] )
