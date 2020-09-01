@@ -25,17 +25,17 @@ from han_utils.hangul_utils import split_syllable_char, split_syllables, join_ja
 '''
 
 # '가' 한글의 유니코드값을 정수로 변환
-fr = ord( "가" )
+kor_unicode_start = ord("가")
 # '힣' 한글의 유니코드 값을 정수로 변환
-to = ord( "힣")
+kor_unicode_end = ord("힣")
 
 # 한글 분할/합병 테스트 시작 글자
-i = fr
+i = kor_unicode_start
 
 # 테스트 횟수
 idx = 0
 
-while i <= to :
+while i <= kor_unicode_end :
     # 정수 유니코드 값으로 부터 한글 유니코드로 변환
     kor = chr( i )
     # 한글 자소 분리
