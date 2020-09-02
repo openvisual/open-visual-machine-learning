@@ -13,6 +13,7 @@ from rsc.my_qt import *
 from QtImageViewer import *
 
 from Common import *
+from LineExtractor import *
 
 class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
@@ -93,11 +94,11 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
         self.paintUi()
     pass # -- __init__
 
-    def plot_image(self, image, img_path, title="", border_color="black" ):
+    def plot_image(self, image, mode="A", title="", border_color="black" ):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
     pass
 
-    def plot_histogram(self, image, img_path):
+    def plot_histogram(self, image, mode="A"):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
 
         # 히스토 그램 표출
@@ -218,11 +219,24 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
         imageViewers = self.imageViewers
 
-        if imageViewers and imageViewers[0].isEmpty :
-            self.when_openBtn_clicked( e )
-        else :
+        for i, imageViewer in enumerate( imageViewers ):
+            lineExtractor = LineExtractor()
+
+            img_path = imageViewer.fileName
+
+            mode = chr( ord( 'A') + i )
+
+            log.info( f"mode={mode}" )
+
+            lineExtractor.my_line_extract(img_path=img_path, qtUi=self, mode=mode)
+
+            if i == len( imageViewers ) -1 :
+                # 결과창 폴더 열기
+                folder = "c:/temp"
+                lineExtractor.open_file_or_folder(folder)
             pass
         pass
+
     pass # -- when_lineExtract_clicked
 
     def when_openBtn_clicked(self, e = None, fileName="" ):

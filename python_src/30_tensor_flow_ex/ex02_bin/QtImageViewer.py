@@ -25,6 +25,8 @@ class QtImageViewer(QGraphicsView):
             settings = QSettings('TheOneTech', 'line_extractor')
         pass
 
+        self.fileName = None
+
         self.dblClickFileLoad = dblClickFileLoad
 
         self.settings = settings
@@ -213,6 +215,7 @@ class QtImageViewer(QGraphicsView):
         pass
 
         if setFileName and hasattr(self, "fileNameLineEdit" ) :
+            self.fileName = fileName
             self.fileNameLineEdit.setText(fileName)
         pass
 
