@@ -134,6 +134,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>   </string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="lineExtract">
         <property name="text">
          <string>Line Extract</string>

@@ -3,7 +3,7 @@
 import logging as log
 log.basicConfig( format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
-import os, sys, inspect
+import os, sys, time, inspect
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from PyQt5.QtWidgets import QApplication, QWidget, QAction
 from PyQt5.QtCore import QSettings, QPoint, QSize, Qt, QModelIndex
@@ -23,6 +23,10 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
         uic.loadUi('./QtLineExtractor.ui', self)
 
+        self.statusMessage = None
+
+        self.duration = 0
+
         self.settings = QSettings('TheOneTech', 'line_extractor')
 
         self.imageViewers = []
@@ -32,8 +36,6 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
         self.progressBar.setValue( 0 )
         self.progressBar.setEnabled( 0 )
-
-        self.durationLcdNumber.display( QtCore.QTime.currentTime().toString('hh:mm:ss') )
 
         self.lineMatchComboBox.addItems( [ "Matched", "All", "A Only", "B Only"] )
 
@@ -97,6 +99,9 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
     def plot_image(self, image, mode="A", title="", border_color="black" ):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
+
+        statusBar = self.statusBar()
+        statusBar.showMessage( title )
     pass
 
     def plot_histogram(self, image, mode="A"):
@@ -133,6 +138,15 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
         self.nextFileOpen.setEnabled( nextFile is not None )
         self.lineExtract.setEnabled( is_file_open )
         self.viewJson.setEnabled(is_file_open)
+
+        if self.duration == 0:
+            self.durationLcdNumber.display("00:00:00")
+        pass
+
+        if self.statusMessage :
+            self.statusBar().showMessage( self.statusMessage )
+        pass
+
     pass # -- paintUi
 
     def when_nextFileOpen_clicked(self, e):
@@ -148,7 +162,9 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
                 log.info( f"nextFile = {nextFile}" )
                 if nextFile :
                     self.when_openBtn_clicked( fileName = nextFile )
-                    self.statusBar().showMessage( f"Next File [ {nextFile} ] is opened.")
+                    self.statusMessage = f"Next File [ {nextFile} ] is opened."
+
+                    self.paintUi()
                 pass
             pass
         pass
@@ -275,6 +291,10 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
         imageViewers = self.imageViewers
 
+        start = time.time()
+
+        self.duration = 0
+
         for i, imageViewer in enumerate( imageViewers ):
             lineExtractor = LineExtractor()
 
@@ -286,11 +306,15 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
             lineExtractor.my_line_extract(img_path=img_path, qtUi=self, mode=mode)
 
+            self.duration = time.time() - start
+
             if i == len( imageViewers ) - 1 :
                 # 결과창 폴더 열기
                 folder = "c:/temp"
                 lineExtractor.open_file_or_folder(folder)
             pass
+
+            self.paintUi()
         pass
 
     pass # -- when_lineExtract_clicked
@@ -304,8 +328,6 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
         if imageViewers and imageViewers[0]:
             fileName = imageViewers[0].loadImageFromFile(fileName=fileName, setFileName=True)
 
-            self.statusBar().showMessage(f"File [ {fileName} ] is opened.")
-
             if fileName:
                 self.save_recent_file(self.settings, fileName)
                 self.buildOpenRecentFilesMenuBar()
@@ -317,6 +339,9 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
                 pass
             pass
         pass
+
+        self.duration = 0
+        self.statusMessage = f"File [ {fileName} ] is opened."
 
         self.paintUi()
     pass # -- when_openBtn_clicked
