@@ -59,6 +59,7 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
         self.nextFileOpen.setEnabled( is_file_open )
         self.lineExtract.setEnabled( is_file_open )
+        self.viewJson.setEnabled(is_file_open)
     pass # -- paintUi
 
     def when_nextFileOpen_clicked(self, e):

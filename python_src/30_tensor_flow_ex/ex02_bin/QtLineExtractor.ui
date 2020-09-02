@@ -18,7 +18,7 @@
     <normaloff>:/window/TheOneTechLogo_01.png</normaloff>:/window/TheOneTechLogo_01.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_2">
+   <layout class="QGridLayout" name="gridLayout">
     <property name="leftMargin">
      <number>10</number>
     </property>
@@ -31,9 +31,9 @@
     <property name="bottomMargin">
      <number>10</number>
     </property>
-    <item row="0" column="0">
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
+    <item row="0" column="0" rowspan="3">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
        <widget class="QTabWidget" name="tabWidgetLeft">
         <property name="currentIndex">
          <number>1</number>
@@ -51,7 +51,7 @@
         </widget>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item>
        <widget class="QTabWidget" name="tabWidgetRight">
         <property name="currentIndex">
          <number>1</number>
@@ -70,7 +70,31 @@
       </item>
      </layout>
     </item>
-    <item row="1" column="0">
+    <item row="0" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="maximumSize">
+         <size>
+          <width>25</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string> Line</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton">
+        <property name="text">
+         <string>Matched</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="3" column="0" colspan="2">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QPushButton" name="openBtn">
@@ -111,6 +135,20 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="viewJson">
+        <property name="text">
+         <string>View Json</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>    </string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="exitBtn">
         <property name="text">
          <string>Exit</string>
@@ -131,6 +169,16 @@
        </spacer>
       </item>
      </layout>
+    </item>
+    <item row="1" column="1">
+     <widget class="QTableView" name="lineTableView">
+      <property name="maximumSize">
+       <size>
+        <width>200</width>
+        <height>16777215</height>
+       </size>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
