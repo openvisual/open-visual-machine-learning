@@ -85,7 +85,8 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
         self.openBtn.clicked.connect( self.when_openBtn_clicked )
         self.lineExtract.clicked.connect( self.when_lineExtract_clicked )
         self.actionFull_Screen.triggered.connect( self.when_fullScreen_clicked )
-        self.nextFileOpen.clicked.connect( self.when_nextFileOpen_clicked )
+        self.prevFileOpen.clicked.connect( self.when_prevFileOpen_clicked )
+        self.nextFileOpen.clicked.connect(self.when_nextFileOpen_clicked)
         # -- signal -> slot connect
 
         self.buildOpenRecentFilesMenuBar()
@@ -110,11 +111,26 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
         is_file_open = False
 
-        if self.imageViewers and self.imageViewers[0].isEmpty == False :
+        prevFile = None
+        nextFile = None
+
+        imageViewers = self.imageViewers
+
+        if imageViewers and not imageViewers[0].isEmpty :
             is_file_open = True
+
+            fileName = imageViewers[0].fileName
+            if fileName :
+                prevFile = self.prev_file( fileName )
+                nextFile = self.next_file( fileName )
+            pass
         pass
 
-        self.nextFileOpen.setEnabled( is_file_open )
+        log.info( f"prevFile={prevFile}")
+        log.info( f"nextFile={nextFile}")
+
+        self.prevFileOpen.setEnabled( prevFile is not None )
+        self.nextFileOpen.setEnabled( nextFile is not None )
         self.lineExtract.setEnabled( is_file_open )
         self.viewJson.setEnabled(is_file_open)
     pass # -- paintUi
@@ -130,11 +146,34 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
                 fileName = imageViewer.fileName
                 nextFile = self.next_file( fileName )
                 log.info( f"nextFile = {nextFile}" )
-                nextFile and self.when_openBtn_clicked( fileName = nextFile )
+                if nextFile :
+                    self.when_openBtn_clicked( fileName = nextFile )
+                    self.statusBar().showMessage( f"Next File [ {nextFile} ] is opened.")
+                pass
             pass
         pass
 
     pass # -- when_nextFileOpen_clicked
+
+    def when_prevFileOpen_clicked(self, e):
+        log.info(inspect.getframeinfo(inspect.currentframe()).function)
+
+        imageViewers = self.imageViewers
+
+        if imageViewers :
+            imageViewer = imageViewers[0]
+            if imageViewer is not None and not imageViewer.isEmpty and imageViewer.fileName :
+                fileName = imageViewer.fileName
+                prevFile = self.prev_file( fileName )
+                log.info( f"nextFile = {prevFile}" )
+                if prevFile :
+                    self.when_openBtn_clicked( fileName = prevFile )
+                    self.statusBar().showMessage( f"Previous File [ {prevFile} ] is opened.")
+                pass
+            pass
+        pass
+
+    pass # -- when_prevFileOpen_clicked
 
     def resizeEvent(self, event):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
@@ -239,11 +278,11 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
             mode = chr( ord( 'A') + i )
 
-            log.info( f"mode={mode}" )
+            log.info( f"img_path={img_path}, mode={mode}" )
 
             lineExtractor.my_line_extract(img_path=img_path, qtUi=self, mode=mode)
 
-            if i == len( imageViewers ) -1 :
+            if i == len( imageViewers ) - 1 :
                 # 결과창 폴더 열기
                 folder = "c:/temp"
                 lineExtractor.open_file_or_folder(folder)
@@ -260,6 +299,8 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
         if imageViewers and imageViewers[0]:
             fileName = imageViewers[0].loadImageFromFile(fileName=fileName, setFileName=True)
+
+            self.statusBar().showMessage(f"File [ {fileName} ] is opened.")
 
             if fileName:
                 self.save_recent_file(self.settings, fileName)

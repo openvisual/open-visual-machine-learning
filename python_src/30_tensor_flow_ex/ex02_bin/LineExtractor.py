@@ -23,6 +23,8 @@ class LineExtractor ( Common ):
         # TODO    원천 이미지 획득
         # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
 
+        log.info( f"img_path={img_path}" )
+
         img_org = cv2.imread(img_path, 1)
 
         # 이미지 높이, 넓이, 채널수 획득
@@ -30,7 +32,6 @@ class LineExtractor ( Common ):
         width = img_org.shape[1]
         channel_cnt = img_org.shape[2]
 
-        log.info(f"Image path: {img_path}")
         log.info(f"Image width: {width}, height: {height}, channel: {channel_cnt}")
 
         image_org = Image( img_org )
@@ -134,8 +135,9 @@ if __name__ == '__main__':
 
     lineExtractor.chdir_to_curr_file()
 
-    img_path = "../data_yegan/ex_01/_1018877.JPG"
+    #img_path = "../data_yegan/ex_01/_1018877.JPG"
     #img_path = "../data_yegan/ex_01/_1018881.JPG"
+    img_path = r"C:\Users\admin\Desktop\100 예간 sample image\_1018843.JPG"
 
     lineExtractor.my_line_extract( img_path=img_path, qtUi=None )
 

@@ -103,13 +103,13 @@ class Common :
 
         file_next = None
 
-        fileNameBase = os.path.basename(fileName)
+        fileBaseOrg = os.path.basename(fileName)
 
         for file in files:
             fileBase = os.path.basename(file)
             debug and log.info(f"fileBase = {fileBase}")
 
-            if fileBase > fileNameBase:
+            if fileBase > fileBaseOrg:
                 file_next = file
                 break
             pass
@@ -118,7 +118,41 @@ class Common :
         log.info(f"file_next = {file_next}")
 
         return file_next
-    pass
+    pass # -- next_file
+
+    def prev_file(self, fileName , debug = False ) :
+        directory = os.path.dirname(fileName)
+        log.info(f"dir = {directory}")
+
+        _, ext = os.path.splitext(fileName)
+        ext = ext.lower()
+
+        find_files = f"{directory}/*{ext}"
+        log.info(f"find_files={find_files}")
+
+        files = glob.glob(find_files)
+
+        fileBaseOrg = os.path.basename(fileName)
+
+        file_prev = None
+
+        for file in files:
+            fileBase = os.path.basename(file)
+            debug and log.info(f"fileBase = {fileBase}")
+
+            if fileBase == fileBaseOrg or fileBase > fileBaseOrg :
+                break
+            elif fileBase < fileBaseOrg:
+                file_prev = file
+            else :
+                break
+            pass
+        pass
+
+        log.info(f"file_prev = {file_prev}")
+
+        return file_prev
+    pass # -- next_file
 
     def save_recent_file(self, settings, fileName ) :
         recent_file_list = settings.value('recent_file_list', [], str)

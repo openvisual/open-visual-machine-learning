@@ -114,6 +114,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="prevFileOpen">
+        <property name="text">
+         <string>Previous</string>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+P</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="nextFileOpen">
         <property name="text">
          <string>Next File</string>
