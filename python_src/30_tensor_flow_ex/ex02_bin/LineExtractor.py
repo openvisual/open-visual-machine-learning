@@ -7,6 +7,7 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 import logging as log
 log.basicConfig( format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
+import os
 from Common import *
 
 # 이미지 클래스 임포트
@@ -22,6 +23,18 @@ class LineExtractor ( Common ):
 
         # TODO    원천 이미지 획득
         # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
+
+        if os.path.exists( img_path ) :
+            if os.path.isdir( img_path ) :
+                log.info(f"ERROR: img_path={img_path} is a directory.")
+
+                return -1
+            else :
+                log.info(f"ERROR: img_path={img_path} is invalid.")
+
+                return -2
+            pass
+        pass
 
         log.info( f"img_path={img_path}" )
 
@@ -127,6 +140,7 @@ class LineExtractor ( Common ):
             hough.plot_image(title=hough.algorithm, border_color="blue", qtUi=qtUi, mode=mode)
         pass
 
+        return 0
     pass
 pass # -- LineExtractor
 
@@ -139,15 +153,17 @@ if __name__ == '__main__':
     #img_path = "../data_yegan/ex_01/_1018881.JPG"
     img_path = r"C:\Users\admin\Desktop\100 예간 sample image\_1018843.JPG"
 
-    lineExtractor.my_line_extract( img_path=img_path, qtUi=None )
+    ret = lineExtractor.my_line_extract( img_path=img_path, qtUi=None )
 
-    # 결과창 폴더 열기
-    folder = "c:/temp"
-    lineExtractor.open_file_or_folder(folder)
+    if ret == 0 :
+        # 결과창 폴더 열기
+        folder = "c:/temp"
+        lineExtractor.open_file_or_folder(folder)
 
-    log.info("Plot show.....")
+        log.info("Plot show.....")
 
-    plt.show()
+        plt.show()
+    pass
 
     log.info("Good bye!")
 
