@@ -86,9 +86,19 @@
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton">
+       <widget class="QComboBox" name="lineMatchComboBox">
+        <property name="maximumSize">
+         <size>
+          <width>120</width>
+          <height>16777215</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Matched</string>
+         <string>      </string>
         </property>
        </widget>
       </item>

@@ -33,6 +33,8 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
         self.durationLcdNumber.display( QtCore.QTime.currentTime().toString('hh:mm:ss') )
 
+        self.lineMatchComboBox.addItems( [ "Matched", "All", "1 Only", "2 Only"] )
+
         # signal -> slot connect
         self.tabWidgetLeft.currentChanged.connect( self.when_tab_widget_current_changed )
         self.exitBtn.clicked.connect( self.when_exitBtn_clicked )
