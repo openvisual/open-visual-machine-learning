@@ -18,10 +18,10 @@ import math
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
-from Line import *
 from SegInfo import *
+from Line import *
 
-class Image (Common) :
+class Image(Common) :
 
     # 이미지 저장 회수
     img_save_cnt = 0
@@ -122,7 +122,7 @@ class Image (Common) :
 
     def plot_image( self, title="", border_color="black"):
         if self.use_matplot :
-            self.plot_image_by_matplot( title, border_color )
+            return self.plot_image_by_matplot( title, border_color )
         else :
             pass
         pass
@@ -144,7 +144,7 @@ class Image (Common) :
             cnt = Image.plt_windows_cnt
 
             # plot 윈도우 제목 변경
-            win_title = Image.action.capitalize()
+            win_title = "Segmentation"
             plt.get_current_fig_manager().canvas.set_window_title( f"{win_title} {cnt}" )
         pass
 
@@ -701,7 +701,7 @@ class Image (Common) :
         return image
     pass  # -- threshold_isodata
 
-    def threshold_balanced(self ):
+    def threshold_balanced( self ):
         msg = "Threshold balanced"
         log.info( f"{msg}")
 
@@ -1110,7 +1110,7 @@ class Image (Common) :
         # 엑셀 파일 저장
         folder = "C:/Temp"
 
-        file_name = file_name_except_path_ext( img_path )
+        file_name = self.file_name_except_path_ext( img_path )
 
         # TODO     y count 데이터를 엑셀 파일로 저장
         import xlsxwriter
@@ -1119,7 +1119,7 @@ class Image (Common) :
         excel_file_name = f"{folder}/{file_name}_y_counts.xlsx"
 
         # 쓰기 가능 여부 체크
-        if not is_writable( excel_file_name ) :
+        if not self.is_writable( excel_file_name ) :
             import datetime
             now = datetime.datetime.now()
             now_str = now.strftime('%m-%d %H%M%S')
@@ -1212,10 +1212,10 @@ class Image (Common) :
         log.info( f"Excel file {excel_file_name} was saved." )
 
         # 결과창 폴더 열기
-        open_file_or_folder(folder)
+        self.open_file_or_folder(folder)
 
         # 결과창 엑셀 파일 열기
-        if show_excel_file :  open_file_or_folder(excel_file_name)
+        show_excel_file and self.open_file_or_folder(excel_file_name)
     pass # -- y count 데이터를 엑셀, csv 파일로 저장
 
     def word_seginfos(self, y_signal_counts, sentence ):
