@@ -121,6 +121,19 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
     def when_nextFileOpen_clicked(self, e):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
+
+        imageViewers = self.imageViewers
+
+        if imageViewers :
+            imageViewer = imageViewers[0]
+            if imageViewer is not None and not imageViewer.isEmpty and imageViewer.fileName :
+                fileName = imageViewer.fileName
+                nextFile = self.next_file( fileName )
+                log.info( f"nextFile = {nextFile}" )
+                nextFile and self.when_openBtn_clicked( fileName = nextFile )
+            pass
+        pass
+
     pass # -- when_nextFileOpen_clicked
 
     def resizeEvent(self, event):

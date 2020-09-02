@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>836</width>
+    <width>1006</width>
     <height>633</height>
    </rect>
   </property>
@@ -165,16 +165,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="exitBtn">
-        <property name="text">
-         <string>Exit</string>
-        </property>
-        <property name="shortcut">
-         <string>Ctrl+X</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -186,6 +176,16 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="exitBtn">
+        <property name="text">
+         <string>Exit</string>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+S</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -206,7 +206,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>836</width>
+     <width>1006</width>
      <height>21</height>
     </rect>
    </property>
