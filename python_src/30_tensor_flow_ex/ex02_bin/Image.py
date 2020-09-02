@@ -118,10 +118,10 @@ class Image (Common) :
 
     pass  # -- change_ax_border_color
 
-    def plot_image( self, title="", border_color="black", qtLineExtractor=None ):
+    def plot_image( self, title="", border_color="black", qtUi=None, img_path=None ):
 
-        if qtLineExtractor is not None :
-            qtLineExtractor.plot_image( self, title, border_color )
+        if qtUi is not None :
+            qtUi.plot_image( self, title, border_color, img_path )
         else :
             return self.plot_image_by_matplot( title, border_color )
         pass
@@ -173,9 +173,9 @@ class Image (Common) :
 
     pass  # -- plot_image_by_matplotlib
 
-    def plot_histogram(self, qtLineExtractor=None ):  # 히스토 그램 표출
-        if qtLineExtractor is not None :
-            qtLineExtractor.plot_histogram( self )
+    def plot_histogram(self, qtUi=None, img_path=None ):  # 히스토 그램 표출
+        if qtUi is not None :
+            qtUi.plot_histogram( self, img_path )
         else :
             self.plot_histogram_by_matplot()
         pass

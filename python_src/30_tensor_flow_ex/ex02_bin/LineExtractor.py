@@ -18,7 +18,7 @@ class LineExtractor ( Common ):
         Common.__init__( self )
     pass
 
-    def my_line_extract( self, img_path, qtLineExtractor = None ) :
+    def my_line_extract(self, img_path, qtUi = None) :
 
         # TODO    원천 이미지 획득
         # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
@@ -36,7 +36,7 @@ class LineExtractor ( Common ):
         image_org = Image( img_org )
         image_org.save_img_as_file( img_path, "org" )
         title = f'Original Image: { img_path.split("/")[-1] }'
-        0 and image_org.plot_image( title=title , cmap=None, border_color = "green", qtLineExtractor=qtLineExtractor )
+        0 and image_org.plot_image(title=title, cmap=None, border_color = "green", qtUi=qtUi)
 
         curr_image = image_org
 
@@ -45,8 +45,8 @@ class LineExtractor ( Common ):
             grayscale = image_org.convert_to_grayscale()
             grayscale.reverse_image( max=255 )
             grayscale.save_img_as_file( img_path, "grayscale" )
-            grayscale.plot_image( title="Grayscale", border_color = "green", qtLineExtractor=qtLineExtractor )
-            grayscale.plot_histogram( qtLineExtractor=qtLineExtractor)
+            grayscale.plot_image(title="Grayscale", border_color = "green", qtUi=qtUi)
+            grayscale.plot_histogram(qtUi=qtUi)
 
             curr_image = grayscale
         pass
@@ -59,8 +59,8 @@ class LineExtractor ( Common ):
 
             curr_image.save_img_as_file( img_path, f"noise_removed({curr_image.algorithm})" )
             title = f"Noise removed ({curr_image.algorithm}, ksize={ksize})"
-            curr_image.plot_image( title=title, border_color = "blue", qtLineExtractor=qtLineExtractor )
-            curr_image.plot_histogram(qtLineExtractor=qtLineExtractor)
+            curr_image.plot_image(title=title, border_color = "blue", qtUi=qtUi)
+            curr_image.plot_histogram(qtUi=qtUi)
         pass
 
         if 1 :
@@ -70,8 +70,8 @@ class LineExtractor ( Common ):
             curr_image = normalized
 
             curr_image.save_img_as_file( img_path, "image_normalized" )
-            curr_image.plot_image( title="Normalization", border_color = "green", qtLineExtractor=qtLineExtractor )
-            curr_image.plot_histogram(qtLineExtractor=qtLineExtractor)
+            curr_image.plot_image(title="Normalization", border_color = "green", qtUi=qtUi)
+            curr_image.plot_histogram(qtUi=qtUi)
         pass
 
         if 1:
@@ -81,8 +81,8 @@ class LineExtractor ( Common ):
             curr_image = gradient
 
             curr_image.save_img_as_file(img_path, curr_image.algorithm)
-            curr_image.plot_image(title=curr_image.algorithm, border_color="blue")
-            curr_image.plot_histogram()
+            curr_image.plot_image(title=curr_image.algorithm, border_color="blue", qtUi=qtUi)
+            curr_image.plot_histogram(qtUi=qtUi)
         pass  # -- gradient
 
         if 1 :
@@ -103,7 +103,7 @@ class LineExtractor ( Common ):
 
             curr_image.save_img_as_file( img_path, f"image_binarized({curr_image.algorithm})" )
             title = f"Binarization ({curr_image.algorithm})"
-            curr_image.plot_image( title=title, border_color="blue" )
+            curr_image.plot_image(title=title, border_color="blue", qtUi=qtUi)
         pass #-- 이진화
 
         if 1 :
@@ -113,8 +113,8 @@ class LineExtractor ( Common ):
             curr_image = morphology
 
             curr_image.save_img_as_file( img_path, curr_image.algorithm )
-            curr_image.plot_image( title=curr_image.algorithm, border_color="blue" )
-            0 and curr_image.plot_histogram()
+            curr_image.plot_image(title=curr_image.algorithm, border_color="blue", qtUi=qtUi)
+            0 and curr_image.plot_histogram(qtUi=qtUi)
         pass # -- morphology
 
         if 1 :
@@ -124,7 +124,7 @@ class LineExtractor ( Common ):
 
             hough = curr_image.hough_lines(merge_lines=1)
             hough.save_img_as_file(img_path, hough.algorithm)
-            hough.plot_image(title=hough.algorithm, border_color="blue")
+            hough.plot_image(title=hough.algorithm, border_color="blue", qtUi=qtUi)
         pass
 
     pass
@@ -138,7 +138,7 @@ if __name__ == '__main__':
     img_path = "../data_yegan/ex_01/_1018877.JPG"
     #img_path = "../data_yegan/ex_01/_1018881.JPG"
 
-    lineExtractor.my_line_extract( img_path = img_path )
+    lineExtractor.my_line_extract( img_path=img_path )
 
     # 결과창 폴더 열기
     folder = "c:/temp"
