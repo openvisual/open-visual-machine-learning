@@ -37,7 +37,7 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
         self.lineMatchComboBox.addItems( [ "Matched", "All", "A Only", "B Only"] )
 
         if 1 :
-            headerLabels = [ '그림', 'ID', '유사도', '길이', '좌표(A)', '좌표(B)' , "" ]
+            headerLabels = [ '그림', 'ID', '유사도', '길이', '좌표(A)', '좌표(B)' ]
             colLen = len(headerLabels)
 
             model = QStandardItemModel()
@@ -50,11 +50,8 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
             header.setDefaultAlignment(Qt.AlignHCenter)
 
             for i in range( colLen ) :
-                if i < colLen - 1 :
-                    header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
-                else :
-                    header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
-                pass
+                #header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+                header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
             pass
 
             # Sets different alignment data just on the first column
@@ -64,19 +61,19 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
             for row in range( 4 ):
                 items = []
                 for col in range( colLen ):
-                    if col == colLen -1 :
-                        data = ""
-                    else :
-                        data = f"{(row + 1) * (col + 1)}"
-                    pass
+                    data = f"{(row + 1) * (col + 1)}"
 
-                    items.append( QStandardItem( data ) )
+                    item = QStandardItem( data )
+                    item.setEditable( False )
+
+                    items.append( item )
                 pass
 
                 model.insertRow( row, items )
             pass
 
             tableView.setWindowTitle( "Lines Extracted" )
+            tableView.resizeColumnsToContents()
         pass
 
         # signal -> slot connect
@@ -96,7 +93,20 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
         self.paintUi()
     pass # -- __init__
 
+    def plot_image(self, image, title="", border_color="black" ):
+        log.info(inspect.getframeinfo(inspect.currentframe()).function)
+    pass
+
+    def plot_histogram(self, image):
+        log.info(inspect.getframeinfo(inspect.currentframe()).function)
+
+        # 히스토 그램 표출
+        pass
+    pass
+
     def paintUi(self):
+        log.info(inspect.getframeinfo(inspect.currentframe()).function)
+
         is_file_open = False
 
         if self.imageViewers and self.imageViewers[0].isEmpty == False :
