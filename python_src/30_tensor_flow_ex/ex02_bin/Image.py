@@ -42,6 +42,7 @@ class Image (Common) :
         self.algorithm = algorithm
         self.histogram = None
         self.histogram_acc = None
+        self.fileName = None
     pass
 
     def img_file_name(self, img_path, work):
@@ -93,7 +94,7 @@ class Image (Common) :
     pass  # -- img_file_name
 
     def save_img_as_file(self, img_path, work, ):
-        filename = self.img_file_name( img_path, work)
+        fileName = self.img_file_name( img_path, work)
         img = self.img
 
         cmap = "gray"
@@ -102,9 +103,11 @@ class Image (Common) :
             cmap = None
         pass
 
-        plt.imsave(filename, img, cmap=cmap)
+        plt.imsave(fileName, img, cmap=cmap)
 
-        log.info( f"Image saved as file name[ {filename} ]" )
+        self.fileName = fileName
+
+        log.info( f"Image saved as file name[ {fileName} ]" )
     pass  # -- save_img_as_file
 
     ''' -- 이미지 저장 함수 '''

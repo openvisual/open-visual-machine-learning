@@ -3,11 +3,12 @@
 import logging as log
 log.basicConfig( format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
-import os, sys, time, datetime, inspect
+import os, sys, time, datetime, inspect, numpy as np
+
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from PyQt5.QtWidgets import QApplication, QWidget, QAction
 from PyQt5.QtCore import QSettings, QPoint, QSize, Qt, QModelIndex, QThread, pyqtSignal
-from PyQt5.QtGui import QStandardItemModel, QStandardItem, QCursor
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QCursor, QPixmap, QImage
 
 from rsc.my_qt import *
 from QtImageViewer import *
@@ -18,7 +19,7 @@ from LineExtractor import *
 class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
     paintUiSignal = pyqtSignal()
-    paintImageSignal = pyqtSignal()
+    plotImageSignal = pyqtSignal( dict )
 
     def __init__(self):
         QtWidgets.QMainWindow.__init__( self )
@@ -96,6 +97,7 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
         self.nextFileOpen.clicked.connect(self.when_nextFileOpen_clicked)
 
         self.paintUiSignal.connect( self.when_paintUiSignal )
+        self.plotImageSignal.connect( self.when_plotImageSignal )
         # -- signal -> slot connect
 
         self.buildOpenRecentFilesMenuBar()
@@ -107,20 +109,73 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
     def plot_image(self, image, mode="A", title="", border_color="black" ):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
 
+        params = {"image": image, "mode": mode, "title": title, "border_color": border_color}
+
+        use_signal = True
+        if use_signal :
+            self.plotImageSignal.emit( params )
+        else :
+            self.when_plotImageSignal( params )
+        pass
+    pass
+
+    def when_plotImageSignal(self, params ) :
+        log.info(inspect.getframeinfo(inspect.currentframe()).function)
+
+        image = params["image"]
+        mode = params["mode"]
+        title = params["title"]
+        border_color = params["border_color"]
+
+        imageViewers = self.imageViewers
+        imageViewer = imageViewers[0] if mode == 'A' else imageViewers[1]
+
+        loadImageFromFile = True
+        if loadImageFromFile :
+            imageViewer.loadImageFromFile( image.fileName )
+        else :
+            imageViewer.setImage( self.converToQImage( image ))
+        pass
+
         statusBar = self.statusBar()
         statusBar.showMessage( title )
-    pass
+    pass # -- when_plotImageSignal
+
+    def converToQImage(self, image):
+        img = image.img
+        img = img.astype(np.uint8)
+        shape = img.shape
+
+        log.info(f"shape={img.shape}")
+
+        height = len(img)
+        width = len(img[0])
+
+        channel = 1
+        fmt = QImage.Format_Indexed8
+
+        if len(shape) > 2:
+            channel = shape[2]
+            fmt = QImage.Format_RGB888
+        pass
+
+        bytesPerLine = channel * width
+
+        qImage = QImage(img, width, height, bytesPerLine, fmt)
+
+        return qImage
+    pass # -- converToQImage
 
     def plot_histogram(self, image, mode="A"):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
 
         # 히스토 그램 표출
         pass
-    pass
+    pass # -- plot_histogram
 
     def paintUi(self):
         self.paintUiSignal.emit()
-    pass
+    pass # -- paintUi
 
     def when_paintUiSignal(self):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
@@ -166,7 +221,7 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
             self.statusBar().showMessage( self.statusMessage )
         pass
 
-    pass # -- paintUi
+    pass # -- when_paintUiSignal
 
     def when_nextFileOpen_clicked(self, e):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
@@ -350,7 +405,8 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
                     qtUi.duration = time.time() - start
 
-                    if i == len(imageViewers) - 1:
+                    open_folder = False
+                    if open_folder and i == len(imageViewers) - 1:
                         # 결과창 폴더 열기
                         folder = "c:/temp"
                         lineExtractor.open_file_or_folder(folder)
