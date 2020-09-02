@@ -83,6 +83,8 @@ class Image (Common) :
 
         fn = os.path.join( directory, f"{fileHeader}_{img_save_cnt:02d}_{work}{ext}" )
 
+        fn = fn.replace("\\", "/")
+
         log.info( f"fn={fn}")
 
         Image.img_save_cnt += 1

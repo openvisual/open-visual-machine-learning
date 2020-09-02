@@ -97,6 +97,7 @@ class Common :
         ext = ext.lower()
 
         find_files = f"{directory}/*{ext}"
+        find_files = find_files.replace( "\\", "/" )
         log.info(f"find_files={find_files}")
 
         files = glob.glob(find_files)
@@ -115,6 +116,10 @@ class Common :
             pass
         pass
 
+        if file_next is not None :
+            file_next = file_next.replace("\\", "/")
+        pass
+
         log.info(f"file_next = {file_next}")
 
         return file_next
@@ -128,6 +133,7 @@ class Common :
         ext = ext.lower()
 
         find_files = f"{directory}/*{ext}"
+        find_files = find_files.replace("\\", "/")
         log.info(f"find_files={find_files}")
 
         files = glob.glob(find_files)
@@ -147,6 +153,10 @@ class Common :
             else :
                 break
             pass
+        pass
+
+        if file_prev is not None :
+            file_prev = file_prev.replace("\\", "/")
         pass
 
         log.info(f"file_prev = {file_prev}")
