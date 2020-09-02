@@ -7,7 +7,7 @@ log.basicConfig( format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)04d]
 # profile import
 from profile import *
 # utility import
-from util import *
+from Common import *
 
 from functools import cmp_to_key
 
@@ -21,7 +21,7 @@ from matplotlib.gridspec import GridSpec
 from Line import *
 from SegInfo import *
 
-class Image :
+class Image (Common) :
 
     # 이미지 저장 회수
     img_save_cnt = 0
@@ -39,8 +39,7 @@ class Image :
     use_matplot = True
 
     def __init__(self, img, algorithm="" ):
-
-        # 2차원 배열 데이터
+        # 2차원 이미지 배열 데이터
         self.img = img
         self.algorithm = algorithm
         self.histogram = None

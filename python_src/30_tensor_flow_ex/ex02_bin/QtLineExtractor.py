@@ -11,13 +11,13 @@ from PyQt5.QtCore import QSettings, QPoint, QSize, Qt
 from rsc.my_qt import *
 from QtImageViewer import *
 
-from util import *
+from Common import *
 
-class QtLineExtractor(QtWidgets.QMainWindow):
+class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
     def __init__(self):
-        # Call the inherited classes __init__ method
-        super(QtLineExtractor, self).__init__()
+        QtWidgets.QMainWindow.__init__( self )
+        Common.__init__(self)
 
         uic.loadUi('./QtLineExtractor.ui', self)
 
