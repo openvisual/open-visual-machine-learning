@@ -93,11 +93,11 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
         self.paintUi()
     pass # -- __init__
 
-    def plot_image(self, image, title="", border_color="black" ):
+    def plot_image(self, image, img_path, title="", border_color="black" ):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
     pass
 
-    def plot_histogram(self, image):
+    def plot_histogram(self, image, img_path):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
 
         # 히스토 그램 표출
