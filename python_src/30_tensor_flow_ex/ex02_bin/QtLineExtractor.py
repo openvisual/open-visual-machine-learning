@@ -6,7 +6,8 @@ log.basicConfig( format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d
 import os, sys, inspect
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from PyQt5.QtWidgets import QApplication, QWidget, QAction
-from PyQt5.QtCore import QSettings, QPoint, QSize, Qt
+from PyQt5.QtCore import QSettings, QPoint, QSize, Qt, QModelIndex
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 from rsc.my_qt import *
 from QtImageViewer import *
@@ -33,7 +34,50 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
         self.durationLcdNumber.display( QtCore.QTime.currentTime().toString('hh:mm:ss') )
 
-        self.lineMatchComboBox.addItems( [ "Matched", "All", "1 Only", "2 Only"] )
+        self.lineMatchComboBox.addItems( [ "Matched", "All", "A Only", "B Only"] )
+
+        if 1 :
+            headerLabels = [ '그림', 'ID', '유사도', '길이', '좌표(A)', '좌표(B)' , "" ]
+            colLen = len(headerLabels)
+
+            model = QStandardItemModel()
+            model.setHorizontalHeaderLabels(headerLabels)
+
+            tableView = self.lineTableView
+            tableView.setModel(model)
+
+            header = tableView.horizontalHeader()
+            header.setDefaultAlignment(Qt.AlignHCenter)
+
+            for i in range( colLen ) :
+                if i < colLen - 1 :
+                    header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
+                else :
+                    header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+                pass
+            pass
+
+            # Sets different alignment data just on the first column
+            #model.setHeaderData(0, Qt.Horizontal, Qt.AlignJustify, Qt.TextAlignmentRole )
+            #model.setHeaderData(0, Qt.Horizontal, Qt.AlignJustify, Qt.TextAlignmentRole)
+
+            for row in range( 4 ):
+                items = []
+                for col in range( colLen ):
+                    if col == colLen -1 :
+                        data = ""
+                    else :
+                        data = f"{(row + 1) * (col + 1)}"
+                    pass
+
+                    items.append( QStandardItem( data ) )
+                pass
+
+                model.insertRow( row, items )
+            pass
+
+            tableView.setWindowTitle( "Lines Extracted" )
+        pass
 
         # signal -> slot connect
         self.tabWidgetLeft.currentChanged.connect( self.when_tab_widget_current_changed )
