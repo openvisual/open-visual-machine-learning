@@ -47,35 +47,30 @@ class Image (Common) :
     def img_file_name(self, img_path, work):
         # C:/temp 폴더에 결과 파일을 저정합니다.
 
-        folder = "C:/temp"
+        directory = "C:/temp"
+
+        if os.path.exists(directory):
+            if not os.path.isdir(directory):
+                os.remove(directory)
+                os.mkdir(directory)
+            pass
+        else:
+            os.mkdir(directory)
+        pass
 
         img_save_cnt = Image.img_save_cnt
 
-        fn = img_path
+        fileName = img_path
 
-        root = fn[: fn.rfind("/")]
+        fileBase = os.path.basename(fileName)
 
-        if os.path.exists(folder):
-            if not os.path.isdir(folder):
-                os.remove(folder)
-                os.mkdir(folder)
-            else:
-                # do nothing
-                pass
-            pass
-        else:
-            os.mkdir(folder)
-        pass
-
-        fn = fn.replace(root, "")
-        k = fn.rfind(".")
-
-        fn_hdr = folder + fn[: k]
+        fileHeader, ext = os.path.splitext( fileBase )
+        ext = ext.lower()
 
         if Image.clear_work_files and img_save_cnt == 0 :
             # fn_hdr 로 시작하는 모든 파일을 삭제함.
             import glob
-            for f in glob.glob( f"{fn_hdr}*" ):
+            for f in glob.glob( f"{fileHeader}*" ):
                 log.info( f"file to delete {f}")
                 try :
                     os.remove(f)
@@ -86,7 +81,9 @@ class Image (Common) :
             pass
         pass
 
-        fn = fn_hdr + ("_%02d_" % img_save_cnt) + work + fn[k:].lower()
+        fn = os.path.join( directory, f"{fileHeader}_{img_save_cnt:02d}_{work}{ext}" )
+
+        log.info( f"fn={fn}")
 
         Image.img_save_cnt += 1
 
