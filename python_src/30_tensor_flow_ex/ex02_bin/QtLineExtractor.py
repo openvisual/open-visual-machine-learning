@@ -3,7 +3,7 @@
 import logging as log
 log.basicConfig( format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
-import os, sys, time, inspect
+import os, sys, time, datetime, inspect
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from PyQt5.QtWidgets import QApplication, QWidget, QAction
 from PyQt5.QtCore import QSettings, QPoint, QSize, Qt, QModelIndex
@@ -139,8 +139,9 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
         self.lineExtract.setEnabled( is_file_open )
         self.viewJson.setEnabled(is_file_open)
 
-        if self.duration == 0:
-            self.durationLcdNumber.display("00:00:00")
+        if 1 :
+            duration = int( self.duration )
+            self.durationLcdNumber.display( str(datetime.timedelta(seconds=duration)) )
         pass
 
         if self.statusMessage :
@@ -246,6 +247,7 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
         menuOpen_Recent.clear()
 
         for i, fileName in enumerate( recent_file_list ):
+            fileName = fileName.replace ( "\\", "/" )
             log.info( f"fileName = {fileName}" )
             action = QAction( f"[{(i+1):d}] {fileName}", menuOpen_Recent )
             action.fileName = fileName
@@ -262,11 +264,11 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
         if len( recent_file_list ) :
             menuOpen_Recent.addSeparator()
 
-            action = QAction("Clear Recently Opened")
-            menuOpen_Recent.addAction(action)
+            actionClear = QAction("Clear Recently Opened", menuOpen_Recent )
+            menuOpen_Recent.addAction(actionClear)
 
-            action.triggered.connect(self.when_clear_recently_opened_clicked)
-            action.setEnabled(len(recent_file_list) > 0)
+            actionClear.triggered.connect(self.when_clear_recently_opened_clicked)
+            actionClear.setEnabled(len(recent_file_list) > 0)
         pass
 
     pass # -- buildOpenRecentFilesMenuBar
