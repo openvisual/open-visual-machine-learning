@@ -6,8 +6,8 @@ log.basicConfig( format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d
 import os, sys, time, datetime, inspect
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from PyQt5.QtWidgets import QApplication, QWidget, QAction
-from PyQt5.QtCore import QSettings, QPoint, QSize, Qt, QModelIndex
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtCore import QSettings, QPoint, QSize, Qt, QModelIndex, QThread, pyqtSignal
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QCursor
 
 from rsc.my_qt import *
 from QtImageViewer import *
@@ -17,12 +17,17 @@ from LineExtractor import *
 
 class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
+    paintUiSignal = pyqtSignal()
+    paintImageSignal = pyqtSignal()
+
     def __init__(self):
         QtWidgets.QMainWindow.__init__( self )
         Common.__init__(self)
 
         uic.loadUi('./QtLineExtractor.ui', self)
 
+        self.lineExtractThread = None
+        self.isProcessing = False
         self.statusMessage = None
 
         self.duration = 0
@@ -89,6 +94,8 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
         self.actionFull_Screen.triggered.connect( self.when_fullScreen_clicked )
         self.prevFileOpen.clicked.connect( self.when_prevFileOpen_clicked )
         self.nextFileOpen.clicked.connect(self.when_nextFileOpen_clicked)
+
+        self.paintUiSignal.connect( self.when_paintUiSignal )
         # -- signal -> slot connect
 
         self.buildOpenRecentFilesMenuBar()
@@ -112,7 +119,18 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
     pass
 
     def paintUi(self):
+        self.paintUiSignal.emit()
+    pass
+
+    def when_paintUiSignal(self):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
+
+        isProcessing = self.isProcessing
+        if isProcessing :
+            QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        else :
+            QApplication.restoreOverrideCursor()
+        pass
 
         is_file_open = False
 
@@ -211,9 +229,13 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
         state = self.windowState()
 
-        if e.key() == QtCore.Qt.Key_Escape and state == Qt.WindowFullScreen :
+        key = e.key()
+
+        log.info( f"key = {key}" )
+
+        if key == QtCore.Qt.Key_Escape and state == Qt.WindowFullScreen :
             self.showNormal()
-        elif e.key() == QtCore.Qt.Key_F11:
+        elif key == QtCore.Qt.Key_F11:
             if self.isFullScreen() :
                 self.showNormal()
             else:
@@ -291,32 +313,65 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
     def when_lineExtract_clicked(self, e):
         log.info( inspect.getframeinfo(inspect.currentframe()).function )
 
-        imageViewers = self.imageViewers
-
-        start = time.time()
-
-        self.duration = 0
-
-        for i, imageViewer in enumerate( imageViewers ):
-            lineExtractor = LineExtractor()
-
-            img_path = imageViewer.fileName
-
-            mode = chr( ord( 'A') + i )
-
-            log.info( f"img_path={img_path}, mode={mode}" )
-
-            lineExtractor.my_line_extract(img_path=img_path, qtUi=self, mode=mode)
-
-            self.duration = time.time() - start
-
-            if i == len( imageViewers ) - 1 :
-                # 결과창 폴더 열기
-                folder = "c:/temp"
-                lineExtractor.open_file_or_folder(folder)
+        class LineExtractThread(QThread):
+            def __init__(self, qtUi : QtLineExtractor ):
+                QThread.__init__(self)
+                self.qtUi = qtUi
             pass
 
-            self.paintUi()
+            def __del__(self):
+                self.wait()
+
+            pass
+
+            def run(self):
+                qtUi = self.qtUi
+
+                qtUi.isProcessing = True
+
+                qtUi.paintUi()
+
+                imageViewers = qtUi.imageViewers
+
+                start = time.time()
+
+                qtUi.duration = 0
+
+                for i, imageViewer in enumerate(imageViewers):
+                    lineExtractor = LineExtractor()
+
+                    img_path = imageViewer.fileName
+
+                    mode = chr(ord('A') + i)
+
+                    log.info(f"img_path={img_path}, mode={mode}")
+
+                    lineExtractor.my_line_extract(img_path=img_path, qtUi=qtUi, mode=mode)
+
+                    qtUi.duration = time.time() - start
+
+                    if i == len(imageViewers) - 1:
+                        # 결과창 폴더 열기
+                        folder = "c:/temp"
+                        lineExtractor.open_file_or_folder(folder)
+                    pass
+
+                    qtUi.paintUi()
+                pass
+
+                qtUi.isProcessing = False
+                qtUi.lineExtractThread = None
+
+                qtUi.paintUi()
+            pass
+
+        pass  # LineExtractThread
+
+        if self.lineExtractThread is not None :
+            log.info( "There is another thread running." )
+        else :
+            self.lineExtractThread = LineExtractThread( self )
+            self.lineExtractThread.start()
         pass
 
     pass # -- when_lineExtract_clicked
