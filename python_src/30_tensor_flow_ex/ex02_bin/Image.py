@@ -4,24 +4,22 @@ import logging as log
 log.basicConfig( format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
     datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
+import os, numpy as np, sys, time, math
+import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
+from functools import cmp_to_key
+
+import cv2, cv2 as cv
+
 # profile import
 from profile import *
 # utility import
 from Common import *
 
-from functools import cmp_to_key
-
-import os, cv2, numpy as np, sys, time
-import cv2 as cv
-import math
-
-import matplotlib.pyplot as plt
-from matplotlib.gridspec import GridSpec
-
 from SegInfo import *
 from Line import *
 
-class Image(Common) :
+class Image (Common) :
 
     # 이미지 저장 회수
     img_save_cnt = 0

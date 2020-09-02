@@ -1,20 +1,5 @@
 # -*- coding: utf-8 -*-
 
-'''
-# 변경 사항
-# -- 함수 모듈화
-# -- 히스토그램 정규화 추가
-# -- 결과 이미지 저장
-# -- Adaptive Thresholding 추가
-# -- 클래스 화
-# 축소/팽창
-# histogram modal count 계산
-# OTSU thresholding
-# ROSIN thresholding
-#
-# 라인 추출
-'''
-
 import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
 warnings.filterwarnings('ignore', category=DeprecationWarning)
@@ -28,14 +13,12 @@ from Common import *
 from Image import *
 
 class LineExtractor ( Common ):
+
     def __init__(self):
         Common.__init__( self )
     pass
 
     def my_line_extract( self, img_path ) :
-
-        action = "line extract"
-        Image.action = action
 
         # TODO    원천 이미지 획득
         # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
@@ -144,7 +127,7 @@ pass # -- LineExtractor
 
 if __name__ == '__main__':
     lineExtractor = LineExtractor()
-    # 현재 파일의 폴더로 실행 폴더를 이동함.
+
     lineExtractor.chdir_to_curr_file()
 
     img_path = "../data_yegan/ex_01/_1018877.JPG"

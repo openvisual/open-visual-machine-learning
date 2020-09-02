@@ -130,7 +130,7 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
 
             menuOpen_Recent.addAction( action )
 
-            action.triggered.connect( lambda val : self.when_recentFileAction_clicked(action.fileName) )
+            action.triggered.connect( lambda val : self.when_recentFileAction_clicked( f"{fileName}" ) )
         pass
 
         menuOpen_Recent.addSeparator()
@@ -169,10 +169,8 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
     pass # -- when_lineExtract_clicked
 
     def when_openBtn_clicked(self, e = None, fileName="" ):
+        log.info( inspect.getframeinfo(inspect.currentframe()).function )
         debug = False
-
-        fun = inspect.getframeinfo(inspect.currentframe()).function
-        log.info(fun)
 
         imageViewers = self.imageViewers
 
@@ -180,10 +178,10 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
             fileName = imageViewers[0].loadImageFromFile(fileName=fileName, setFileName=True)
 
             if fileName:
-                save_recent_file(self.settings, fileName)
+                self.save_recent_file(self.settings, fileName)
                 self.buildOpenRecentFilesMenuBar()
 
-                file_next = next_file( fileName )
+                file_next = self.next_file( fileName )
 
                 if file_next and imageViewers[1] :
                     imageViewers[1].loadImageFromFile(fileName=file_next, setFileName=True)
