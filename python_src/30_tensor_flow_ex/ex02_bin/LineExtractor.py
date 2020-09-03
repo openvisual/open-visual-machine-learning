@@ -212,11 +212,15 @@ if __name__ == '__main__':
 
         nextFile = lineExtractor.next_file( img_path )
 
-        lineList = lineExtractor.my_line_extract( img_path=nextFile, qtUi=None, lineListA=lineList )
+        if nextFile and nextFile is not None :
+            lineList = lineExtractor.my_line_extract( img_path=nextFile, qtUi=None, lineListA=lineList )
 
-        lineListIdentified = lineList.lineListIdentified
+            lineListIdentified = lineList.lineListIdentified
 
-        lineListAll.extend( lineListIdentified )
+            for line in lineListIdentified :
+                lineListAll.append( line )
+            pass
+        pass
     pass
 
     if lineListAll :
