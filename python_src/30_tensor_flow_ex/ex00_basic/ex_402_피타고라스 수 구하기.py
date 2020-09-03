@@ -16,7 +16,7 @@ for a in range(3, to ) :
 
                 length_list.append( length )
                 area_list.append( area )
-                print( f"[{idx:d}] {a}, {b}, {c} , length={length:,d}, area={area:,d}" )
+                print( f"[{idx:d}] {a}, {b}, {c}, length={length:,d}, area={area:,d}" )
                 idx += 1
             pass
         pass
@@ -31,8 +31,8 @@ import numpy as np
 
 x = range( len( area_list ) )
 
-plt.bar( x, length_list, color="green" , label="Area" )
-plt.plot( x, area_list, color="blue" , label="Length" )
+plt.bar( x, length_list, color="green" , label="Length" )
+plt.plot( x, area_list, color="blue" , label="Area" )
 
 plt.legend()
 
