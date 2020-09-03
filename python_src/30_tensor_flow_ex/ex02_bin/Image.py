@@ -1389,6 +1389,10 @@ class Image (Common) :
         lines = sorted( lines, key=cmp_to_key(Line.compare_line_length))
         lines = lines[ : : -1 ]
 
+        for line in lines :
+            line.fileBase = fileBase
+        pass
+
         algorithm = f"hough lines(thresh={threshold}, legth={minLineLength}, gap={maxLineGap}, merge={merge_lines}, error_deg={error_deg}, snap={snap_dist})"
 
         lineList = LineList( lines = lines, algorithm = algorithm, w = w, h = h, fileBase = fileBase )

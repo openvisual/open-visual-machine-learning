@@ -163,7 +163,7 @@ class Line:
 
             debug and log.info( f"points sort = { ', '.join([str(p) for p in points]) }")
 
-            merge_line = Line( a = points[0], b = points[-1] )
+            merge_line = Line( a = points[0], b = points[-1], fileBase=self.fileBase )
 
             debug and log.info( f"merge line = {merge_line}")
         pass

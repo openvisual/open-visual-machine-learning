@@ -44,26 +44,33 @@ class LineList :
     pass # -- identify
 
     def save_as_json(self, json_file_name ):
+        debug = False
         import json
         #data = {'name': 'Scott', 'website': 'stackabuse.com', 'from': 'Nebraska'}
         data = {}
 
         lines = self.lines
 
-        for i, line in enumerate( lines ) :
-            line_a = line
-            line_b = line.line_identified
-
+        for i, lineA in enumerate( lines ) :
             line_data = {}
 
-            line_data[line_a.fileBase] = {"point1": [line_a.a.x, line_a.a.y], "point2": [line_a.b.x, line_a.b.y]}
-            line_data[line_b.fileBase] = {"point1": [line_b.a.x, line_b.a.y], "point2": [line_b.b.x, line_b.b.y]}
+            line = lineA
+            fileBase = line.fileBase
+            line_data[ fileBase ] = {"point1": [float(line.a.x), float(line.a.y)], "point2": [float(line.b.x), float(line.b.y)]}
+
+            debug and log.info( f"id={line.id} , fileBase={fileBase}" )
+
+            line = lineA.line_identified
+            fileBase = line.fileBase
+
+            line_data[ fileBase] = {"point1": [float(line.a.x), float(line.a.y)], "point2": [float(line.b.x), float(line.b.y)]}
+            debug and log.info(f"id={line.id} , fileBase={fileBase}")
 
             data[ f"line{i +1}" ] = line_data
         pass
 
         with open( json_file_name, 'w') as f:
-            json.dump(data, f, indent=4)
+            json.dump(data, f, indent=4 )
         pass
 
     pass # -- save_as_json
