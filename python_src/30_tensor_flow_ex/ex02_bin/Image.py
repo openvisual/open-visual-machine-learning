@@ -488,6 +488,39 @@ class Image (Common) :
         return Image( img=data, algorithm=algorithm)
     pass  # -- gradient
 
+    def contours(self, lineWidth=1):
+        # TODO  등고선
+        #  https://docs.opencv.org/trunk/d4/d73/tutorial_py_contours_begin.html
+
+        log.info(inspect.getframeinfo(inspect.currentframe()).function)
+
+        img = self.img
+
+        img = img.astype(np.uint8)
+
+        h = len( img )
+        w = len( img[0] )
+
+        #mode = cv.RETR_TREE
+        mode = cv2.RETR_EXTERNAL
+        method = cv.CHAIN_APPROX_SIMPLE
+
+        algorithm = f"contours(mode={mode}, method={method})"
+
+        # Find Canny edges
+        edged = cv2.Canny( img, 30, 255)
+
+        (_,contours,_) = cv2.findContours(edged, mode, method)
+
+        data = np.zeros((h, w, 3), dtype = "uint8")
+
+        cv2.drawContours(data, contours, -1, (255, 255, 255), lineWidth)
+
+        data = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
+
+        return Image( img=data, algorithm=algorithm)
+    pass  # -- contours
+
     def remove_noise(self, algorithm , ksize=5 ):
         # TODO   잡음 제거
         msg = "Remove noise"

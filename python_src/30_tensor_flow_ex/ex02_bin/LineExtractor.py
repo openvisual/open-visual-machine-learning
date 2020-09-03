@@ -115,7 +115,16 @@ class LineExtractor ( Common ):
             curr_image.plot_histogram(qtUi=qtUi, mode=mode)
         pass
 
-        if 1: # TODO Gradient
+        useContour = False
+        if useContour: # TODO Contour
+            contour = curr_image.contours()
+
+            curr_image = contour
+
+            curr_image.save_img_as_file(img_path, curr_image.algorithm)
+            curr_image.plot_image(title=curr_image.algorithm, border_color="blue", qtUi=qtUi, mode=mode)
+            curr_image.plot_histogram(qtUi=qtUi, mode=mode)
+        else : # TODO Gradient
             gradient = curr_image.gradient(ksize=7, kernel_type="cross")
 
             curr_image = gradient
@@ -145,7 +154,8 @@ class LineExtractor ( Common ):
             curr_image.plot_image(title=title, border_color="blue", qtUi=qtUi, mode=mode)
         pass #-- 이진화
 
-        if 1 : # TODO morphology
+        use_morphology = False
+        if use_morphology : # TODO morphology
             morphology = curr_image.morphology( is_open=0, bsize=7, iterations=3, kernel_type="cross" )
 
             curr_image = morphology
@@ -170,7 +180,8 @@ class LineExtractor ( Common ):
         if lineList is not None and lineListA is not None :
             log.info( "Line tagging....")
 
-            lineListIdentified = lineListA.line_identify( lineList , snapDeg=10, snapDistRatio=0.1 )
+            snapDeg = 20
+            lineListIdentified = lineListA.line_identify( lineList, snapDeg=snapDeg, snapDistRatio=0.1 )
 
             identify = curr_image.plot_lines( lineListIdentified )
             identify.save_img_as_file(img_path, "identify")
@@ -199,11 +210,19 @@ if __name__ == '__main__':
         files.extend(glob(join( folder, ext)))
     pass
 
-    lineListAll = []
+    lineListAll = LineList()
 
     img_path = "../data_yegan/_1018843.JPG"
 
+    iteration = -1
+
     for i in range( 0 , len(files), 2 ) :
+        if iteration < 0 :
+            pass
+        elif i > iteration :
+            break
+        pass
+
         file = files[i]
 
         img_path = file.replace( "\\", "/" )
@@ -215,7 +234,7 @@ if __name__ == '__main__':
         if nextFile and nextFile is not None :
             lineList = lineExtractor.my_line_extract( img_path=nextFile, qtUi=None, lineListA=lineList )
 
-            lineListAll.extend( lineList.lineListIdentified.lines )
+            lineListAll.extend( lineList.lineListIdentified )
         pass
     pass
 

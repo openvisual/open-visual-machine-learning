@@ -21,6 +21,10 @@ class LineList :
         self.lineListIdentified = None
     pass # -- __init__
 
+    def extend(self, lineList ):
+        self.lines.extend( lineList.lines )
+    pass
+
     def line_identify(self, lineListB, snapDeg=10, snapDistRatio=0.1):
         fileBase = self.fileBase
         w = self.w
