@@ -115,16 +115,8 @@ class LineExtractor ( Common ):
             curr_image.plot_histogram(qtUi=qtUi, mode=mode)
         pass
 
-        useContour = False
-        if useContour: # TODO Contour
-            contour = curr_image.contours()
-
-            curr_image = contour
-
-            curr_image.save_img_as_file(img_path, curr_image.algorithm)
-            curr_image.plot_image(title=curr_image.algorithm, border_color="blue", qtUi=qtUi, mode=mode)
-            curr_image.plot_histogram(qtUi=qtUi, mode=mode)
-        else : # TODO Gradient
+        useGradient = True
+        if useGradient : # TODO Gradient
             gradient = curr_image.gradient(ksize=7, kernel_type="cross")
 
             curr_image = gradient
@@ -133,6 +125,17 @@ class LineExtractor ( Common ):
             curr_image.plot_image(title=curr_image.algorithm, border_color="blue", qtUi=qtUi, mode=mode)
             curr_image.plot_histogram(qtUi=qtUi, mode=mode)
         pass  # -- gradient
+
+        useContour = True
+        if useContour: # TODO Contour
+            contour = curr_image.contours()
+
+            curr_image = contour
+
+            curr_image.save_img_as_file(img_path, curr_image.algorithm)
+            curr_image.plot_image(title=curr_image.algorithm, border_color="blue", qtUi=qtUi, mode=mode)
+            curr_image.plot_histogram(qtUi=qtUi, mode=mode)
+        pass
 
         if 1 : #TODO 이진화
             #algorithm = "threshold_otsu"

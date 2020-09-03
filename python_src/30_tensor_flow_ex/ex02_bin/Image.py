@@ -683,8 +683,11 @@ class Image (Common) :
 
         histogram = histogram.copy()
 
-        margin = 20
-        histogram[0: margin] = 0
+        useMargin = False
+        if useMargin :
+            margin = 50
+            histogram[0: margin] = 0
+        pass
 
         x = np.arange(0, len(histogram))
 
