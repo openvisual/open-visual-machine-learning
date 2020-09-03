@@ -520,7 +520,7 @@ class Image (Common) :
             filters = []
             diagonal = math.sqrt( w*w + h*h )
             ref_len = diagonal*0.1
-            ref_width = min( w, h )/100
+            ref_width = min( w, h )/30
             ref_height = ref_width
             ref_area = w*h/10_000
 
