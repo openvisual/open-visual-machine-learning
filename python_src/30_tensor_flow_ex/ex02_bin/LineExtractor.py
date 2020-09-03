@@ -199,7 +199,8 @@ if __name__ == '__main__':
     lineList = lineExtractor.my_line_extract( img_path=nextFile, qtUi=None, lineListA=lineList )
 
     if lineList and lineList.lineListIdentified :
-        lineList.save_as_json( os.path.join( "/temp" , os.path.basename( img_path ) ) )
+        json_file_name = os.path.join( "/temp" , os.path.basename( img_path ) )
+        lineList.save_as_json( json_file_name=json_file_name )
     pass
 
     if 1 :

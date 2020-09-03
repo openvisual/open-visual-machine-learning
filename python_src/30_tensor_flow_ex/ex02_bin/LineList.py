@@ -47,7 +47,7 @@ class LineList :
         return lineList
     pass # -- identify
 
-    def save_as_json(self, jsonFileName):
+    def save_as_json(self, json_file_name ):
         pass
     pass # -- save_as_json
 pass # -- LineList
