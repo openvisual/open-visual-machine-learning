@@ -64,7 +64,7 @@ class Line:
         pass
 
         self.fileBase = fileBase
-        self.lineB = None
+        self.line_identified = None
     pass
 
     def __getitem__(self, i):
@@ -218,6 +218,73 @@ class Line:
         pass
 
         return lines
-    pass
+    pass # -- merge_lines
+
+    def get_identified_line(self, lineList, snapDeg=None, snapDistRatio=0.1, minLengthRatio=0.1):
+
+        snapRad = (math.pi/180)*(snapDeg % 360)
+
+        snapDist = lineList.diagonal * snapDistRatio
+
+        lines_identified = []
+
+        lines = lineList.lines
+
+        diagonal = lineList.diagonal
+
+        ref_line = self
+
+        ref_slope_rad = ref_line.slope_radian()
+        ref_line_len = ref_line.length()
+
+        two_pi = 2 * math.pi
+
+        for line in lines:
+            valid = True
+
+            if valid :
+                slope_rad = line.slope_radian()
+                diff_rad = abs(slope_rad - ref_slope_rad) % two_pi
+                if diff_rad > snapRad :
+                    valid = False
+                pass
+            pass
+
+            if valid :
+                line_len = line.length()
+                diff_len_ratio = abs(ref_line_len - line_len) / max([ref_line_len, line_len])
+                if diff_len_ratio > snapDistRatio:
+                    valid = False
+                pass
+            pass
+
+            if valid :
+                dist_a = min( ref_line.a.distance( line.a ) , ref_line.a.distance(line.b ) )
+                dist_b = min( ref_line.b.distance( line.a ) , ref_line.b.distance(line.b ) )
+
+                dist = max( [dist_a, dist_b] )
+                dist_ratio = dist/diagonal
+
+                if dist_ratio > snapDistRatio :
+                    valid = False
+                pass
+
+            if valid :
+                lines_identified.append(line)
+            pass
+        pass
+
+        lines_identified = sorted(lines_identified, key=cmp_to_key(Line.compare_line_length))
+
+        line_identified = None
+
+        if lines_identified :
+            line_identified = lines_identified[ -1 ]
+        pass
+
+        return line_identified
+
+    pass  # -- get_identified_line
+
 
 pass # -- Line

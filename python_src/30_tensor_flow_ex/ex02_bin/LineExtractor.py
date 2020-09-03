@@ -169,6 +169,14 @@ class LineExtractor ( Common ):
 
         if lineList is not None and lineListA is not None :
             log.info( "Line tagging....")
+
+            lineListIdentified = lineListA.identify( lineList , snapDeg=10, snapDistRatio=0.1 )
+
+            identify = curr_image.plot_lines( lineListIdentified )
+            identify.save_img_as_file(img_path, "identify")
+            identify.plot_image(title="identify", border_color="blue", qtUi=qtUi, mode=mode)
+
+            lineList.lineListIdentified = lineListIdentified
         pass
 
         lineList.mode = mode
@@ -184,16 +192,22 @@ if __name__ == '__main__':
 
     img_path = "../data_yegan/_1018843.JPG"
 
-    lineListA = lineExtractor.my_line_extract( img_path=img_path, qtUi=None )
+    lineList = lineExtractor.my_line_extract( img_path=img_path, qtUi=None )
 
     nextFile = lineExtractor.next_file( img_path )
 
-    lienListB = lineExtractor.my_line_extract( img_path=nextFile, qtUi=None, lineListA=lineListA )
+    lineList = lineExtractor.my_line_extract( img_path=nextFile, qtUi=None, lineListA=lineList )
+
+    if lineList and lineList.lineListIdentified :
+        lineList.save_as_json( os.path.join( "/temp" , os.path.basename( img_path ) ) )
+    pass
 
     if 1 :
         # 결과창 폴더 열기
         folder = "c:/temp"
         lineExtractor.open_file_or_folder(folder)
+
+        #plt.show()
     else :
         log.info("Plot show.....")
         plt.show()
