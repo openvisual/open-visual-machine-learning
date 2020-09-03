@@ -170,7 +170,7 @@ class LineExtractor ( Common ):
         if lineList is not None and lineListA is not None :
             log.info( "Line tagging....")
 
-            lineListIdentified = lineListA.identify( lineList , snapDeg=10, snapDistRatio=0.1 )
+            lineListIdentified = lineListA.line_identify( lineList , snapDeg=10, snapDistRatio=0.1 )
 
             identify = curr_image.plot_lines( lineListIdentified )
             identify.save_img_as_file(img_path, "identify")
@@ -200,7 +200,8 @@ if __name__ == '__main__':
 
     if lineList and lineList.lineListIdentified :
         json_file_name = os.path.join( "/temp" , os.path.basename( img_path ) )
-        lineList.save_as_json( json_file_name=json_file_name )
+        lineListIdentified = lineList.lineListIdentified
+        lineListIdentified.save_as_json( json_file_name=json_file_name )
     pass
 
     if 1 :

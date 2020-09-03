@@ -21,7 +21,7 @@ class LineList :
         self.lineListIdentified = None
     pass # -- __init__
 
-    def identify(self, lineListB, snapDeg=10, snapDistRatio=0.1):
+    def line_identify(self, lineListB, snapDeg=10, snapDistRatio=0.1):
         fileBase = self.fileBase
         w = self.w
         h = self.h
@@ -29,11 +29,7 @@ class LineList :
 
         lines_identified = []
 
-        lineListA = self
-
-        linesA = lineListA.lines
-
-        for line in linesA :
+        for line in self.lines :
             line_identified = line.get_identified_line( lineListB, snapDeg=snapDeg, snapDistRatio=snapDistRatio )
             if line_identified :
                 line.line_identified = line_identified
@@ -48,6 +44,27 @@ class LineList :
     pass # -- identify
 
     def save_as_json(self, json_file_name ):
+        import json
+        #data = {'name': 'Scott', 'website': 'stackabuse.com', 'from': 'Nebraska'}
+        data = {}
+
+        lines = self.lines
+
+        for i, line in enumerate( lines ) :
+            line_a = line
+            line_b = line.line_identified
+
+            line_data = {}
+
+            line_data[line_a.fileBase] = {"point1": [line_a.a.x, line_a.a.y], "point2": [line_a.b.x, line_a.b.y]}
+            line_data[line_b.fileBase] = {"point1": [line_b.a.x, line_b.a.y], "point2": [line_b.b.x, line_b.b.y]}
+
+            data[ f"line{i +1}" ] = line_data
         pass
+
+        with open( json_file_name, 'w') as f:
+            json.dump(data, f, indent=4)
+        pass
+
     pass # -- save_as_json
 pass # -- LineList

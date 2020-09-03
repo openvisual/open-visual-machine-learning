@@ -220,7 +220,7 @@ class Line:
         return lines
     pass # -- merge_lines
 
-    def get_identified_line(self, lineList, snapDeg=None, snapDistRatio=0.1, minLengthRatio=0.1):
+    def get_identified_line(self, lineList, snapDeg=None, snapDistRatio=0.1 ):
 
         snapRad = (math.pi/180)*(snapDeg % 360)
 
@@ -276,13 +276,13 @@ class Line:
 
         lines_identified = sorted(lines_identified, key=cmp_to_key(Line.compare_line_length))
 
-        line_identified = None
+        line_found = None
 
         if lines_identified :
-            line_identified = lines_identified[ -1 ]
+            line_found = lines_identified[ -1 ]
         pass
 
-        return line_identified
+        return line_found
 
     pass  # -- get_identified_line
 
