@@ -19,7 +19,7 @@ class LineExtractor ( Common ):
         Common.__init__( self )
     pass
 
-    def my_line_extract(self, img_path, qtUi = None, mode="A", lineListPrev=None) :
+    def my_line_extract(self, img_path, qtUi = None, mode="A", lineListA=None) :
 
         # TODO    원천 이미지 획득
         # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
@@ -167,6 +167,10 @@ class LineExtractor ( Common ):
             hough.plot_image(title=hough.algorithm, border_color="blue", qtUi=qtUi, mode=mode)
         pass
 
+        if lineList is not None and lineListA is not None :
+            log.info( "Line tagging....")
+        pass
+
         lineList.mode = mode
 
         return lineList
@@ -178,19 +182,20 @@ if __name__ == '__main__':
 
     lineExtractor.chdir_to_curr_file()
 
-    #img_path = "../data_yegan/ex_01/_1018877.JPG"
-    img_path = "../data_yegan/ex_01/_1018881.JPG"
-    #img_path = r"C:\test\AAA\_1018843.JPG"
+    img_path = "../data_yegan/_1018843.JPG"
 
     lineListA = lineExtractor.my_line_extract( img_path=img_path, qtUi=None )
+
+    nextFile = lineExtractor.next_file( img_path )
+
+    lienListB = lineExtractor.my_line_extract( img_path=nextFile, qtUi=None, lineListA=lineListA )
 
     if 1 :
         # 결과창 폴더 열기
         folder = "c:/temp"
         lineExtractor.open_file_or_folder(folder)
-
+    else :
         log.info("Plot show.....")
-
         plt.show()
     pass
 

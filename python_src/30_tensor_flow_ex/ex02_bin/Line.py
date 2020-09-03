@@ -51,7 +51,7 @@ class Line:
 
     ID = 0
 
-    def __init__(self, a=None , b=None, line=None ):
+    def __init__(self, a=None , b=None, line=None, fileBase="" ):
         self.id = Line.ID
         Line.ID += 1
 
@@ -62,6 +62,9 @@ class Line:
             self.a = a
             self.b = b
         pass
+
+        self.fileBase = fileBase
+        self.lineB = None
     pass
 
     def __getitem__(self, i):
@@ -76,6 +79,16 @@ class Line:
 
     def __str__(self):
         return f"Line({self.a.x}, {self.a.y}, {self.b.x}, {self.b.y})"
+    pass
+
+    def dx(self):
+        return self.b.x - self.a.x
+
+    pass
+
+    def dy(self):
+        return self.b.y - self.a.y
+
     pass
 
     def length(self):
@@ -100,15 +113,7 @@ class Line:
         thickness = int(thickness)
 
         return thickness
-    pass
-
-    def dx(self):
-        return self.b.x - self.a.x
-    pass
-
-    def dy(self):
-        return self.b.y - self.a.y
-    pass
+    pass # -- thickness
 
     def slope_radian(self):
         rad = math.atan2( self.dy() , self.dx() )
@@ -121,12 +126,29 @@ class Line:
         sa = math.degrees( self.slope_radian() )
         sb = math.degrees( line.slope_radian() )
 
-        diff_deg = abs( sa - sb )
+        diff_deg = abs( sa - sb )%360
 
         0 and log.info( f"sa = {sa:.2f}, sb = {sb:.2f}, diff = {diff_deg:.2f}")
 
         return diff_deg <= error_deg
-    pass
+    pass # -- is_same_slope
+
+    def is_mergeable(self, line, error_deg, snap_dist ):
+        if self.is_same_slope( line, error_deg = error_deg ) :
+            from shapely.geometry import LineString
+
+            line1 = LineString([(self.a.x, self.a.y), (self.b.x, self.b.y)])
+            line2 = LineString([(line.a.x, line.a.y), (line.b.x, line.b.y)])
+
+            dist = line1.distance(line2)
+
+            0 and log.info( f"dist = {dist}" )
+
+            return dist <= snap_dist
+        else :
+            return False
+        pass
+    pass # -- is_mergeable
 
     def merge(self, line, error_deg=1, snap_dist=5 ):
         merge_line = None
@@ -147,24 +169,7 @@ class Line:
         pass
 
         return merge_line
-    pass
-
-    def is_mergeable(self, line, error_deg, snap_dist ):
-        if self.is_same_slope( line, error_deg = error_deg ) :
-            from shapely.geometry import LineString
-
-            line1 = LineString([(self.a.x, self.a.y), (self.b.x, self.b.y)])
-            line2 = LineString([(line.a.x, line.a.y), (line.b.x, line.b.y)])
-
-            dist = line1.distance(line2)
-
-            0 and log.info( f"dist = {dist}" )
-
-            return dist <= snap_dist
-        else :
-            return False
-        pass
-    pass
+    pass # -- merge
 
     @staticmethod
     def compare_line_length(a, b):

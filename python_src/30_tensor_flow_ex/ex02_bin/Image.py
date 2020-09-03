@@ -1346,6 +1346,8 @@ class Image (Common) :
         # hough line 추출
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
 
+        fileBase = os.path.basename(img_path)
+
         img = self.img
 
         h = len( img )
@@ -1374,7 +1376,7 @@ class Image (Common) :
 
         lines = []
         for line in lines_org :
-            lines.append( Line( line = line[0] ) )
+            lines.append( Line( line = line[0], fileBase=fileBase ) )
         pass
 
         error_deg = 2
@@ -1389,7 +1391,7 @@ class Image (Common) :
 
         algorithm = f"hough lines(thresh={threshold}, legth={minLineLength}, gap={maxLineGap}, merge={merge_lines}, error_deg={error_deg}, snap={snap_dist})"
 
-        lineList = LineList( lines = lines, algorithm = algorithm, w = w, h = h, img_path = img_path )
+        lineList = LineList( lines = lines, algorithm = algorithm, w = w, h = h, fileBase = fileBase )
 
         return lineList
     pass # extract_lines
