@@ -1,19 +1,19 @@
-base = 3
-for number in range(1, 20) :
-    mok = number
-    remainderList = []
-    while mok > 0 :
-        remainder = mok % base
-        mok = mok // base
-        remainderList.append( remainder )
+진수 = 3
+for 정수 in range(1, 20) :
+    몫 = 정수
+    몫_목록 = []
+    while 몫 > 0 :
+        나머지 = 몫 % 진수
+        몫 = 몫 // 진수
+        몫_목록.append(나머지)
     pass
 
-    oneNumber = 0
-    zarisu = 1
-    for i in remainderList :
-        oneNumber += zarisu * i
-        zarisu = zarisu * 10
+    숫자하나로_변환 = 0
+    자리수 = 1
+    for i in 몫_목록 :
+        숫자하나로_변환 += 자리수 * i
+        자리수 = 자리수 * 10
     pass
 
-    print( "결과", number, " = ", oneNumber, "(3) = ", remainderList[::-1])
+    print( "결과", 정수, " = ", 숫자하나로_변환, "(3) = ", 몫_목록[::-1])
 pass
