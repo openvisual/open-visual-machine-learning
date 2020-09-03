@@ -183,6 +183,7 @@ class Line:
 
     @staticmethod
     def merge_lines( lines, error_deg=1, snap_dist=5 ):
+        debug = False
         lines = lines.copy()
 
         line_merged = True
@@ -193,9 +194,9 @@ class Line:
             i = 0
             lines = sorted(lines, key=cmp_to_key(Line.compare_line_slope))
 
-            while i < len(lines) - 1 :
+            while i < ( len(lines) - 1) :
                 j = 0
-                while j < len(lines):
+                while i < ( len(lines) - 1 ) and j < len(lines):
                     merge_line = None
 
                     if i is not j :
@@ -207,7 +208,7 @@ class Line:
                         lines[i] = merge_line
                         lines.pop(j)
 
-                        log.info(f"Line({i}, {j}) are merged.")
+                        debug and log.info(f"Line({i}, {j}) are merged.")
                     else:
                         j += 1
                     pass
