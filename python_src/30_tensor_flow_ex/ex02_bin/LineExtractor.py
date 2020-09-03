@@ -182,7 +182,7 @@ if __name__ == '__main__':
     img_path = "../data_yegan/ex_01/_1018881.JPG"
     #img_path = r"C:\test\AAA\_1018843.JPG"
 
-    ret = lineExtractor.my_line_extract( img_path=img_path, qtUi=None )
+    lineListA = lineExtractor.my_line_extract( img_path=img_path, qtUi=None )
 
     if 1 :
         # 결과창 폴더 열기
