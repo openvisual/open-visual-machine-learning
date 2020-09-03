@@ -510,11 +510,21 @@ class Image (Common) :
         # Find Canny edges
         edged = cv2.Canny( img, 30, 255)
 
-        (_,contours,_) = cv2.findContours(edged, mode, method)
+        ( a ,contours, c ) = cv2.findContours(edged, mode, method)
 
-        data = np.zeros((h, w, 3), dtype = "uint8")
+        data = np.zeros((h, w, 3), dtype="uint8")
 
-        cv2.drawContours(data, contours, -1, (255, 255, 255), lineWidth)
+        useFilter = True
+
+        if useFilter :
+            fileters = []
+            for i, cnt in enumerate( contours ):
+                #log.info( f"[{i:03d} = {cnt}" )
+                cv2.polylines( data, [cnt], 0, (255, 255, 255), lineWidth )
+            pass
+        else :
+            cv2.drawContours(data, contours, -1, (255, 255, 255), lineWidth)
+        pass
 
         data = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
 
@@ -687,7 +697,7 @@ class Image (Common) :
         margin = 0
         if useMargin :
             margin = 50
-            histogram[0: margin] = 0 
+            histogram[0: margin] = 0
         pass
 
         x = np.arange(0, len(histogram))

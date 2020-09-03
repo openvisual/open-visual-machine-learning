@@ -5,13 +5,13 @@ for i in range( 1, 20 ) :
     while mok > 0 :
         remainder = mok % base
         mok = mok // base
-        remainderList.append(remainder)
+        remainderList.append( remainder )
     pass
 
     oneNumber = 0
     zarisu = 1
-    for i in remainderList :
-        oneNumber = oneNumber + zarisu * i
+    for j in remainderList :
+        oneNumber += zarisu * j
         zarisu = zarisu * 10
     pass
 
