@@ -136,11 +136,11 @@ class LineExtractor ( Common ):
 
         if 1 : #TODO 이진화
             #algorithm = "threshold_otsu"
-            algorithm = "threshold_isodata"
+            #algorithm = "threshold_isodata"
             #algorithm = "threshold_balanced"
             #algorithm = "threshold_adaptive_gaussian"
             #algorithm = "threshold_adaptive_mean"
-            #algorithm = "threshold_global"
+            algorithm = "threshold_global"
 
             bin_image = curr_image.threshold(algorithm=algorithm)
             if bin_image.reverse_required :

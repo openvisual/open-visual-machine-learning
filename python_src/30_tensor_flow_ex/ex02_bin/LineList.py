@@ -60,14 +60,14 @@ class LineList :
 
             line = lineA
             fileBase = line.fileBase
-            line_data[ fileBase ] = {"point1": [float(line.a.x), float(line.a.y)], "point2": [float(line.b.x), float(line.b.y)]}
+            line_data[ fileBase ] = {"point1": [int(line.a.x), int(line.a.y)], "point2": [int(line.b.x), int(line.b.y)]}
 
             debug and log.info( f"id={line.id} , fileBase={fileBase}" )
 
             line = lineA.line_identified
             fileBase = line.fileBase
 
-            line_data[ fileBase] = {"point1": [float(line.a.x), float(line.a.y)], "point2": [float(line.b.x), float(line.b.y)]}
+            line_data[ fileBase] = {"point1": [int(line.a.x), int(line.a.y)], "point2": [int(line.b.x), int(line.b.y)]}
             debug and log.info(f"id={line.id} , fileBase={fileBase}")
 
             data[ f"line{i +1}" ] = line_data
