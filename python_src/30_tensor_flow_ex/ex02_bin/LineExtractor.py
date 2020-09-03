@@ -7,7 +7,7 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 import logging as log
 log.basicConfig( format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
-import os
+import os, datetime
 from Common import *
 
 # 이미지 클래스 임포트
@@ -190,21 +190,44 @@ if __name__ == '__main__':
 
     lineExtractor.chdir_to_curr_file()
 
+    from os.path import join
+    from glob import glob
+
+    files = []
+    folder = "../data_yegan/"
+    for ext in ('*.gif', '*.png', '*.jpg'):
+        files.extend(glob(join( folder, ext)))
+    pass
+
+    lineListAll = []
+
     img_path = "../data_yegan/_1018843.JPG"
 
-    lineList = lineExtractor.my_line_extract( img_path=img_path, qtUi=None )
+    for i in range( 0 , len(files), 2 ) :
+        file = files[i]
 
-    nextFile = lineExtractor.next_file( img_path )
+        img_path = file.replace( "\\", "/" )
 
-    lineList = lineExtractor.my_line_extract( img_path=nextFile, qtUi=None, lineListA=lineList )
+        lineList = lineExtractor.my_line_extract( img_path=img_path, qtUi=None )
 
-    if lineList and lineList.lineListIdentified :
-        fileBase = os.path.basename( img_path )
-        fileHeader, ext = os.path.splitext(fileBase)
-        json_file_name = os.path.join( "/temp" , f"{fileHeader}.json"  )
+        nextFile = lineExtractor.next_file( img_path )
+
+        lineList = lineExtractor.my_line_extract( img_path=nextFile, qtUi=None, lineListA=lineList )
 
         lineListIdentified = lineList.lineListIdentified
-        lineListIdentified.save_as_json( json_file_name=json_file_name )
+
+        lineListAll.extend( lineListIdentified )
+    pass
+
+    if lineListAll :
+        fileBase = os.path.basename(img_path)
+        fileHeader, ext = os.path.splitext(fileBase)
+        now = datetime.datetime.now()
+        now_str = now.strftime('%m-%d_%H%M%S')
+        now_str = now_str.split(".")[0]
+        json_file_name = os.path.join("/temp", f"{fileHeader}_{now_str}.json")
+
+        lineListAll.save_as_json(json_file_name=json_file_name)
     pass
 
     if 1 :
