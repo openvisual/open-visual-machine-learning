@@ -1,6 +1,6 @@
 base = 3
-for i in range( 1, 20 ) :
-    mok = i
+for number in range(1, 20) :
+    mok = number
     remainderList = []
     while mok > 0 :
         remainder = mok % base
@@ -10,10 +10,10 @@ for i in range( 1, 20 ) :
 
     oneNumber = 0
     zarisu = 1
-    for j in remainderList :
-        oneNumber += zarisu * j
+    for i in remainderList :
+        oneNumber += zarisu * i
         zarisu = zarisu * 10
     pass
 
-    print( "결과", i, " = ", oneNumber, "(3) = ", remainderList[::-1])
+    print( "결과", number, " = ", oneNumber, "(3) = ", remainderList[::-1])
 pass
