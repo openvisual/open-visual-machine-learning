@@ -517,11 +517,41 @@ class Image (Common) :
         useFilter = True
 
         if useFilter :
-            fileters = []
+            filters = []
+            diagonal = math.sqrt( w*w + h*h )
+            ref_len = diagonal*0.1
+            ref_width = min( w, h )/100
+            ref_height = ref_width
+            ref_area = w*h/10_000
+
             for i, cnt in enumerate( contours ):
-                #log.info( f"[{i:03d} = {cnt}" )
-                cv2.polylines( data, [cnt], 0, (255, 255, 255), lineWidth )
+                valid = True
+                if valid :
+                    rect = cv2.minAreaRect(cnt)
+
+                    rect_width = rect[1][0]
+                    rect_height = rect[1][1]
+
+                    valid = ( rect_width > ref_width or rect_height > ref_height )
+
+                    log.info(f"[{i:03d}] rect valid={valid}, width = {rect_width}, height = {rect_height}")
+                pass
+
+                if valid :
+                    arc_len = cv2.arcLength( cnt , 0 )
+                    log.info( f"[{i:03d} contour = {arc_len}" )
+                    valid = ( arc_len > ref_len )
+                pass
+
+                if valid :
+                    filters.append( cnt )
+                pass
             pass
+
+            log.info(f"org contours len = {len(contours)}")
+            log.info(f"filters len = {len(filters)}")
+
+            cv2.polylines(data, filters, 0, (255, 255, 255), lineWidth)
         else :
             cv2.drawContours(data, contours, -1, (255, 255, 255), lineWidth)
         pass
