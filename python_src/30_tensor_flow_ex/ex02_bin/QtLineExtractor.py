@@ -130,6 +130,8 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
         imageViewers = self.imageViewers
         imageViewer = imageViewers[0] if mode == 'A' else imageViewers[1]
 
+        imageViewer.messageLineEdit.setText( title )
+
         loadImageFromFile = True
         if loadImageFromFile :
             imageViewer.loadImageFromFile( image.fileName )
@@ -210,7 +212,7 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
         self.prevFileOpen.setEnabled( prevFile is not None )
         self.nextFileOpen.setEnabled( nextFile is not None )
         self.lineExtract.setEnabled( is_file_open )
-        self.viewJson.setEnabled(is_file_open)
+        self.saveJsonFile.setEnabled(is_file_open)
 
         if 1 :
             duration = int( self.duration )
@@ -489,18 +491,41 @@ class QtLineExtractor(QtWidgets.QMainWindow, Common ):
         imageViewer = QtImageViewer(settings = settings)
         self.imageViewers.append(imageViewer)
 
+        labelWidth = 55
+
         if 1 :
             fileNameLineEdit = QtWidgets.QLineEdit()
             fileNameLineEdit.setReadOnly( 1 )
 
             imageViewer.fileNameLineEdit = fileNameLineEdit
 
-            horizontal = QtWidgets.QHBoxLayout()
-            horizontal.addWidget( QtWidgets.QLabel( " File: ") )
-            horizontal.addWidget( fileNameLineEdit )
-            0 and horizontal.addItem( QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum) )
+            label = QtWidgets.QLabel( "  File: ")
+            label.setMinimumWidth( labelWidth )
+            label.setMaximumWidth( labelWidth )
 
-            gridLayout.addLayout( horizontal, row, col)
+            layout = QtWidgets.QHBoxLayout()
+            layout.addWidget( label )
+            layout.addWidget( fileNameLineEdit )
+
+            gridLayout.addLayout( layout, row, col)
+        pass
+
+        if 1 :
+            row += 1
+            messageLineEdit = QtWidgets.QLineEdit()
+            messageLineEdit.setReadOnly(1)
+
+            imageViewer.messageLineEdit = messageLineEdit
+
+            label = QtWidgets.QLabel("  Message: ")
+            label.setMinimumWidth(labelWidth)
+            label.setMaximumWidth(labelWidth)
+
+            layout = QtWidgets.QHBoxLayout()
+            layout.addWidget( label )
+            layout.addWidget(messageLineEdit)
+
+            gridLayout.addLayout(layout, row, col)
         pass
 
         row += 1

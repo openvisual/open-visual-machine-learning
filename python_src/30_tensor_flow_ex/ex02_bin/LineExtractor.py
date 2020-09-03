@@ -84,8 +84,7 @@ class LineExtractor ( Common ):
 
         curr_image = image_org
 
-        if 1 :
-            # -- grayscale 변환
+        if 1 : # -- grayscale 변환
             grayscale = image_org.convert_to_grayscale()
             grayscale.reverse_image( max=255 )
             grayscale.save_img_as_file( img_path, "grayscale" )
@@ -95,8 +94,7 @@ class LineExtractor ( Common ):
             curr_image = grayscale
         pass
 
-        if 1 :
-            # TODO 잡음 제거
+        if 1 : # TODO 잡음 제거
             ksize = 5
             noise_removed = curr_image.remove_noise( algorithm="gaussian blur", ksize = ksize )
             curr_image = noise_removed
@@ -107,8 +105,7 @@ class LineExtractor ( Common ):
             curr_image.plot_histogram(qtUi=qtUi, mode=mode)
         pass
 
-        if 1 :
-            # TODO 평활화
+        if 1 : # TODO 평활화
             normalized = curr_image.normalize_image_by_histogram()
 
             curr_image = normalized
@@ -118,8 +115,7 @@ class LineExtractor ( Common ):
             curr_image.plot_histogram(qtUi=qtUi, mode=mode)
         pass
 
-        if 1:
-            # TODO Gradient
+        if 1: # TODO Gradient
             gradient = curr_image.gradient(ksize=7, kernel_type="cross")
 
             curr_image = gradient
@@ -129,8 +125,7 @@ class LineExtractor ( Common ):
             curr_image.plot_histogram(qtUi=qtUi, mode=mode)
         pass  # -- gradient
 
-        if 1 :
-            #TODO 이진화
+        if 1 : #TODO 이진화
             #algorithm = "threshold_otsu"
             algorithm = "threshold_isodata"
             #algorithm = "threshold_balanced"
@@ -150,8 +145,7 @@ class LineExtractor ( Common ):
             curr_image.plot_image(title=title, border_color="blue", qtUi=qtUi, mode=mode)
         pass #-- 이진화
 
-        if 1 :
-            # TODO morphology
+        if 1 : # TODO morphology
             morphology = curr_image.morphology( is_open=0, bsize=7, iterations=3, kernel_type="cross" )
 
             curr_image = morphology
@@ -160,12 +154,13 @@ class LineExtractor ( Common ):
             curr_image.plot_image(title=curr_image.algorithm, border_color="blue", qtUi=qtUi, mode=mode)
         pass # -- morphology
 
-        if 1 :
-            # 허프 라인 추출
-            hough = curr_image.hough_lines(merge_lines=0)
+        if 1 : # 허프 라인 추출
+            lines, algorithm = curr_image.extract_lines( merge_lines=0 )
+            hough = curr_image.plot_lines( lines, algorithm )
             hough.save_img_as_file(img_path, hough.algorithm)
 
-            hough = curr_image.hough_lines(merge_lines=1)
+            lines, algorithm = curr_image.extract_lines(merge_lines=1)
+            hough = curr_image.plot_lines( lines, algorithm )
             hough.save_img_as_file(img_path, hough.algorithm)
             hough.plot_image(title=hough.algorithm, border_color="blue", qtUi=qtUi, mode=mode)
         pass

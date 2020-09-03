@@ -36,7 +36,7 @@
       <item>
        <widget class="QTabWidget" name="tabWidgetLeft">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab_00">
          <attribute name="title">
@@ -136,7 +136,7 @@
       <item>
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>   </string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -168,9 +168,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="viewJson">
+       <widget class="QPushButton" name="saveJsonFile">
         <property name="text">
-         <string>View Json</string>
+         <string>Save Json</string>
         </property>
        </widget>
       </item>

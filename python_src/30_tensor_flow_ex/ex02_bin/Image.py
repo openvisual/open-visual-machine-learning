@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import logging as log
-log.basicConfig( format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
-    datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
+log.basicConfig( format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
-import os, numpy as np, sys, time, math
+import os, numpy as np, sys, time, math, inspect
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 from functools import cmp_to_key
@@ -1340,10 +1339,58 @@ class Image (Common) :
         return image_words
     pass # -- word_segements
 
-    def hough_lines(self, merge_lines=1):
+    def extract_lines(self, merge_lines=1):
         # hough line 추출
-        msg = "hough line"
-        log.info( f"{msg}")
+        log.info(inspect.getframeinfo(inspect.currentframe()).function)
+
+        img = self.img
+
+        h = len( img )
+        w = len( img[0] )
+
+        img = img.astype(np.uint8)
+
+        if np.max( img ) < 2 :
+            img = img*255
+        pass
+
+        '''
+        rho – r 값의 범위 (0 ~ 1 실수)
+        theta – 𝜃 값의 범위(0 ~ 180 정수)
+        threshold – 만나는 점의 기준, 숫자가 작으면 많은 선이 검출되지만 정확도가 떨어지고, 숫자가 크면 정확도가 올라감.
+        minLineLength – 선의 최소 길이. 이 값보다 작으면 reject.
+        maxLineGap – 선과 선사이의 최대 허용간격. 이 값보다 작으며 reject.
+        '''
+        diagonal = math.sqrt(w * w + h * h)
+
+        threshold = 100
+        minLineLength = int( diagonal/50 )
+        maxLineGap = 20
+
+        lines_org = cv.HoughLinesP(img, 1, np.pi/180, threshold, lines=None, minLineLength=minLineLength, maxLineGap=maxLineGap )
+
+        lines = []
+        for line in lines_org :
+            lines.append( Line( line = line[0] ) )
+        pass
+
+        error_deg = 2
+        snap_dist = int( diagonal/150 )
+
+        if merge_lines :
+            lines = Line.merge_lines(lines, error_deg=error_deg, snap_dist=snap_dist)
+        pass
+
+        lines = sorted( lines, key=cmp_to_key(Line.compare_line_length))
+        lines = lines[ : : -1 ]
+
+        algorithm = f"hough lines(thresh={threshold}, legth={minLineLength}, gap={maxLineGap}, merge={merge_lines}, error_deg={error_deg}, snap={snap_dist})"
+
+        return lines, algorithm
+    pass # extract_lines
+
+    def plot_lines(self, lines, algorithm ):
+        log.info(inspect.getframeinfo(inspect.currentframe()).function)
 
         # colors
         colors = []
@@ -1381,35 +1428,7 @@ class Image (Common) :
         data = cv.cvtColor( img, cv.COLOR_GRAY2BGR )
         data = data*0
 
-        '''
-        rho – r 값의 범위 (0 ~ 1 실수)
-        theta – 𝜃 값의 범위(0 ~ 180 정수)
-        threshold – 만나는 점의 기준, 숫자가 작으면 많은 선이 검출되지만 정확도가 떨어지고, 숫자가 크면 정확도가 올라감.
-        minLineLength – 선의 최소 길이. 이 값보다 작으면 reject.
-        maxLineGap – 선과 선사이의 최대 허용간격. 이 값보다 작으며 reject.
-        '''
         diagonal = math.sqrt(w * w + h * h)
-
-        threshold = 100
-        minLineLength = int( diagonal/50 )
-        maxLineGap = 20
-
-        lines_org = cv.HoughLinesP(img, 1, np.pi/180, threshold, lines=None, minLineLength=minLineLength, maxLineGap=maxLineGap )
-
-        lines = []
-        for line in lines_org :
-            lines.append( Line( line = line[0] ) )
-        pass
-
-        error_deg = 2
-        snap_dist = int( diagonal/150 )
-
-        if merge_lines :
-            lines = Line.merge_lines(lines, error_deg=error_deg, snap_dist=snap_dist)
-        pass
-
-        lines = sorted( lines, key=cmp_to_key(Line.compare_line_length))
-        lines = lines[ : : -1 ]
 
         radius = int( diagonal/600 )
         radius = radius if radius > 5 else 5
@@ -1429,12 +1448,12 @@ class Image (Common) :
         pass
 
         image = Image(data)
-        image.algorithm = f"hough lines(thresh={threshold}, legth={minLineLength}, gap={maxLineGap}, merge={merge_lines}, error_deg={error_deg}, snap={snap_dist})"
+        image.algorithm = algorithm
 
-        log.info(f"Done. {msg}")
+        log.info(f"Done. {inspect.getframeinfo(inspect.currentframe()).function}")
 
         return image
-    pass # hough_lines
+    pass # plot_lines
 
 pass
 # -- class Image

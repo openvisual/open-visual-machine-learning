@@ -217,6 +217,7 @@ class QtImageViewer(QGraphicsView):
         if setFileName and hasattr(self, "fileNameLineEdit" ) :
             self.fileName = fileName
             self.fileNameLineEdit.setText(fileName)
+            self.messageLineEdit.setText( "Opened." )
         pass
 
         return fileName

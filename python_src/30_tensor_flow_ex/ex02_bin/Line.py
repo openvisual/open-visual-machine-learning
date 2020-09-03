@@ -49,7 +49,12 @@ pass
 
 class Line:
 
+    ID = 0
+
     def __init__(self, a=None , b=None, line=None ):
+        self.id = Line.ID
+        Line.ID += 1
+
         if line is not None :
             self.a = Point(line[0], line[1])
             self.b = Point(line[2], line[3])
