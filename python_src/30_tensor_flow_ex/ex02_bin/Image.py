@@ -17,6 +17,7 @@ from Common import *
 
 from SegInfo import *
 from Line import *
+from LineList import *
 
 class Image (Common) :
 
@@ -107,6 +108,8 @@ class Image (Common) :
         self.fileName = fileName
 
         log.info( f"Image saved as file name[ {fileName} ]" )
+
+        return fileName
     pass  # -- save_img_as_file
 
     ''' -- 이미지 저장 함수 '''
@@ -1339,7 +1342,7 @@ class Image (Common) :
         return image_words
     pass # -- word_segements
 
-    def extract_lines(self, merge_lines=1):
+    def extract_lines(self, merge_lines=1, img_path=""):
         # hough line 추출
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
 
@@ -1386,11 +1389,16 @@ class Image (Common) :
 
         algorithm = f"hough lines(thresh={threshold}, legth={minLineLength}, gap={maxLineGap}, merge={merge_lines}, error_deg={error_deg}, snap={snap_dist})"
 
-        return lines, algorithm
+        lineList = LineList( lines = lines, algorithm = algorithm, w = w, h = h, img_path = img_path )
+
+        return lineList
     pass # extract_lines
 
-    def plot_lines(self, lines, algorithm ):
+    def plot_lines(self, lineList ):
         log.info(inspect.getframeinfo(inspect.currentframe()).function)
+
+        lines = lineList.lines
+        algorithm = lineList.algorithm
 
         # colors
         colors = []

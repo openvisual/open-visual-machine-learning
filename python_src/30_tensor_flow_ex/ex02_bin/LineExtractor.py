@@ -19,7 +19,7 @@ class LineExtractor ( Common ):
         Common.__init__( self )
     pass
 
-    def my_line_extract(self, img_path, qtUi = None, mode="A") :
+    def my_line_extract(self, img_path, qtUi = None, mode="A", lineListPrev=None) :
 
         # TODO    원천 이미지 획득
         # 이미지를 파일로 부터 RGB 색상으로 읽어들인다.
@@ -154,18 +154,22 @@ class LineExtractor ( Common ):
             curr_image.plot_image(title=curr_image.algorithm, border_color="blue", qtUi=qtUi, mode=mode)
         pass # -- morphology
 
+        lineList = None
+
         if 1 : # 허프 라인 추출
-            lines, algorithm = curr_image.extract_lines( merge_lines=0 )
-            hough = curr_image.plot_lines( lines, algorithm )
+            lineList = curr_image.extract_lines( merge_lines=0, img_path=img_path )
+            hough = curr_image.plot_lines( lineList )
             hough.save_img_as_file(img_path, hough.algorithm)
 
-            lines, algorithm = curr_image.extract_lines(merge_lines=1)
-            hough = curr_image.plot_lines( lines, algorithm )
+            lineList = curr_image.extract_lines( merge_lines=1, img_path=img_path)
+            hough = curr_image.plot_lines( lineList )
             hough.save_img_as_file(img_path, hough.algorithm)
             hough.plot_image(title=hough.algorithm, border_color="blue", qtUi=qtUi, mode=mode)
         pass
 
-        return 0
+        lineList.mode = mode
+
+        return lineList
     pass
 pass # -- LineExtractor
 
@@ -180,7 +184,7 @@ if __name__ == '__main__':
 
     ret = lineExtractor.my_line_extract( img_path=img_path, qtUi=None )
 
-    if ret == 0 :
+    if 1 :
         # 결과창 폴더 열기
         folder = "c:/temp"
         lineExtractor.open_file_or_folder(folder)

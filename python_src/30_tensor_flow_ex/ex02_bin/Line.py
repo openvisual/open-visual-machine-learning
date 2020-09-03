@@ -45,7 +45,7 @@ class Point:
         return a.x - b.x
     pass
 
-pass
+pass # -- Point
 
 class Line:
 
@@ -215,4 +215,4 @@ class Line:
         return lines
     pass
 
-pass
+pass # -- Line
