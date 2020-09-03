@@ -210,6 +210,8 @@ if __name__ == '__main__':
         files.extend(glob(join( folder, ext)))
     pass
 
+    log.info( f"file count={ len(files )}" )
+
     lineListAll = LineList()
 
     img_path = "../data_yegan/_1018843.JPG"
