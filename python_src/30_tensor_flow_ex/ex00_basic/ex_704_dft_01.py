@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import warnings 
 warnings.filterwarnings('ignore',category=FutureWarning)
 
 import logging as log
-log.basicConfig(
-    format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
-    datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO
-    )
+log.basicConfig( format='%(asctime)s, %(levelname)-8s [%(filename)s:%(lineno)04d] %(message)s',
+                 datefmt='%Y-%m-%d:%H:%M:%S', level=log.INFO )
 
 from math import pi
 import matplotlib as mpl
