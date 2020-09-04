@@ -1,8 +1,8 @@
 # -*- coding:utf-8 -*-
 
-to = 1_000 + 1
+to = 5_000
 it_count = 0
-idx = 1
+i = 0
 
 length_list = []
 area_list = []
@@ -14,7 +14,12 @@ for a in range(3, to) :
     for b in range(a + 1, to):
         for c in range( b + 1, to):
             it_count += 1
-            if a < b < c and a*a + b*b == c*c :
+            
+            if c*c > a*a + b*b :
+                # c*c 값이 a*a + b*b 보다 크게 되면 더 이상 의미 있는 c 의 값은 없다.
+                # c 루프를 빠져 나감.
+                break
+            elif a*a + b*b == c*c :
                 length = a + b + c
                 area = a*b//2
 
@@ -25,8 +30,11 @@ for a in range(3, to) :
                 length_list.append( length )
                 area_list.append( area )
 
-                print( f"[{idx:d}] {a}, {b}, {c}, length={length:,d}, area={area:,d}" )
-                idx += 1
+                print( f"[{i +1:d}] {a}, {b}, {c}, length={length:,d}, area={area:,d}")
+                i += 1
+
+                # a, b, c 쌍을 찾게 되면 c 루프를 빠져 나간다. 더 이상의 의미 있는 c는 없으므로
+                break
             pass
         pass
     pass

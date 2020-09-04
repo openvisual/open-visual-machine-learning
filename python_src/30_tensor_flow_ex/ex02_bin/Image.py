@@ -1374,13 +1374,13 @@ class Image (Common) :
         gaps = gaps[ 0 : words_count ]
 
         def compare_gap_idx( one, two ) :
-            return one.idx - two.idx
+            return one.i - two.i
         pass
 
         from functools import cmp_to_key
         gaps = sorted( gaps, key=cmp_to_key(compare_gap_idx) )
 
-        if gap_last and gaps[ -1 ].idx < gap_last.idx :
+        if gap_last and gaps[ -1 ].i < gap_last.idx :
             gaps.append( gap_last )
         pass
 
