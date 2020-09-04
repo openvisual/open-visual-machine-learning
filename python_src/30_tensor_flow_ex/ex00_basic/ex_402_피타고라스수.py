@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-to = 5_000
+to = 10_000
 it_count = 0
 i = 0
 
@@ -31,7 +31,7 @@ for a in range(3, to) :
                 length_list.append( length )
                 area_list.append( area )
 
-                print( f"[{i +1:d}] {a}, {b}, {c}, length = {length:,d}, area = {area:,d}")
+                print( f"[{100*a//to}% {i +1:d}] {a}, {b}, {c}, length = {length:,d}, area = {area:,d}")
                 i += 1
 
                 # a, b, c 쌍을 찾게 되면 c 루프를 빠져 나간다. 더 이상의 의미 있는 c는 없으므로
@@ -43,16 +43,20 @@ pass
 
 print( f"실행 횟수 : {it_count:,d}")
 
+# 챠트 그리기
 import matplotlib.pyplot as plt
 
+# x 값을 생성함.
 x = range( len( area_list ) )
 
+# a, b, c 챠트 출력
 plt.plot(x, c_list, label="c")
 plt.plot(x, b_list, label="b")
 plt.plot(x, a_list, label="a")
 plt.legend()
 plt.show()
 
+# 길이, 면적 챠트 출력
 plt.bar( x, length_list, label="Length" )
 plt.plot( x, area_list, label="Area" )
 
