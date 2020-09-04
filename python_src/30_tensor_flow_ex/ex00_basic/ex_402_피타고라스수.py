@@ -14,7 +14,7 @@ for a in range(3, to) :
     for b in range(a + 1, to):
         for c in range( b + 1, to):
             it_count += 1
-            
+
             if c*c > a*a + b*b :
                 # c*c 값이 a*a + b*b 보다 크게 되면 더 이상 의미 있는 c 의 값은 없다.
                 # c 루프를 빠져 나감.
