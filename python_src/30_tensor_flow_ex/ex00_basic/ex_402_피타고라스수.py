@@ -20,6 +20,7 @@ for a in range(3, to) :
                 # c 루프를 빠져 나감.
                 break
             elif a*a + b*b == c*c :
+                # 피타고라스 수를 찾음.
                 length = a + b + c
                 area = a*b//2
 
@@ -30,7 +31,7 @@ for a in range(3, to) :
                 length_list.append( length )
                 area_list.append( area )
 
-                print( f"[{i +1:d}] {a}, {b}, {c}, length={length:,d}, area={area:,d}")
+                print( f"[{i +1:d}] {a}, {b}, {c}, length = {length:,d}, area = {area:,d}")
                 i += 1
 
                 # a, b, c 쌍을 찾게 되면 c 루프를 빠져 나간다. 더 이상의 의미 있는 c는 없으므로
