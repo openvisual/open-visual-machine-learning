@@ -1,14 +1,15 @@
 # -*- coding:utf-8 -*-
 
-to = 10_000
+to = 1_000
 it_count = 0
 i = 0
 
-length_list = []
-area_list = []
 a_list = []
 b_list = []
 c_list = []
+
+length_list = []
+area_list = []
 
 for a in range(3, to) :
     for b in range(a + 1, to):
