@@ -12,7 +12,9 @@ length_list = []
 area_list = []
 
 for a in range(3, to) :
+    print(f"[{(a / to) * 100:0.1f}% {i + 1:d}] a = {a}")
     for b in range(a + 1, to):
+        print(f"[{(a / to) * 100:0.1f}% {i + 1:d}] a = {a}, b = {b}")
         for c in range( b + 1, to):
             it_count += 1
 
@@ -32,17 +34,18 @@ for a in range(3, to) :
                 length_list.append( length )
                 area_list.append( area )
 
-                print( f"[{100*a//to}% {i +1:d}] {a}, {b}, {c}, length = {length:,d}, area = {area:,d}")
+                print( f"[{(a/to)*100:0.1f}% {i +1:d}] a = {a}, b = {b}, c = {c}, length = {length:,d}, area = {area:,d}")
                 i += 1
 
                 # a, b, c 쌍을 찾게 되면 c 루프를 빠져 나간다. 더 이상의 의미 있는 c는 없으므로
                 break
             pass
+
         pass
     pass
 pass
 
-print( f"실행 횟수 : {it_count:,d}")
+print( f"\n실행 횟수 : {it_count:,d}")
 
 # 챠트 그리기
 import matplotlib.pyplot as plt
