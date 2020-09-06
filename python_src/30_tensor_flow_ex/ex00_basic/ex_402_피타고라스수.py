@@ -13,8 +13,7 @@ area_list = []
 
 for a in range(3, to) :
     print(f"[{(a / to) * 100:0.1f}% {i + 1:d}] a = {a}")
-    for b in range(a + 1, to):
-        print(f"[{(a / to) * 100:0.1f}% {i + 1:d}] a = {a}, b = {b}")
+    for b in range(a + 1, to): 
         for c in range( b + 1, to):
             it_count += 1
 
