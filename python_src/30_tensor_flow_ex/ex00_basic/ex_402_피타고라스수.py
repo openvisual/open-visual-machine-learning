@@ -1,6 +1,8 @@
 # -*- coding:utf-8 -*-
 
-to = 1_000
+import time
+
+to = 100_000
 it_count = 0
 i = 0
 
@@ -11,9 +13,11 @@ c_list = []
 length_list = []
 area_list = []
 
+start = time.time()
+
 for a in range(3, to) :
     print(f"[{(a / to) * 100:0.1f}% {i + 1:d}] a = {a}")
-    for b in range(a + 1, to): 
+    for b in range(a + 1, to):
         for c in range( b + 1, to):
             it_count += 1
 
@@ -44,7 +48,13 @@ for a in range(3, to) :
     pass
 pass
 
-print( f"\n실행 횟수 : {it_count:,d}")
+now = time.time()
+
+duration = now - start
+
+print()
+print( f"실행 횟수 : {it_count:,d}")
+print( f"실행 시간 : {duration:.1f} 초")
 
 # 챠트 그리기
 import matplotlib.pyplot as plt
