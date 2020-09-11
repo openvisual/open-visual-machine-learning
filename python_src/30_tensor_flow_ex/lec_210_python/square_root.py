@@ -5,12 +5,13 @@ logging.basicConfig( format='%(levelname)-8s %(asctime)s %(filename)s %(lineno)d
 
 class SquareRoot :
     def find_square_root(self, n ) : 
-        x = n 
-        y = 1
-        e = 0.000001
-        while x - y > e : 
-            x = (x + y)/2
-            y = n/x
+        x = n
+        y0 = 2
+        y1 = 1
+        while y1 != y0  :
+            y0 = y1
+            x = (x + y1)/2
+            y1 = n/x
         pass
         
         return x
