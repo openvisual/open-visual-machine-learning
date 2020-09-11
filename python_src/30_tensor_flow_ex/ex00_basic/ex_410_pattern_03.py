@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-for i in range( 9 + 1 ):
+for i in range( 1, 10 + 1 ):
     if i <= 5 :
         pattern = " * " * i
     else :
