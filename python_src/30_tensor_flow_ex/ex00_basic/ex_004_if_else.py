@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import warnings 
+import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
 
 # if else 문장을 간단히 구사하는 기교입니다.
