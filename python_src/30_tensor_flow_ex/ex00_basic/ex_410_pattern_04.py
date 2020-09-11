@@ -10,7 +10,7 @@ for i in range( 9 + 1 ):
     pass
     '''
 
-    pattern = ( " *"*count ).center( 11 )
+    pattern = ( " *"*count ).center( 9 )
 
     print( pattern )
 pass
