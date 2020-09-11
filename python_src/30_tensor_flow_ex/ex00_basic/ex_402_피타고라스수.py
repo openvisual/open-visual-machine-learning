@@ -2,7 +2,7 @@
 
 import time
 
-to = 100_000
+to = 101
 it_count = 0
 i = 0
 
