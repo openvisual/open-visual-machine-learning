@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-for i in range( 1, 1 + 9 + 1 ):
+for i in range( 1, 10 ):
     data = ""
-    for k in range( 1, i ) :
-        data += f"{k}" 
+    for k in range( 0, i ) :
+        data += f"{k + 1}"
     pass
 
     data = data[::-1] + data[1:]
