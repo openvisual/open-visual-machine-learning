@@ -16,7 +16,7 @@ dirname and print( "Pwd 2: %s" % os.getcwd())
 img = cv.imread('../data_opencv/home.jpg')
 
 gray= cv.cvtColor(img,cv.COLOR_BGR2GRAY)
-sift = cv.xfeatures2d.SIFT_create()
+sift = cv.SIFT_create()
 
 kp = sift.detect(gray, None)
 
